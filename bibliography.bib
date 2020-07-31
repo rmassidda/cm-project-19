@@ -1,0 +1,97 @@
+
+@book{trefethen_numerical_1997,
+	address = {Philadelphia},
+	title = {Numerical linear algebra},
+	isbn = {978-0-89871-361-9},
+	publisher = {Society for Industrial and Applied Mathematics},
+	author = {Trefethen, Lloyd N. and Bau, David},
+	year = {1997},
+	keywords = {Algebras, Linear, Numerical calculations}
+}
+
+@book{oliphant_guide_2015,
+	address = {Austin, Tex.},
+	title = {Guide to {NumPy}},
+	isbn = {978-1-5173-0007-4},
+	language = {English},
+	publisher = {Continuum Press},
+	author = {Oliphant, Travis E},
+	year = {2015},
+	note = {OCLC: 982090469}
+}
+
+@book{nocedal_numerical_2006,
+	address = {New York},
+	edition = {2nd ed},
+	series = {Springer series in operations research},
+	title = {Numerical optimization},
+	isbn = {978-0-387-30303-1},
+	language = {en},
+	publisher = {Springer},
+	author = {Nocedal, Jorge and Wright, Stephen J.},
+	year = {2006},
+	note = {OCLC: ocm68629100},
+	keywords = {Mathematical optimization},
+	file = {Numerical Optimization.pdf:files/163/Numerical Optimization.pdf:application/pdf}
+}
+
+@article{dauphin_identifying_2014,
+	title = {Identifying and attacking the saddle point problem in high-dimensional non-convex optimization},
+	url = {http://arxiv.org/abs/1406.2572},
+	abstract = {A central challenge to many ﬁelds of science and engineering involves minimizing non-convex error functions over continuous, high dimensional spaces. Gradient descent or quasi-Newton methods are almost ubiquitously used to perform such minimizations, and it is often thought that a main source of difﬁculty for these local methods to ﬁnd the global minimum is the proliferation of local minima with much higher error than the global minimum. Here we argue, based on results from statistical physics, random matrix theory, neural network theory, and empirical evidence, that a deeper and more profound difﬁculty originates from the proliferation of saddle points, not local minima, especially in high dimensional problems of practical interest. Such saddle points are surrounded by high error plateaus that can dramatically slow down learning, and give the illusory impression of the existence of a local minimum. Motivated by these arguments, we propose a new approach to second-order optimization, the saddle-free Newton method, that can rapidly escape high dimensional saddle points, unlike gradient descent and quasi-Newton methods. We apply this algorithm to deep or recurrent neural network training, and provide numerical evidence for its superior optimization performance. This work extends the results of Pascanu et al. (2014).},
+	language = {en},
+	urldate = {2020-01-05},
+	journal = {arXiv:1406.2572 [cs, math, stat]},
+	author = {Dauphin, Yann and Pascanu, Razvan and Gulcehre, Caglar and Cho, Kyunghyun and Ganguli, Surya and Bengio, Yoshua},
+	month = jun,
+	year = {2014},
+	note = {arXiv: 1406.2572},
+	keywords = {Computer Science - Machine Learning, Mathematics - Optimization and Control, Statistics - Machine Learning},
+	annote = {Comment: The theoretical review and analysis in this article draw heavily from arXiv:1405.4604 [cs.LG]},
+	file = {arxiv.pdf:/home/rmassidda/cm-2019/project/material/arxiv.pdf:application/pdf}
+}
+
+@article{vinyals_krylov_nodate,
+	title = {Krylov {Subspace} {Descent} for {Deep} {Learning}},
+	abstract = {In this paper, we propose a second order optimization method to learn models where both the dimensionality of the parameter space and the number of training samples is high. In our method, we construct on each iteration a Krylov subspace formed by the gradient and an approximation to the Hessian matrix, and then use a subset of the training data samples to optimize over this subspace. As with the Hessian Free (HF) method of Martens (2010), the Hessian matrix is never explicitly constructed, and is computed using a subset of data. In practice, as in HF, we typically use a positive definite substitute for the Hessian matrix such as the Gauss-Newton matrix. We investigate the eﬀectiveness of our proposed method on deep neural networks, and compare its performance to widely used methods such as stochastic gradient descent, conjugate gradient descent and L-BFGS, and also to HF. Our method leads to faster convergence than either L-BFGS or HF, and generally performs better than either of them in cross-validation accuracy. It is also simpler and more general than HF, as it does not require a positive semideﬁnite approximation of the Hessian matrix to work well nor the setting of a damping parameter. The chief drawback versus HF is the need for memory to store a basis for the Krylov subspace.},
+	language = {en},
+	author = {Vinyals, Oriol and Povey, Daniel},
+	pages = {8},
+	file = {Vinyals and Povey - Krylov Subspace Descent for Deep Learning.pdf:files/271/Vinyals and Povey - Krylov Subspace Descent for Deep Learning.pdf:application/pdf}
+}
+
+@article{robitaille_modified_1996,
+	title = {Modified quasi-{Newton} methods for training neural networks},
+	volume = {20},
+	issn = {0098-1354},
+	url = {http://www.sciencedirect.com/science/article/pii/0098135495002286},
+	doi = {10.1016/0098-1354(95)00228-6},
+	abstract = {The backpropagation algorithm is the most popular procedure to train self-learning feed-forward neural networks. However, the convergence of this algorithm is slow, it being mainly a steepest descent method. Several researchers have proposed other approaches to improve the convergence: conjugate gradient methods, dynamic modification of learning parameters, quasi-Newton or Newton methods, stochastic methods, etc. Quasi-Newton methods were criticized because they require significant computation time and memory space to perform the update of the Hessian matrix limiting their use to middle-sized problems. This paper proposes three variations of the classical approach of the quasi-Newton method that take into account the structure of the network. By neglecting some second-order interactions, the sizes of the resulting approximated Hessian matrices are not proportional to the square of the total number of weights in the network but depend on the number of neurons of each level. The modified quasi-Newton methods are tested on two examples and are compared to classical approaches like regular quasi-Newton methods, backpropagation and conjugate gradient methods. The numerical results show that one of these approaches, named BFGS-N, represents a clear gain in terms of computational time, on large-scale problems, over the traditional methods without the requirement of large memory space.},
+	language = {en},
+	number = {9},
+	urldate = {2020-07-30},
+	journal = {Computers \& Chemical Engineering},
+	author = {Robitaille, B. and Marcos, B. and Veillette, M. and Payre, G.},
+	month = sep,
+	year = {1996},
+	pages = {1133--1140},
+	file = {ScienceDirect Snapshot:files/275/0098135495002286.html:text/html;ScienceDirect Full Text PDF:files/276/Robitaille et al. - 1996 - Modified quasi-Newton methods for training neural .pdf:application/pdf}
+}
+
+@article{pearlmutter_fast_1994,
+	title = {Fast {Exact} {Multiplication} by the {Hessian}},
+	volume = {6},
+	issn = {0899-7667},
+	url = {https://doi.org/10.1162/neco.1994.6.1.147},
+	doi = {10.1162/neco.1994.6.1.147},
+	abstract = {Just storing the Hessian H (the matrix of second derivatives δ2E/δwiδwj of the error E with respect to each pair of weights) of a large neural network is difficult. Since a common use of a large matrix like H is to compute its product with various vectors, we derive a technique that directly calculates Hv, where v is an arbitrary vector. To calculate Hv, we first define a differential operator Rv\{f(w)\} = (δ/δr)f(w + rv){\textbar}r=0, note that Rv\{▽w\} = Hv and Rv\{w\} = v, and then apply Rv\{·\} to the equations used to compute ▽w. The result is an exact and numerically stable procedure for computing Hv, which takes about as much computation, and is about as local, as a gradient evaluation. We then apply the technique to a one pass gradient calculation algorithm (backpropagation), a relaxation gradient calculation algorithm (recurrent backpropagation), and two stochastic gradient calculation algorithms (Boltzmann machines and weight perturbation). Finally, we show that this technique can be used at the heart of many iterative techniques for computing various properties of H, obviating any need to calculate the full Hessian.},
+	number = {1},
+	urldate = {2020-07-30},
+	journal = {Neural Computation},
+	author = {Pearlmutter, Barak A.},
+	month = jan,
+	year = {1994},
+	note = {Publisher: MIT Press},
+	pages = {147--160},
+	file = {Snapshot:files/278/neco.1994.6.1.html:text/html;Full Text PDF:files/279/Pearlmutter - 1994 - Fast Exact Multiplication by the Hessian.pdf:application/pdf}
+}
