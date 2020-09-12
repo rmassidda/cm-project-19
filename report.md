@@ -20,7 +20,7 @@ University of Pisa \\
 \maketitle
 
 \begin{abstract}
-  The linear least square problem can be tackled using a wide range of optimization or numerical methods. The saddle-free Newton method of the class of limited-memory quasi-Newton algorithms has been chosen for the former, whilst the thin QR factorization with Householder reflectors for the latter. Both these algorithms have been implemented from scratch using Python language, to finally experiment over their performances in terms of precision, stability, speed and the accordance of the implementations with the underlying theoretical models.'
+  The linear least square problem can be tackled using a wide range of optimization or numerical methods. The saddle-free Newton method of the class of limited-memory quasi-Newton algorithms has been chosen for the former, whilst the thin QR factorization with Householder reflectors for the latter. Both these algorithms have been implemented from scratch using Python language, to finally experiment over their performances in terms of precision, stability and speed. The accordance of the implementations with the underlying theoretical models is also studied and discussed.
 \end{abstract}
 
 <!--
@@ -39,26 +39,26 @@ Note that we do not want to see code at this point: that would be premature to p
 -->
 
 # Introduction
-Given a dataset composed by a matrix $\hat{X} \in \mathbb{R}^{m \times n}$ with $m \geq n$ and a vector $y \in \mathbb{R}^n$, the linear least square (LLS) problem is used to determine the linear function, parameterized by a vector $w \in \mathbb{R}^n$, that best fits the data. [@nocedal_numerical_2006]
+Given a dataset composed by a matrix $\hat{X} \in \mathbb{R}^{m \times n}$ with $m \geq n$ and a vector $y \in \mathbb{R}^m$, the solution of the linear least square (LLS) problem is the vector $w \in \mathbb{R}^n$ that fits best the data assuming a linear function between $\hat{X}$ and $y$. [@nocedal_numerical_2006 p. 50]
 This can be formalized as the following minimization problem:
-
 
 $$
 w_* = \min_w \| \hat{\boldmath{X}} w - y \|_2
 $$
 
 The LLS problem can be dealt both with iterative methods or with direct numerical methods.
-One algorithm has been implemented for each of these fields to discuss their experimental results.
+One algorithm has been chosen for each of these fields to discuss then their experimental results.
 
 ## Saddle-free Newton method
 The presence of numerous saddle-points constitutes an issue to both Newton and quasi-Newton traditional iterative methods, the saddle-free Newton method (SFN) is aimed to replicate Newton dynamics yet repulsing saddle-points. [@dauphin_identifying_2014]
 
-The original implementation uses a fixed number of steps to approximate the solution of the problem, in the present implementation is instead considered valuable a stopping criterion with accuracy $\epsilon$ over the norm of the gradient.
+The original implementation uses a fixed number of steps to approximate the solution of the problem, we instead consider valuable a stopping criterion with accuracy $\epsilon$ over the norm of the gradient.
 
-As a quasi-Newton method the SFN does not directly use the Hessian matrix $H$ to overcome the issues related to the positive definitess, instead the matrix $|\mathbf{H}|$ obtained by taking the absolute value of each eigenvalue is used.
-Also the exact computation of $|\mathbf{H}|$ is avoided thus qualifying the SFN as a limited memory method.
+To overcome the constraints related to the positive definitess of the Hessian $H$ the SFN does not directly use it, as in a quasi-Newton method.
+A matrix $|\mathbf{H}|$ obtained by taking the absolute value of each eigenvalue of $H$ is used in its place.
+Also the exact computation of $|\mathbf{H}|$ is avoided, thus qualifying the SFN as a limited memory method.
 This latter feature is obtained by optimizing the function in a lower-dimensional Krylov subspace, exploiting the Lanczos algorithm that produces the $k$ biggest eigenvectors of the Hessian matrix and using them as a base for the subspace.
-Even inside the Lanczos algorithm the Hessian can be implicitly by using the so called Pearlmutter trick. [@pearlmutter_fast_1994]
+Even inside the Lanczos algorithm the Hessian can be implicitly computed by using the so called Pearlmutter trick. [@pearlmutter_fast_1994]
 
 The resulting matrix $|\hat{\mathbf{H}}|$ can then be re-used for multiple steps, assuming that the very same won't change much from one iteration to another.
 The best number of steps $t$ without updating $|\hat{\mathbf{H}}|$ is not trivially determinable and it is so treated as an hyperparameter.
