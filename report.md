@@ -1,14 +1,27 @@
 ---
-title: 'Analysis of optimization and numerical approaches to solve the linear least square problem'
-abstract: 'The linear least square problem can be tackled using a wide range of optimization or numerical methods. The saddle-free Newton method of the class of limited-memory quasi-Newton algorithms has been chosen for the former, whilst the thin QR factorization with Householder reflectors for the latter. Both these algorithms have been implemented from scratch using Python language, to finally experiment over their performances in terms of precision, stability, speed and the accordance of the implementations with the underlying theoretical models.'
-documentclass: article
-author:
-  - Emanuele Cosenza
-  - Riccardo Massidda
-date: \today
 documentclass: IEEEtran
 bibliography: bibliography.bib
 ...
+
+\title{Analysis of optimization and numerical approaches to solve the linear least square problem}
+
+\author{
+\IEEEauthorblockN{
+Emanuele Cosenza\IEEEauthorrefmark{1},
+Riccardo Massidda\IEEEauthorrefmark{2}} \\
+\vspace{2mm}
+\IEEEauthorblockA{
+Department of Computer Science \\
+University of Pisa \\
+\vspace{2mm}
+\IEEEauthorrefmark{1}\,\href{mailto:e.cosenza3@studenti.unipi.it}{e.cosenza3@studenti.unipi.it},
+\IEEEauthorrefmark{2}\,\href{mailto:r.massidda@studenti.unipi.it}{r.massidda@studenti.unipi.it}}}
+
+\maketitle
+
+\begin{abstract}
+  The linear least square problem can be tackled using a wide range of optimization or numerical methods. The saddle-free Newton method of the class of limited-memory quasi-Newton algorithms has been chosen for the former, whilst the thin QR factorization with Householder reflectors for the latter. Both these algorithms have been implemented from scratch using Python language, to finally experiment over their performances in terms of precision, stability, speed and the accordance of the implementations with the underlying theoretical models.'
+\end{abstract}
 
 <!--
 Setting the stage
