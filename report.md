@@ -47,29 +47,29 @@ w_* = \min_w \| \hat{\boldmath{X}} w - y \|_2
 $$
 
 The LLS problem can be dealt both with iterative methods or with direct numerical methods.
-One algorithm has been chosen for each of these fields to discuss then their experimental results.
+One algorithm has been chosen for each of these fields to finally discuss their experimental results.
 
 ## Saddle-free Newton method
-The presence of numerous saddle-points constitutes an issue to both Newton and quasi-Newton traditional iterative methods, the saddle-free Newton method (SFN) is aimed to replicate Newton dynamics yet repulsing saddle-points. [@dauphin_identifying_2014]
+The presence of numerous saddle-points constitutes an issue to both Newton and quasi-Newton traditional iterative methods. The saddle-free Newton method (SFN) aims to replicate Newton dynamics yet repulsing saddle-points. [@dauphin_identifying_2014]
 
-The original implementation uses a fixed number of steps to approximate the solution of the problem, we instead consider valuable a stopping criterion with accuracy $\epsilon$ over the norm of the gradient.
-
-To overcome the constraints related to the positive definitess of the Hessian $H$ the SFN does not directly use it, as in a quasi-Newton method.
-A matrix $|\mathbf{H}|$ obtained by taking the absolute value of each eigenvalue of $H$ is used in its place.
-Also the exact computation of $|\mathbf{H}|$ is avoided, thus qualifying the SFN as a limited memory method.
-This latter feature is obtained by optimizing the function in a lower-dimensional Krylov subspace, exploiting the Lanczos algorithm that produces the $k$ biggest eigenvectors of the Hessian matrix and using them as a base for the subspace.
+Similarly to what happens in quasi-Newton methods, the SFN does not directly use the hessian H to overcome the constraints related to its positive definiteness.
+The matrix $|\mathbf{H}|$ obtained by taking the absolute value of each eigenvalue of $H$ is instead used in its place.  
+The exact computation of $|\mathbf{H}|$ is avoided, thus qualifying the SFN as a limited memory method.
+This can be possible by optimizing the function in a lower-dimensional Krylov subspace, exploiting the Lanczos algorithm to produce the $k$ biggest eigenvectors of the Hessian matrix and using them later as a base for the subspace.
 Even inside the Lanczos algorithm the Hessian can be implicitly computed by using the so called Pearlmutter trick. [@pearlmutter_fast_1994]
 
 The resulting matrix $|\hat{\mathbf{H}}|$ can then be re-used for multiple steps, assuming that the very same won't change much from one iteration to another.
-The best number of steps $t$ without updating $|\hat{\mathbf{H}}|$ is not trivially determinable and it is so treated as an hyperparameter.
+The best number of steps $t$ without updating $|\hat{\mathbf{H}}|$ is not trivially determinable and it is therefore treated as an hyperparameter.
 
-The damping coefficient $\lambda$ that maximizes the effectiveness of the step is not chosen with a rigorous sub-optimization task, instead as in the original paper a set of discrete values of different order of magnitude is tried.
+The damping coefficient $\lambda$ that maximizes the effectiveness of the step is not chosen with a rigorous sub-optimization task. Instead, as in the original paper, a set of discrete values of different order of magnitude is tried.
+
+The original implementation uses a fixed number of steps to approximate the solution of the problem. Instead, we propose a stopping criterion with accuracy $\epsilon$ over the norm of the gradient.
 
 ## Thin QR factorization
-For the numerical counterpart the thin QR factorization with Householder reflectors has been implemented as described in [@trefethen_numerical_1997].
+For the numerical counterpart, the thin QR factorization with Householder reflectors has been implemented as described in [@trefethen_numerical_1997].
 
-By using the Householder QR factorization the matrix $R$ is constructed in place of $\hat{X}$, also the $n$ reflection vectors $v_1, \dots, v_n$ are stored.
-The reduced matrix $\hat{R}$ is trivially obtainable by slicing as in $\hat{R} = R_{1:n,1:n}$, given that $\hat{X}$ is already stored in memory and fully needed there would not be any advantage in directly constructing the reduced matrix.
+By using the Householder QR factorization, the matrix $R$ is constructed in place of $\hat{X}$ and the $n$ reflection vectors $v_1, \dots, v_n$ are stored.
+The reduced matrix $\hat{R}$ is trivially obtainable by slicing as in $\hat{R} = R_{1:n,1:n}$. In fact, given that $\hat{X}$ is already stored in memory and fully needed, there would be no advantage in directly constructing the reduced matrix.
 
 By using the Householder vectors it is also possible to implicitly compute $\hat{Q}^Tb$ to finally obtain $w_*$ by back substitution over the upper-triangular system $\hat{R}w = \hat{Q}^T b$.
 
