@@ -46,6 +46,13 @@ $$
 w_* = \min_w \| \hat{\boldmath{X}} w - y \|_2
 $$
 
+The matrix $\hat{X}$ is actually composed in the following way:
+
+$$
+\hat{X} = \begin{bmatrix}X^T\\I\end{bmatrix}
+$$
+
+Where $X \in \mathbb{R}^{n \times k}$ is a tall thin matrix, thus $m = k + n$.
 The LLS problem can be dealt both with iterative methods or with direct numerical methods.
 One algorithm has been chosen for each of these fields to finally discuss their experimental results.
 
