@@ -43,7 +43,7 @@ Given a dataset composed by a matrix $\hat{X} \in \mathbb{R}^{m \times n}$ with 
 This can be formalized as the following minimization problem:
 
 $$
-w_* = \min_w \| \hat{\boldmath{X}} w - y \|_2
+w_* = \min_w \| \hat{\boldmath{X}} w - y \|_2^2
 $$
 
 The matrix $\hat{X}$ is actually composed in the following way:
@@ -59,15 +59,34 @@ One algorithm has been chosen for each of these fields to finally discuss their 
 ## L-BFGS
 <!-- Breve descrizione del metodo L-BFGS, a che famiglia appartiene e come si distingue da BFGS -->
 The L-BFGS is an iterative method of the quasi-Newton limited-memory class.
-It updates itself using the rule:
+This method is actually a variation of the BFGS method, with which it shares the update rule; at the $i+1$-th iteration the point is updated as follows:
 $$
-x_{k+1} = x_k - \alpha_k H_k \nabla f_k
+w_{i+1} = w_i - \alpha_i H_i \nabla f_i
 $$
 
-The fact ??? differentiates it with the standard BFGS method.
-The initialization of the $H_0^k$ matrix is fundamental and it is used to prove convergence results.
-How are the matrices updated.
-What line search do we use, how it is implemented.
+L-BFGS has an inferior space complexity due to the fact that the Hessian approximation $H_i$ is stored implicitly, and built over a fixed number of vector pairs $\{s_j, y_j\}$ of the previous $t$ iterations and an initial matrix $H_i^0$. Where
+
+$$
+s_i = w_{i+1} - w_i, \quad y_i = \nabla f_{i+1} - \nabla f_i
+$$
+$$
+V_i = I - \rho_i y_i s_i^T, \quad \rho_i = \frac{1}{y_k^T s_k}
+$$
+
+so $H_i$ satisfies the following:
+
+$$
+\begin{split}
+H_i & = (V^T_{i-1} \dots V^T_{i-t}) H_i^0 (V_{i-t} \dots V_{i-1}) \\
+& + \rho_{i-t}(V^T_{i-1} \dots V^T_{i-t}+1) s_{i-t} s^T_{i-m} (V_{i-t+1} \dots V_{i-1}) \\
+& + \rho_{i-t+1}(V^T_{i-1} \dots V^T_{i-t}+2) s_{i-t+1} s^T_{i-t+1} (V_{i-t+2} \dots V_{i-1}) \\
+& + \dots \\
+& + \rho_{i-1}s_{i-1}s_{i-1}^T \\
+\end{split}
+$$
+
+Different strategies to initialize the $H_i^0$ matrix are proposed in the literature, and so they will be tested experimentally.
+Finally, the step size $\alpha_i$ is found by performing an inexact line search based on the Armijo-Wolfe conditions.
 
 ## Thin QR factorization
 For the numerical counterpart, the thin QR factorization with Householder reflectors has been implemented as described in [@trefethen_numerical_1997].
@@ -93,9 +112,15 @@ to see code at this point.
 
 ## Convergence of L-BFGS
 
-@liu_limited_1989 defines three assumptions that lead to a theorem proving that the L-BFGS algorithm globally converges and moreover that it converges $\mathbb{R}$-linearly.
+@liu_limited_1989 define three necessary assumptions to prove a theorem stating that the L-BFGS algorithm globally converges and moreover that there exists a constant $0\leq r <1$ such that
 
-The first assumption is on the objective function $f$, that should be twice continuously differentiable.
+$$
+f(w_i) - f(w_*) \leq r^i (f(w_0) - f(w_*)) = \sigma_i
+$$
+
+so that the sequence ${w_i}$ converges R-linearly.
+
+The first assumption required is on the objective function $f$, that should be twice continuously differentiable.
 This is in fact true and we can define the gradient and the Hessian of the objective function as in:
 
 $$
@@ -106,7 +131,7 @@ $$
 \nabla^2 f(w) = \hat{X}^T \hat{X}
 $$
 
-Moreover the Hessian can be defined as a positive definite since it can be rearranged in the following way:
+Moreover the Hessian is positive definite since it can be rearranged in the following way:
 
 $$
 \begin{split}
@@ -116,12 +141,12 @@ $$
 \end{split}
 $$
 
-This also implies that the objective function $f$ is a convex function and comes in handy for the second assumption according to the sublevel set $D=\{w \in \mathbb{R}^n | f(w) \leq f(w_0)\}$ must be convex.
-Given that if a function is convex all of its sublevel sets are convex sets this is satisfied.
+Being the Hessian positive definite, the objective function $f$ is a convex function.
+This comes in handy for the second assumption requiring the sublevel set $D=\{w \in \mathbb{R}^n | f(w) \leq f(w_0)\}$ must be convex, it can be easily proved that if a function is convex all of its sublevel sets are convex sets.
 
 $$
 \begin{split}
-\forall x,y \in D \cap \lambda \in [0,1] \\
+\forall x,y \in D, \lambda \in [0,1] \\
 & \textrm{f convex} \\
 & \implies f(\lambda x + (1-\lambda)y) \\
 & \leq \lambda f(x) + (1-\lambda) f(y) \\
@@ -131,7 +156,7 @@ $$
 \end{split}
 $$
 
-The third assumption requires that there exist two positive constant $M_1$ and $M_2$ such that $\forall z \in \mathbb{R}^n , w \in D$:
+The third and last assumption requires the existence of two positive constants $M_1$ and $M_2$ such that $\forall z \in \mathbb{R}^n , w \in D$:
 
 $$
 M_1 \|z\|^2 \leq z^T \nabla^2 f(w) \leq M_2 \|z\|^2
@@ -143,24 +168,14 @@ $$
 M_1 I \preceq \nabla^2 f(w) \preceq M_2 I
 $$
 
-The first part of this equation is satisfied by the fact that the Hessian is positive definite.
-The second requires instead to satisfy
+The first part of the equation is surely satisfied by $M_1 = 1$, keeping in mind the previous decomposition $\nabla^2 f(w) = XX^T+I$.
+Considering also that all the eigenvalues in a positive definite matrix are real and positive, it is possible to use the largest eigenvalue as in $M_2 = \lambda_{max}$.
 
-$$
-\begin{split}
-\nabla^2 f(w) \preceq M_2 I & \equiv XX^T + I \preceq M_2 I  \\
-& \equiv XX^T \preceq (M_2 - 1) I
-\end{split}
-$$
+Other then these assumptions, the theorem requires for the sequence of Hessian substitutes $H_i$ to be bounded.
+This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature and so they will be empirically tested.
 
-While this depends on the input data it should be noticed that the resulting matrix $XX^T$ is symmetric, and therefore has $n$ real eigenvalues, therefore it exists $\lambda_{max} = M_2 - 1$ to satisfy this third assertion.
-
-Other then this assumptions, the theorem requires for the sequence of Hessian substitutes to be bounded.
-This clearly depends on the matrix chosen to initialize each run.
-What else can we say?
-
-## Armijo-Wolfe Line Search
-The algorithm described in @al-baali_efficient_1986 to perform an inexact line search is ensured to converge under the assumption that $\sigma > \rho$ (use the other notation here) since both the schemes are ensured to terminate.
+Finally the convergence requires to perform a line search respectful of the Armijo-Wolfe conditions.
+The algorithm described in @al-baali_efficient_1986 to perform an inexact line search is ensured to converge under the assumption that $\sigma > \rho$ where $\rho \in (0,\frac{1}{2}), \sigma \in (0,1)$, respectively the constant for the Armijo condition and for the Wolfe one.
 
 # Input data
 <!--
