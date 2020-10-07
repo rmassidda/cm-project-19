@@ -152,14 +152,14 @@ $$
 & \leq \lambda f(x) + (1-\lambda) f(y) \\
 & \leq \lambda f(w_0) + (1-\lambda) f(w_0) \\
 & = f(w_0) \\
-& \implies \lambda x + (1-\lambda y) \in D
+& \implies \lambda x + (1-\lambda) y \in D
 \end{split}
 $$
 
 The third and last assumption requires the existence of two positive constants $M_1$ and $M_2$ such that $\forall z \in \mathbb{R}^n , w \in D$:
 
 $$
-M_1 \|z\|^2 \leq z^T \nabla^2 f(w) \leq M_2 \|z\|^2
+M_1 \|z\|^2 \leq z^T \nabla^2 f(w) z \leq M_2 \|z\|^2
 $$
 
 or equivalently
@@ -168,10 +168,9 @@ $$
 M_1 I \preceq \nabla^2 f(w) \preceq M_2 I
 $$
 
-The first part of the equation is surely satisfied by $M_1 = 1$, keeping in mind the previous decomposition $\nabla^2 f(w) = XX^T+I$.
-Considering also that all the eigenvalues in a positive definite matrix are real and positive, it is possible to use the largest eigenvalue as in $M_2 = \lambda_{max}$.
+Since $\nabla^2 f(w)$ is positive definite the previous condition is true with $M_1 = \lambda_{min}$ and $M_2 = \lambda_{max}$.
 
-Other then these assumptions, the theorem requires for the sequence of Hessian substitutes $H_i$ to be bounded.
+Other then these assumptions, the theorem requires for the sequence of Hessian substitutes $\{H_i\}$ to be bounded.
 This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature and so they will be empirically tested.
 
 Finally the convergence requires to perform a line search respectful of the Armijo-Wolfe conditions.
@@ -191,5 +190,11 @@ Again, you are advised to send us a version of this section by e-mail as soon as
 to see code (unless seeing how instances is generated is much simpler by looking at a short well-commented code than
 at a long winding report).
 -->
+
+# Implementation details
+
+# Experimental results
+
+# Conclusions
 
 # Bibliography
