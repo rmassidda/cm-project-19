@@ -171,7 +171,13 @@ $$
 Since $\nabla^2 f(w)$ is positive definite the previous condition is true with $M_1 = \lambda_{min}$ and $M_2 = \lambda_{max}$.
 
 Other then these assumptions, the theorem requires for the sequence of Hessian substitutes $\{H_i\}$ to be bounded.
-This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature and so they will be empirically tested.
+This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature such as $H^0_k = \gamma_k I$ or $H^0_k = \gamma_k H_0$ where
+
+$$
+\gamma_k = \frac{s_{k-1}^T y_{k-1}}{\|y_{k-1}\|}
+$$
+
+Other initialization techniques may possibly be tested and evaluated experimentally.
 
 Finally the convergence requires to perform a line search respectful of the Armijo-Wolfe conditions.
 The algorithm described in @al-baali_efficient_1986 to perform an inexact line search is ensured to converge under the assumption that $\sigma > \rho$ where $\rho \in (0,\frac{1}{2}), \sigma \in (0,1)$, respectively the constant for the Armijo condition and for the Wolfe one.
