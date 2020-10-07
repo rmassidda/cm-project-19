@@ -115,7 +115,7 @@ to see code at this point.
 @liu_limited_1989 define three necessary assumptions to prove a theorem stating that the L-BFGS algorithm globally converges and moreover that there exists a constant $0\leq r <1$ such that
 
 $$
-f(w_i) - f(w_*) \leq r^i (f(w_0) - f(w_*)) = \sigma_i
+f(w_i) - f(w_*) \leq r^i (f(w_0) - f(w_*))
 $$
 
 so that the sequence ${w_i}$ converges R-linearly.
@@ -131,7 +131,7 @@ $$
 \nabla^2 f(w) = \hat{X}^T \hat{X}
 $$
 
-Moreover the Hessian is positive definite since it can be rearranged in the following way:
+Moreover the Hessian is positive definite, as can be easily seen by rearranging it in the following way:
 
 $$
 \begin{split}
@@ -142,7 +142,7 @@ $$
 $$
 
 Being the Hessian positive definite, the objective function $f$ is a convex function.
-This comes in handy for the second assumption requiring the sublevel set $D=\{w \in \mathbb{R}^n | f(w) \leq f(w_0)\}$ must be convex, it can be easily proved that if a function is convex all of its sublevel sets are convex sets.
+This comes in handy for the second assumption requiring the sublevel set $D=\{w \in \mathbb{R}^n | f(w) \leq f(w_0)\}$ to be convex, it can be easily proved that if a function is convex all of its sublevel sets are convex sets.
 
 $$
 \begin{split}
@@ -168,7 +168,7 @@ $$
 M_1 I \preceq \nabla^2 f(w) \preceq M_2 I
 $$
 
-Since $\nabla^2 f(w)$ is positive definite the previous condition is true with $M_1 = \lambda_{min}$ and $M_2 = \lambda_{max}$.
+Since $\nabla^2 f(w)$ is positive definite the previous condition is true for $M_1 = \lambda_{min}$ and $M_2 = \lambda_{max}$.
 
 Other then these assumptions, the theorem requires for the sequence of Hessian substitutes $\{H_i\}$ to be bounded.
 This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature such as $H^0_k = \gamma_k I$ or $H^0_k = \gamma_k H_0$ where
