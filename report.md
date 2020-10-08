@@ -20,7 +20,7 @@ University of Pisa \\
 \maketitle
 
 \begin{abstract}
-  The linear least square problem can be tackled using a wide range of optimization or numerical methods. The saddle-free Newton method of the class of limited-memory quasi-Newton algorithms has been chosen for the former, whilst the thin QR factorization with Householder reflectors for the latter. Both these algorithms have been implemented from scratch using Python language, to finally experiment over their performances in terms of precision, stability and speed. The accordance of the implementations with the underlying theoretical models is also studied and discussed.
+  The linear least square problem can be tackled using a wide range of optimization or numerical methods. The L-BFGS method of the class of limited-memory quasi-Newton algorithms has been chosen for the former, whilst the thin QR factorization with Householder reflectors for the latter. Both these algorithms have been implemented from scratch using Python language, to finally experiment over their performances in terms of precision, stability and speed. The accordance of the implementations with the underlying theoretical models is also studied and discussed.
 \end{abstract}
 
 <!--
@@ -43,27 +43,50 @@ Given a dataset composed by a matrix $\hat{X} \in \mathbb{R}^{m \times n}$ with 
 This can be formalized as the following minimization problem:
 
 $$
-w_* = \min_w \| \hat{\boldmath{X}} w - y \|_2
+w_* = \min_w \| \hat{\boldmath{X}} w - y \|_2^2
 $$
 
+The matrix $\hat{X}$ is actually composed in the following way:
+
+$$
+\hat{X} = \begin{bmatrix}X^T\\I\end{bmatrix}
+$$
+
+Where $X \in \mathbb{R}^{n \times k}$ is a tall thin matrix, thus $m = k + n$.
 The LLS problem can be dealt both with iterative methods or with direct numerical methods.
 One algorithm has been chosen for each of these fields to finally discuss their experimental results.
 
-## Saddle-free Newton method
-The presence of numerous saddle-points constitutes an issue to both Newton and quasi-Newton traditional iterative methods. The saddle-free Newton method (SFN) aims to replicate Newton dynamics yet repulsing saddle-points. [@dauphin_identifying_2014]
+## L-BFGS
+<!-- Breve descrizione del metodo L-BFGS, a che famiglia appartiene e come si distingue da BFGS -->
+The L-BFGS is an iterative method of the quasi-Newton limited-memory class.
+This method is actually a variation of the BFGS method, with which it shares the update rule; at the $i+1$-th iteration the point is updated as follows:
+$$
+w_{i+1} = w_i - \alpha_i H_i \nabla f_i
+$$
 
-Similarly to what happens in quasi-Newton methods, the SFN does not directly use the hessian H to overcome the constraints related to its positive definiteness.
-The matrix $|\mathbf{H}|$ obtained by taking the absolute value of each eigenvalue of $H$ is instead used in its place.  
-The exact computation of $|\mathbf{H}|$ is avoided, thus qualifying the SFN as a limited memory method.
-This can be possible by optimizing the function in a lower-dimensional Krylov subspace, exploiting the Lanczos algorithm to produce the $k$ biggest eigenvectors of the Hessian matrix and using them later as a base for the subspace.
-Even inside the Lanczos algorithm the Hessian can be implicitly computed by using the so called Pearlmutter trick. [@pearlmutter_fast_1994]
+L-BFGS has an inferior space complexity due to the fact that the Hessian approximation $H_i$ is stored implicitly, and built over a fixed number of vector pairs $\{s_j, y_j\}$ of the previous $t$ iterations and an initial matrix $H_i^0$. Where
 
-The resulting matrix $|\hat{\mathbf{H}}|$ can then be re-used for multiple steps, assuming that the very same won't change much from one iteration to another.
-The best number of steps $t$ without updating $|\hat{\mathbf{H}}|$ is not trivially determinable and it is therefore treated as an hyperparameter.
+$$
+s_i = w_{i+1} - w_i, \quad y_i = \nabla f_{i+1} - \nabla f_i
+$$
+$$
+V_i = I - \rho_i y_i s_i^T, \quad \rho_i = \frac{1}{y_k^T s_k}
+$$
 
-The damping coefficient $\lambda$ that maximizes the effectiveness of the step is not chosen with a rigorous sub-optimization task. Instead, as in the original paper, a set of discrete values of different order of magnitude is tried.
+so $H_i$ satisfies the following:
 
-The original implementation uses a fixed number of steps to approximate the solution of the problem. Instead, we propose a stopping criterion with accuracy $\epsilon$ over the norm of the gradient.
+$$
+\begin{split}
+H_i & = (V^T_{i-1} \dots V^T_{i-t}) H_i^0 (V_{i-t} \dots V_{i-1}) \\
+& + \rho_{i-t}(V^T_{i-1} \dots V^T_{i-t}+1) s_{i-t} s^T_{i-m} (V_{i-t+1} \dots V_{i-1}) \\
+& + \rho_{i-t+1}(V^T_{i-1} \dots V^T_{i-t}+2) s_{i-t+1} s^T_{i-t+1} (V_{i-t+2} \dots V_{i-1}) \\
+& + \dots \\
+& + \rho_{i-1}s_{i-1}s_{i-1}^T \\
+\end{split}
+$$
+
+Different strategies to initialize the $H_i^0$ matrix are proposed in the literature, and so they will be tested experimentally.
+Finally, the step size $\alpha_i$ is found by performing an inexact line search based on the Armijo-Wolfe conditions.
 
 ## Thin QR factorization
 For the numerical counterpart, the thin QR factorization with Householder reflectors has been implemented as described in [@trefethen_numerical_1997].
@@ -73,8 +96,7 @@ The reduced matrix $\hat{R}$ is trivially obtainable by slicing as in $\hat{R} =
 
 By using the Householder vectors it is also possible to implicitly compute $\hat{Q}^Tb$ to finally obtain $w_*$ by back substitution over the upper-triangular system $\hat{R}w = \hat{Q}^T b$.
 
-# Bibliography
-
+# Algorithmic analysis
 <!--
 What to expect from the algorithm(s)
 ====================================
@@ -88,6 +110,133 @@ Again, you are advised to send us a version of this section by e-mail as soon as
 to see code at this point.
 -->
 
+## Convergence of L-BFGS
+
+@liu_limited_1989 define three necessary assumptions to prove a theorem stating that the L-BFGS algorithm globally converges and moreover that there exists a constant $0\leq r <1$ such that
+
+$$
+f(w_i) - f(w_*) \leq r^i (f(w_0) - f(w_*)) = \sigma_i
+$$
+
+so that the sequence ${w_i}$ converges R-linearly.
+
+The first assumption required is on the objective function $f$, that should be twice continuously differentiable.
+This is in fact true and we can define the gradient and the Hessian of the objective function as in:
+
+$$
+\nabla f(w) = \hat{X}^T ( \hat{X} w - y ) \\
+$$
+
+$$
+\nabla^2 f(w) = \hat{X}^T \hat{X}
+$$
+
+Moreover the Hessian is positive definite since it can be rearranged in the following way:
+
+$$
+\begin{split}
+\nabla^2 f(w) & = \hat{X}^T \hat{X}  \\
+& = \begin{vmatrix}X I\end{vmatrix} \begin{vmatrix}X^T \\ I\end{vmatrix} \\
+& = XX^T + I
+\end{split}
+$$
+
+Being the Hessian positive definite, the objective function $f$ is a convex function.
+This comes in handy for the second assumption requiring the sublevel set $D=\{w \in \mathbb{R}^n | f(w) \leq f(w_0)\}$ must be convex, it can be easily proved that if a function is convex all of its sublevel sets are convex sets.
+
+$$
+\begin{split}
+\forall x,y \in D, \ \lambda \in [0,1] \\
+& \textrm{f convex} \\
+& \implies f(\lambda x + (1-\lambda)y) \\
+& \leq \lambda f(x) + (1-\lambda) f(y) \\
+& \leq \lambda f(w_0) + (1-\lambda) f(w_0) \\
+& = f(w_0) \\
+& \implies \lambda x + (1-\lambda y) \in D
+\end{split}
+$$
+
+The third and last assumption requires the existence of two positive constants $M_1$ and $M_2$ such that $\forall z \in \mathbb{R}^n , w \in D$:
+
+$$
+M_1 \|z\|^2 \leq z^T \nabla^2 f(w) \leq M_2 \|z\|^2
+$$
+
+or equivalently
+
+$$
+M_1 I \preceq \nabla^2 f(w) \preceq M_2 I
+$$
+
+The first part of the equation is surely satisfied by $M_1 = 1$, keeping in mind the previous decomposition $\nabla^2 f(w) = XX^T+I$.
+Considering also that all the eigenvalues in a positive definite matrix are real and positive, it is possible to use the largest eigenvalue as in $M_2 = \lambda_{max}$.
+
+Other then these assumptions, the theorem requires for the sequence of Hessian substitutes $H_i$ to be bounded.
+This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature and so they will be empirically tested.
+
+Finally the convergence requires to perform a line search respectful of the Armijo-Wolfe conditions.
+The algorithm described in @al-baali_efficient_1986 to perform an inexact line search is ensured to converge under the assumption that $\sigma > \rho$ where $\rho \in (0,\frac{1}{2}), \sigma \in (0,1)$, respectively the constant for the Armijo condition and for the Wolfe one.
+
+## Analysis of standard and modified thin QR
+
+Ignoring constants, we know from theory that the standard QR factorization algorithm applied on the matrix $\hat{X}$ yields a time complexity of $O(mn^2)$. Actually, given that we are generally dealing with a very tall and thin matrix $X$, the resulting $\hat{X}$ is going to be squarish ($m \approx n$). This means that we can consider the complexity to be cubic in $n$.
+
+From now on, we show a way to bring down the time complexity of the algorithm from $O(mn^2)$ to $O(kn^2)$, with $k=m-n$. The resulting modified QR factorization algorithm will become useful when $k$ is much smaller than $m$, as in our case.\
+In the standard algorithm, at each step we focus on a single column of the input matrix, constructing a householder vector to zero out all the entries below the diagonal. Following the geometric reasoning in [@trefethen_numerical_1997], this brings the algorithm to depend on $m$. While this cannot be avoided in general, in our particular case we can be a little bit smarter.
+
+Since the block matrix $\hat{X}$ contains the identity as its lower block, at each step of the algorithm we can just focus on zeroing out the $k=m-n$ entries below the diagonal up to the 1s of the identity. In the modified algorithm then, to obtain $R$, the matrix $\hat{X}$ is multiplied on the left side by a sequence of matrices $L_i \in \mathbb{R}^{m \times m}$ of the form ($i=1,\dots,n$):
+
+$$
+L_i=
+\begin{bmatrix}
+I_{i-1} & 0 & 0\\
+0 & H_i & 0\\
+0 & 0 & I_{n-i}
+\end{bmatrix}
+$$
+
+where $H_i \in \mathbb{R}^{(k+1) \times (k+1)}$ are all householder reflectors that zero out the $k$ entries in the $i$-th column of the matrix which is being multiplied by $L_i$.\
+To derive the time complexity of this phase we can reason as follows. The right side matrix can be divided in three blocks as in $\big[\begin{smallmatrix}
+  A \\ B \\ C
+\end{smallmatrix}\big]$. When we multiply this matrix by $L_i$ the only relevant operation is the matrix multiplication $H_i B$, which costs $O(kn)$. Since the total number of multiplications is $n$, the total complexity is $O(kn^2)$.\
+Since each $L_i$ is orthogonal and symmetric it is then possible to reconstruct $Q$ and the reduced $\hat{Q}$ in the following way:
+
+$$
+\begin{array}{c}
+Q = L_1 L_2 \dots L_n\\
+\hat{Q} = L_1 L_2 \dots L_n
+\begin{bmatrix}
+I_n\\
+0
+\end{bmatrix}
+\end{array}
+$$
+
+Applying again the reasoning above, the time complexity of these reconstructions is $O(kn^2)$. It follows that the overall time complexity of the modified QR factorization is $O(kn^2)$.
+
+<!-- $$
+\begin{bmatrix}
+I_{n-1} & 0\\
+0 & H_n\\
+\end{bmatrix}
+\begin{bmatrix}
+I_{n-2} & 0 & 0\\
+0 & H_{n-1} & 0\\
+0 & 0 & I_1
+\end{bmatrix}
+\dots
+\begin{bmatrix}
+I_1 & 0 & 0\\
+0 & H_2 & 0\\
+0 & 0 & I_{n-2}
+\end{bmatrix}
+\begin{bmatrix}
+H_1 & 0\\
+0 & I_{n-1}
+\end{bmatrix}
+$$ -->
+
+# Input data
 <!--
 What is your input data
 =======================
@@ -101,3 +250,5 @@ Again, you are advised to send us a version of this section by e-mail as soon as
 to see code (unless seeing how instances is generated is much simpler by looking at a short well-commented code than
 at a long winding report).
 -->
+
+# Bibliography
