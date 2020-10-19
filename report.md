@@ -179,6 +179,45 @@ $$
 
 Other initialization techniques may possibly be tested and evaluated experimentally.
 
+<!-- M_1 ed M_2 intervengono nelle costanti relative alla convergenza? In che modo? -->
+In the convergence proof the $M_2$ constant is used to upper bound the trace of the next Hessian substitute $H_{i+1}$ by using a derived constant $M_3$.
+
+$$
+tr(H_{i+1}) \leq tr(H_i^0) + t M_2 \leq M_3
+$$
+
+implying that the largest eigenvalue of $H_{i+1}$ is always constrained under a fixed constant.
+On the other hand the $M_1$ constant is used, always by using a derived constant $M_4$, to lower bound the determinant of $H_{i+1}$.
+
+$$
+det(H_{i+1}) \geq det(H_i^0) + (\frac{M_1}{M_3})^t \geq M_4
+$$
+
+Implying in this case that the smallest eigenvalue of $H_{i+1}$ is always positive.
+These reasoning is used to prove this fundamental assertion
+
+$$
+\exists \delta > 0 : \cos \theta_i = \frac{s_i^T H_i s_i}{\| s_i \| \|H_i s_i \|} \geq \delta
+$$
+
+That with the other assumptions leads to the R-linearly convergence result previously stated.
+<!-- Il dubbio fondamentale è sulla costante M_1, ossia l'autovalore minimo: potrebbe essere 0? Se si, questo è un problema? -->
+Moreover if the constant $M_1$ was to be equal to zero, given that $\lambda_{min} = 0$, then also $M_4$ constant may be equal to zero, and this is not enough to prove the existence of $\delta > 0$ for each step.
+Anyhow, given the structure of $\nabla^2 f(x)$ we can prove that $\lambda_{min} > 0$.
+The matrix $XX^T$ is positive semi-definite, since $\forall z : z^T X X^T z = \|X^T z \| \geq 0$, therefore all the eigenvalues of the matrix are non-negative.
+Furthermore, according to the spectral theorem, since $XX^T$ is symmetric, there exists $U$ orthogonal matrix and $D$ diagonal containing the eigenvalues of $XX^T$.
+
+$$
+\begin{split}
+\nabla^2 f(x) & = XX^T + I \\
+& = UDU^T + I \\
+& = UDU^T + UIU^T \\
+& = U(D + I)U^T
+\end{split}
+$$
+
+Therefore $\lambda_{min} \geq 1$.
+
 Finally the convergence requires to perform a line search respectful of the Armijo-Wolfe conditions.
 The algorithm described in @al-baali_efficient_1986 to perform an inexact line search is ensured to converge under the assumption that $\sigma > \rho$ where $\rho \in (0,\frac{1}{2}), \sigma \in (0,1)$, respectively the constant for the Armijo condition and for the Wolfe one.
 
