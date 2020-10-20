@@ -58,13 +58,14 @@ One algorithm has been chosen for each of these fields to finally discuss their 
 
 ## L-BFGS
 <!-- Breve descrizione del metodo L-BFGS, a che famiglia appartiene e come si distingue da BFGS -->
-The L-BFGS is an iterative method of the quasi-Newton limited-memory class.
-This method is actually a variation of the BFGS method, with which it shares the update rule; at the $i+1$-th iteration the point is updated as follows:
+The Limited-memory BFGS, L-BFGS, is an iterative method of the quasi-Newton limited-memory class.
+This method is a variation of the BFGS method, with which it shares the update rule.
+At the $i+1$-th iteration the point is updated as follows:
 $$
 w_{i+1} = w_i - \alpha_i H_i \nabla f_i
 $$
 
-L-BFGS has an inferior space complexity due to the fact that the Hessian approximation $H_i$ is stored implicitly, and built over a fixed number of vector pairs $\{s_j, y_j\}$ of the previous $t$ iterations and an initial matrix $H_i^0$. Where
+The smaller memory requirements of this variation are due to the fact that the Hessian approximation $H_i$ is stored implicitly, and built over a fixed number of vector pairs $\{s_j, y_j\}$ of the previous $t$ iterations and an initial matrix $H_i^0$. Where
 
 $$
 s_i = w_{i+1} - w_i, \quad y_i = \nabla f_{i+1} - \nabla f_i
@@ -73,7 +74,7 @@ $$
 V_i = I - \rho_i y_i s_i^T, \quad \rho_i = \frac{1}{y_k^T s_k}
 $$
 
-so $H_i$ satisfies the following:
+so that $H_i$ satisfies the following condition
 
 $$
 \begin{split}
@@ -112,16 +113,16 @@ to see code at this point.
 
 ## Convergence of L-BFGS
 
-@liu_limited_1989 define three necessary assumptions to prove a theorem stating that the L-BFGS algorithm globally converges and moreover that there exists a constant $0\leq r <1$ such that
+@liu_limited_1989 define three necessary assumptions to prove that the L-BFGS algorithm globally converges and that there exists a constant $0\leq r <1$ such that
 
 $$
 f(w_i) - f(w_*) \leq r^i (f(w_0) - f(w_*))
 $$
 
-so that the sequence ${w_i}$ converges R-linearly.
+so that the sequence $\{w_i\}$ converges R-linearly.
 
-The first assumption required is on the objective function $f$, that should be twice continuously differentiable.
-This is in fact true and we can define the gradient and the Hessian of the objective function as in:
+Firstly the objective function $f$ should be twice continuously differentiable.
+Given the formulation of the least squares problem this is immediately true, the gradient and the Hessian of the objective function are definable as in:
 
 $$
 \nabla f(w) = \hat{X}^T ( \hat{X} w - y ) \\
@@ -131,7 +132,7 @@ $$
 \nabla^2 f(w) = \hat{X}^T \hat{X}
 $$
 
-Moreover the Hessian is positive definite, as can be easily seen by rearranging it in the following way:
+Moreover the Hessian can be proven to be positive definite, as can be easily seen by rearranging it in the following way:
 
 $$
 \begin{split}
@@ -141,8 +142,23 @@ $$
 \end{split}
 $$
 
+The matrix $XX^T$ is positive semi-definite, since $\forall z : z^T X X^T z = \|X^T z \| \geq 0$, therefore all the eigenvalues of the matrix are non-negative.
+Furthermore, according to the spectral theorem, since $XX^T$ is symmetric, there exists $U$ orthogonal matrix and $D$ diagonal containing the eigenvalues of $XX^T$.
+
+$$
+\begin{split}
+\nabla^2 f(x) & = XX^T + I \\
+& = UDU^T + I \\
+& = UDU^T + UIU^T \\
+& = U(D + I)U^T
+\end{split}
+$$
+
+The eigenvalues of the Hessian are contained in $D+I$ and all of them are positive, therefore $\nabla^2 f(w)$ is positive definite.
+
 Being the Hessian positive definite, the objective function $f$ is a convex function.
-This comes in handy for the second assumption requiring the sublevel set $D=\{w \in \mathbb{R}^n | f(w) \leq f(w_0)\}$ to be convex, it can be easily proved that if a function is convex all of its sublevel sets are convex sets.
+This comes in handy for the second assumption requiring the sublevel set $D=\{w \in \mathbb{R}^n | f(w) \leq f(w_0)\}$ to be convex.
+It can be easily proved that if a function is convex all of its sublevel sets are convex sets.
 
 $$
 \begin{split}
@@ -168,9 +184,32 @@ $$
 M_1 I \preceq \nabla^2 f(w) \preceq M_2 I
 $$
 
-Since $\nabla^2 f(w)$ is positive definite the previous condition is true for $M_1 = \lambda_{min}$ and $M_2 = \lambda_{max}$.
+Since $\nabla^2 f(w)$ is positive definite the previous condition is true for $M_1 = \lambda_{min}$ and $M_2 = \lambda_{max}$, where $\lambda_{min} > 0$.
 
-Other then these assumptions, the theorem requires for the sequence of Hessian substitutes $\{H_i\}$ to be bounded.
+In the convergence proof the $M_2$ constant is used to upper bound the trace of the next Hessian substitute $H_{i+1}$, implying an upper bound for the largest eigenvalue in the sequence of Hessian substitutes.
+
+$$
+tr(H_{i+1}) \leq tr(H_i^0) + t M_2 \leq M_3
+$$
+
+On the other hand the $M_1$ constant is used, to lower bound the determinant of $H_{i+1}$, implying a lower bound for the smallest eigenvalue in the sequence of Hessian substitutes.
+
+$$
+det(H_{i+1}) \geq det(H_i^0) + (\frac{M_1}{M_3})^t \geq M_4
+$$
+
+These two assertions are used to prove the existence of constant $\delta>0$ such that
+
+$$
+\forall i : \cos \theta_i = \frac{s_i^T H_i s_i}{\| s_i \| \|H_i s_i \|} \geq \delta
+$$
+
+where $\theta_i$ is the angle between the chosen direction and $- \nabla f (w_i)$.
+<!-- Il dubbio fondamentale è sulla costante M_1, ossia l'autovalore minimo: potrebbe essere 0? Se si, questo è un problema? -->
+If the constant $M_1$ was to be equal to zero, it would not be enough to prove the existence of $\delta > 0$ for each step, possibly having directions orthogonal to steepest one.
+As already pointed out, given that the Hessian is positive definite, its eigenvalues and consequently $M_1$ are positive.
+
+Other then the three discussed assumptions, the theorem requires for the sequence of initializers $\{\|H^0_i\|\}$ to be bounded.
 This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature such as $H^0_k = \gamma_k I$ or $H^0_k = \gamma_k H_0$ where
 
 $$
@@ -178,45 +217,6 @@ $$
 $$
 
 Other initialization techniques may possibly be tested and evaluated experimentally.
-
-<!-- M_1 ed M_2 intervengono nelle costanti relative alla convergenza? In che modo? -->
-In the convergence proof the $M_2$ constant is used to upper bound the trace of the next Hessian substitute $H_{i+1}$ by using a derived constant $M_3$.
-
-$$
-tr(H_{i+1}) \leq tr(H_i^0) + t M_2 \leq M_3
-$$
-
-implying that the largest eigenvalue of $H_{i+1}$ is always constrained under a fixed constant.
-On the other hand the $M_1$ constant is used, always by using a derived constant $M_4$, to lower bound the determinant of $H_{i+1}$.
-
-$$
-det(H_{i+1}) \geq det(H_i^0) + (\frac{M_1}{M_3})^t \geq M_4
-$$
-
-Implying in this case that the smallest eigenvalue of $H_{i+1}$ is always positive.
-These reasoning is used to prove this fundamental assertion
-
-$$
-\exists \delta > 0 : \cos \theta_i = \frac{s_i^T H_i s_i}{\| s_i \| \|H_i s_i \|} \geq \delta
-$$
-
-That with the other assumptions leads to the R-linearly convergence result previously stated.
-<!-- Il dubbio fondamentale è sulla costante M_1, ossia l'autovalore minimo: potrebbe essere 0? Se si, questo è un problema? -->
-Moreover if the constant $M_1$ was to be equal to zero, given that $\lambda_{min} = 0$, then also $M_4$ constant may be equal to zero, and this is not enough to prove the existence of $\delta > 0$ for each step.
-Anyhow, given the structure of $\nabla^2 f(x)$ we can prove that $\lambda_{min} > 0$.
-The matrix $XX^T$ is positive semi-definite, since $\forall z : z^T X X^T z = \|X^T z \| \geq 0$, therefore all the eigenvalues of the matrix are non-negative.
-Furthermore, according to the spectral theorem, since $XX^T$ is symmetric, there exists $U$ orthogonal matrix and $D$ diagonal containing the eigenvalues of $XX^T$.
-
-$$
-\begin{split}
-\nabla^2 f(x) & = XX^T + I \\
-& = UDU^T + I \\
-& = UDU^T + UIU^T \\
-& = U(D + I)U^T
-\end{split}
-$$
-
-Therefore $\lambda_{min} \geq 1$.
 
 ## Armijo-Wolfe inexact line search
 The convergence proof requires the algorithm to perform a line search respectful of the Armijo-Wolfe conditions, the solution described in @al-baali_efficient_1986 is therefore adapted and implemented.
@@ -246,11 +246,11 @@ $$
 The algorithm requires a lower bound $\bar f$ on $\phi(\alpha)$ for $\alpha \geq 0$. More precisely, it assumes that the user is prepared to accept any value of $\alpha$ for which $\phi(\alpha) \leq \bar f$ where $\bar f < \phi(0)$.
 For the linear least-squares problem an obvious lower bound is $\bar f = 0$.
 
-The algorithm performs then an inexact line search by searching a candidate point $\alpha_i$ at the $i$-th iteration in the interval $(a_i, b_i)$, stopping if such candidate reaches the lower bound or if it satisfies both \eqref{eqn:armijo} and \eqref{eqn:wolfe}.
+The algorithm performs an inexact line search by looking for a candidate point $\alpha_i$ at the $i$-th iteration in the interval $(a_i, b_i)$, stopping if such candidate reaches the lower bound or if it satisfies both \eqref{eqn:armijo} and \eqref{eqn:wolfe}.
 
 ![Graphical depiction of the $\mu$ point.\label{fig:mu}](assets/rho-line.png)
 
-The Armijo condtion describes a line, called $\rho$-line, in the plot $(\alpha, \phi(\alpha)$ that can be useful to bound the starting interval.
+The Armijo condition describes a line, called $\rho$-line, in the plot $(\alpha, \phi(\alpha))$ that can be useful to bound the starting interval.
 In fact the initial search interval can be reduced from $(0,\infty)$ to $(0,\mu)$ where
 
 $$
@@ -267,15 +267,17 @@ $$
 
 where $0 < \tau_1 \leq \tau_2 \leq \frac{1}{2}$.
 
-If the candidate doesn't satisfy \eqref{eqn:armijo} or if the left extreme $a_i$ constitues a better point, the next candidate is chosen in the interval $T(a_i, \alpha_i)$.
+If the candidate doesn't satisfy \eqref{eqn:armijo} or if the left extreme $a_i$ constitutes a better point, the next candidate is chosen in the interval $T(a_i, \alpha_i)$.
 Otherwise if the candidate doesn't satisfies \eqref{eqn:wolfe} the next candidate is chosen in $T(\alpha_i, b_i)$.
-In both cases the $(a_{i+1}, b_{i+1})$ are updated with the extremes returned by the $T$ function.
+In both cases the $a_{i+1}$ and $b_{i+1}$ are updated with the extremes returned by the $T$ function.
 
 The candidate step-size may be randomly chosen between all the points in the interval defined by the $T$ function, this approach will be experimentally tested against quadratic interpolation. 
 
 It should be noted that the @al-baali_efficient_1986 paper defines the function $T$ in a slightly different way, together with another function $E$ used to specifically define the interval when $\eqref{eqn:wolfe}$ is not satisfied.
 The simplification hereby described is due to the fact that in our implementation it is ensured that $\forall i : a_i \leq \alpha_i \leq b_i \land b_i \neq \infty$, moreover this does not interfere with the convergence proof.
 
+As suggested by @liu_limited_1989 the unitary step length should always be tried first, so the first candidate should be $\alpha_0 = 1$.
+Other suggestions known in literature about the initialization of the remaining hyper-parameters are presented in the experimental setup section to be eventually evaluated.
 <!-- The initial conditions are-->
 <!-- $$-->
 <!-- \alpha_0 = 1, a_0 = 0, b_0 = \mu, \tau_1 \approx 0.1, \tau_2 \approx 0.5, \sigma = 0.1, \rho = 0.01, \bar\alpha = 1-->
