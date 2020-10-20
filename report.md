@@ -218,8 +218,69 @@ $$
 
 Therefore $\lambda_{min} \geq 1$.
 
-Finally the convergence requires to perform a line search respectful of the Armijo-Wolfe conditions.
-The algorithm described in @al-baali_efficient_1986 to perform an inexact line search is ensured to converge under the assumption that $\sigma > \rho$ where $\rho \in (0,\frac{1}{2}), \sigma \in (0,1)$, respectively the constant for the Armijo condition and for the Wolfe one.
+## Armijo-Wolfe inexact line search
+The convergence proof requires the algorithm to perform a line search respectful of the Armijo-Wolfe conditions, the solution described in @al-baali_efficient_1986 is therefore adapted and implemented.
+
+The algorithm performs an inexact line search that is ensured to converge under the assumption that $\sigma > \rho$ where $\rho \in (0,\frac{1}{2}), \sigma \in (0,1)$, respectively the constant for the Armijo condition and for the Wolfe one.
+By defining the function $\phi$, used to evaluate the value of $f$ at a certain step-size $\alpha$, the conditions can be defined as follows.
+
+$$
+\phi ( \alpha ) = f ( w_i + \alpha d_i )
+\end{equation*}
+\begin{equation*}
+\tag{A}
+\label{eqn:armijo}
+\phi(\alpha) \leq \phi(0) + \alpha \rho \phi ' (0)
+\end{equation*}
+\begin{equation*}
+\tag{W}
+\label{eqn:wolfe}
+\phi ' (\alpha) \geq \sigma \phi ' (0)
+$$
+
+<!-- Strong Wolfe Condition -->
+<!-- $$ -->
+<!-- | \phi ' (\alpha) | \leq - \sigma \phi ' (0) -->
+<!-- $$ -->
+
+The algorithm requires a lower bound $\bar f$ on $\phi(\alpha)$ for $\alpha \geq 0$. More precisely, it assumes that the user is prepared to accept any value of $\alpha$ for which $\phi(\alpha) \leq \bar f$ where $\bar f < \phi(0)$.
+For the linear least-squares problem an obvious lower bound is $\bar f = 0$.
+
+The algorithm performs then an inexact line search by searching a candidate point $\alpha_i$ at the $i$-th iteration in the interval $(a_i, b_i)$, stopping if such candidate reaches the lower bound or if it satisfies both \eqref{eqn:armijo} and \eqref{eqn:wolfe}.
+
+![Graphical depiction of the $\mu$ point.\label{fig:mu}](assets/rho-line.png)
+
+The Armijo condtion describes a line, called $\rho$-line, in the plot $(\alpha, \phi(\alpha)$ that can be useful to bound the starting interval.
+In fact the initial search interval can be reduced from $(0,\infty)$ to $(0,\mu)$ where
+
+$$
+\mu = \frac{\bar f - \phi(0)}{\rho \phi ' (0)}
+$$
+
+It is immediate that $\forall \alpha > \mu$ either \eqref{eqn:armijo} can't be satisfied, or the point lies under the lower bound $\bar f$ (figure \ref{fig:mu}).
+
+To proceed with the discussion over the shrinking procedure the function $T$ is defined as in
+
+$$
+T(a,b) = [a + \tau_1 (b-a), b - \tau_2 (b-a)]
+$$
+
+where $0 < \tau_1 \leq \tau_2 \leq \frac{1}{2}$.
+
+If the candidate doesn't satisfy \eqref{eqn:armijo} or if the left extreme $a_i$ constitues a better point, the next candidate is chosen in the interval $T(a_i, \alpha_i)$.
+Otherwise if the candidate doesn't satisfies \eqref{eqn:wolfe} the next candidate is chosen in $T(\alpha_i, b_i)$.
+In both cases the $(a_{i+1}, b_{i+1})$ are updated with the extremes returned by the $T$ function.
+
+The candidate step-size may be randomly chosen between all the points in the interval defined by the $T$ function, this approach will be experimentally tested against quadratic interpolation. 
+
+It should be noted that the @al-baali_efficient_1986 paper defines the function $T$ in a slightly different way, together with another function $E$ used to specifically define the interval when $\eqref{eqn:wolfe}$ is not satisfied.
+The simplification hereby described is due to the fact that in our implementation it is ensured that $\forall i : a_i \leq \alpha_i \leq b_i \land b_i \neq \infty$, moreover this does not interfere with the convergence proof.
+
+<!-- The initial conditions are-->
+<!-- $$-->
+<!-- \alpha_0 = 1, a_0 = 0, b_0 = \mu, \tau_1 \approx 0.1, \tau_2 \approx 0.5, \sigma = 0.1, \rho = 0.01, \bar\alpha = 1-->
+<!-- $$-->
+<!-- 0, 1, 1. <!--Why?-1->-->
 
 # Input data
 <!--
