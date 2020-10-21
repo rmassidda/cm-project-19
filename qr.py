@@ -28,6 +28,8 @@ print(w[0])
 print()
 
 def householder_vector(x):
+    if np.all(x==0):
+        return np.zeros(x.shape[0]), 0
     e1 = np.zeros(x.shape[0])
     e1[0] = 1.0
     sign = 1.0 if x[0]==0 else np.sign(x[0])
