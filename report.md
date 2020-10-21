@@ -95,7 +95,7 @@ For the numerical counterpart, the thin QR factorization with Householder reflec
 By using the Householder QR factorization, the matrix $R$ is constructed in place of $\hat{X}$ and the $n$ reflection vectors $v_1, \dots, v_n$ are stored.
 The reduced matrix $\hat{R}$ is trivially obtainable by slicing as in $\hat{R} = R_{1:n,1:n}$. In fact, given that $\hat{X}$ is already stored in memory and fully needed, there would be no advantage in directly constructing the reduced matrix.
 
-By using the Householder vectors it is also possible to implicitly compute $\hat{Q}^Tb$ to finally obtain $w_*$ by back substitution over the upper-triangular system $\hat{R}w = \hat{Q}^T b$.
+By using the Householder vectors it is also possible to implicitly compute $\hat{Q}^Ty$ to finally obtain $w_*$ by back substitution over the upper-triangular system $\hat{R}w = \hat{Q}^T y$.
 
 # Algorithmic analysis
 <!--
@@ -283,6 +283,88 @@ Other suggestions known in literature about the initialization of the remaining 
 <!-- \alpha_0 = 1, a_0 = 0, b_0 = \mu, \tau_1 \approx 0.1, \tau_2 \approx 0.5, \sigma = 0.1, \rho = 0.01, \bar\alpha = 1-->
 <!-- $$-->
 <!-- 0, 1, 1. <!--Why?-1->-->
+
+## Analysis of standard and modified thin QR
+
+Ignoring constants, we know from theory that the standard QR factorization algorithm applied on the matrix $\hat{X}$ yields a time complexity of $O(mn^2)$. Actually, given that we are generally dealing with a very tall and thin matrix $X$, the resulting $\hat{X}$ is going to be squarish ($m \approx n$). This means that we can consider the complexity to be cubic in $n$.
+
+From now on, we show a way to bring down the time complexity of the algorithm from $O(mn^2)$ to $O(kn^2)$, with $k=m-n$. The resulting modified QR factorization algorithm will become useful when $k$ is much smaller than $m$, as in our case.\
+In the standard algorithm, at each step we focus on a single column of the input matrix, constructing a householder vector to zero out all the entries below the diagonal. Following the geometric reasoning in [@trefethen_numerical_1997], this brings the algorithm to depend on $m$. While this cannot be avoided in general, in our particular case we can be a little bit smarter.
+
+Since the block matrix $\hat{X}$ contains the identity as its lower block, at each step of the algorithm we can just focus on zeroing out the $k=m-n$ entries below the diagonal up to the 1s of the identity. In the modified algorithm then, to obtain $R$, the matrix $\hat{X}$ is multiplied on the left side by a sequence of matrices $L_i \in \mathbb{R}^{m \times m}$ of the form ($i=1,\dots,n$):
+
+$$
+L_i=
+\begin{bmatrix}
+I_{i-1} & 0 & 0\\
+0 & H_i & 0\\
+0 & 0 & I_{n-i}
+\end{bmatrix}
+$$
+
+where $H_i \in \mathbb{R}^{(k+1) \times (k+1)}$ are all householder reflectors that zero out the $k$ entries in the $i$-th column of the matrix which is being multiplied by $L_i$.\
+To derive the time complexity of this phase we can reason as follows. The right side matrix can be divided in three blocks as in $\big[\begin{smallmatrix}
+  A \\ B \\ C
+\end{smallmatrix}\big]$. When we multiply this matrix by $L_i$ the only relevant operation is the matrix multiplication $H_i B$, which costs $O(kn)$. Since the total number of multiplications is $n$, the total complexity is $O(kn^2)$.\
+Since each $L_i$ is orthogonal and symmetric it is then possible to reconstruct $Q$ and the reduced $\hat{Q}$ in the following way:
+
+$$
+\begin{array}{c}
+Q = L_1 L_2 \dots L_n\\
+\hat{Q} = L_1 L_2 \dots L_n
+\begin{bmatrix}
+I_n\\
+0
+\end{bmatrix}
+\end{array}
+$$
+
+Applying again the reasoning above, the time complexity of these reconstructions is $O(kn^2)$. It follows that the overall time complexity of the modified QR factorization is $O(kn^2)$.
+
+The least squares problem is then solved through back substitution over the upper-triangular system $\hat{R}w = \hat{Q}^T b$, which costs $O(n^2)$. Since this is dominated by the factorization cost, the total time complexity for solving the least squares problem through QR factorization is $O(mn^2)$ when using the standard algorithm and $O(kn^2)$ when using the modified one.
+
+## Stability and accuracy of the QR algorithm
+As stated in [@trefethen_numerical_1997, 140], the algorithm obtained by combining the standard QR algorithm, the $Q^Ty$ product and back substitution is backward stable in the context of least squares problems.\
+We claim that the QR factorization step remains backward stable if we consider the modified version described in this report. Without going into details with an extended proof, this can be explained by saying that at each step of the algorithm we apply a transformation $L_i$ doing a smaller number of operations than those of the standard algorithm. Then, since we know that each step of the standard QR factorization is backward stable, this must be true also in the modified version of the algorithm.
+
+Since both versions of the QR algorithm are backward stable, the accuracy of the algorithms will depend mostly on the conditioning of the least squares problem at hand. In fact, following from the definition of backward stability, the algorithms will both find exact solutions to slightly perturbed problems, with perturbations of the order of machine precision. This implies that if the conditioning of the problem is high the real solutions to the perturbed problems are inevitably going to be inaccurate.\
+If $w_*$ is the exact solution to the least squares problem and $\tilde{w}_*$ is the solution found with one of the QR based algorithms outlined above, the accuracy of the algorithms will therefore follow the general upper bounds of relative errors found in [@trefethen_numerical_1997, 131]:
+
+$$
+\frac{\| \tilde{w}_* - w_*\|}{\| w_* \|} \leq (\kappa(\hat{X}) + \kappa(\hat{X})^2 \tan \theta) \frac{\| \delta \hat{X} \|}{\| \hat{X} \|}
+$$
+
+$$
+\frac{\| \tilde{w}_* - w_*\|}{\| w_* \|} \leq \left( \frac{\kappa(\hat{X})}{\cos \theta} \right) \frac{\| \delta y \|}{\| y \|}
+$$
+
+where $\theta$ is the angle such that $\cos \theta = \frac{\| \hat{X}w_* \|}{\| y \|}$.\
+From these upper bounds we can expect that the algorithm will be more accurate when the angle theta is near 0 and less accurate when it is near $\frac{\pi}{2}$, reminding that in our context the value of $\theta$ will depend on the value of the random vector $y$.
+
+<!-- In our context, the matrix xhat is not so ill-conditioned given that its condition number k(xhat) is 1.58*10^2 (k(A) has been found by computing sigma1/sigman through an SVD procedure).
+Since the matrix X_hat is fixed, the only other way to vary the upperbounds is to vary the random vector y. In particular, if the angle theta between y and xhat*w is near 0 the upperbounds become *, on the other hand, if theta is near 90° the accuracies of the algorithms will degrade (especially because of the quadratic term in k(A)). -->
+
+<!-- $$
+\begin{bmatrix}
+I_{n-1} & 0\\
+0 & H_n\\
+\end{bmatrix}
+\begin{bmatrix}
+I_{n-2} & 0 & 0\\
+0 & H_{n-1} & 0\\
+0 & 0 & I_1
+\end{bmatrix}
+\dots
+\begin{bmatrix}
+I_1 & 0 & 0\\
+0 & H_2 & 0\\
+0 & 0 & I_{n-2}
+\end{bmatrix}
+\begin{bmatrix}
+H_1 & 0\\
+0 & I_{n-1}
+\end{bmatrix}
+$$ -->
 
 # Input data
 <!--
