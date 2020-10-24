@@ -1,6 +1,7 @@
 ---
 documentclass: IEEEtran
 bibliography: bibliography.bib
+header-includes: \usepackage{amsthm}
 ...
 
 \title{Analysis of optimization and numerical approaches to solve the linear least square problem}
@@ -218,10 +219,8 @@ $$
 
 Other initialization techniques may possibly be tested and evaluated experimentally.
 
-## Armijo-Wolfe inexact line search
-The convergence proof requires the algorithm to perform a line search respectful of the Armijo-Wolfe conditions, the solution described in @al-baali_efficient_1986 is therefore adapted and implemented.
-
-The algorithm performs an inexact line search that is ensured to converge under the assumption that $\sigma > \rho$ where $\rho \in (0,\frac{1}{2}), \sigma \in (0,1)$, respectively the constant for the Armijo condition and for the Wolfe one.
+## Armijo-Wolfe line search
+The convergence proof requires the algorithm to perform a line search respectful of the Armijo-Wolfe conditions.
 By defining the function $\phi$, used to evaluate the value of $f$ at a certain step-size $\alpha$, the conditions can be defined as follows.
 
 $$
@@ -238,51 +237,51 @@ $$
 \phi ' (\alpha) \geq \sigma \phi ' (0)
 $$
 
-<!-- Strong Wolfe Condition -->
-<!-- $$ -->
-<!-- | \phi ' (\alpha) | \leq - \sigma \phi ' (0) -->
-<!-- $$ -->
-
-The algorithm requires a lower bound $\bar f$ on $\phi(\alpha)$ for $\alpha \geq 0$. More precisely, it assumes that the user is prepared to accept any value of $\alpha$ for which $\phi(\alpha) \leq \bar f$ where $\bar f < \phi(0)$.
-For the linear least-squares problem an obvious lower bound is $\bar f = 0$.
-
-The algorithm performs an inexact line search by looking for a candidate point $\alpha_i$ at the $i$-th iteration in the interval $(a_i, b_i)$, stopping if such candidate reaches the lower bound or if it satisfies both \eqref{eqn:armijo} and \eqref{eqn:wolfe}.
-
-![Graphical depiction of the $\mu$ point.\label{fig:mu}](assets/rho-line.png)
-
-The Armijo condition describes a line, called $\rho$-line, in the plot $(\alpha, \phi(\alpha))$ that can be useful to bound the starting interval.
-In fact the initial search interval can be reduced from $(0,\infty)$ to $(0,\mu)$ where
+Given the quadratic nature of the least squares problem, it is possible to compute the exact optimal step-size $\bar\alpha$ by solving $\phi ' (\alpha) = 0$.
+To simplify the following discussion the objective function $f(w)$ is described in the form $\frac{1}{2} w^TQw+q^Tw+c$ where
 
 $$
-\mu = \frac{\bar f - \phi(0)}{\rho \phi ' (0)}
+Q=\bar X \bar X^T, q^T = -y^T\hat X, c=-\frac{1}{2}\|y\|^2
 $$
 
-It is immediate that $\forall \alpha > \mu$ either \eqref{eqn:armijo} can't be satisfied, or the point lies under the lower bound $\bar f$ (figure \ref{fig:mu}).
-
-To proceed with the discussion over the shrinking procedure the function $T$ is defined as in
+Therefore the function $\phi ' (\alpha)$ can be defined as follows
 
 $$
-T(a,b) = [a + \tau_1 (b-a), b - \tau_2 (b-a)]
+\phi ' (\alpha) = \frac{\partial f(w+\alpha d)}{\partial \alpha} = \nabla f(w)^T d + \alpha d^T Q d
 $$
 
-where $0 < \tau_1 \leq \tau_2 \leq \frac{1}{2}$.
+where $d$ is the descent direction computed by the L-BFGS algorithm.
+The optimal step-size is then computable as
 
-If the candidate doesn't satisfy \eqref{eqn:armijo} or if the left extreme $a_i$ constitutes a better point, the next candidate is chosen in the interval $T(a_i, \alpha_i)$.
-Otherwise if the candidate doesn't satisfies \eqref{eqn:wolfe} the next candidate is chosen in $T(\alpha_i, b_i)$.
-In both cases the $a_{i+1}$ and $b_{i+1}$ are updated with the extremes returned by the $T$ function.
+$$
+\bar\alpha = - \frac{\nabla f(w)^T d}{d^TQd}
+$$
 
-The candidate step-size may be randomly chosen between all the points in the interval defined by the $T$ function, this approach will be experimentally tested against quadratic interpolation.
+It can be proven that the step size $\bar\alpha$ satisfies both \eqref{eqn:armijo} for any $\rho \leq \frac{1}{2}$ and \eqref{eqn:wolfe} for any positive $\sigma$. The core steps of the proofs are hereby reported, it should be remarked that these depend on the fact that $d$ is a descent direction, and so that $f(w)^Td<0$. \newline
 
-It should be noted that the @al-baali_efficient_1986 paper defines the function $T$ in a slightly different way, together with another function $E$ used to specifically define the interval when $\eqref{eqn:wolfe}$ is not satisfied.
-The simplification hereby described is due to the fact that in our implementation it is ensured that $\forall i : a_i \leq \alpha_i \leq b_i \land b_i \neq \infty$, moreover this does not interfere with the convergence proof.
+### Armijo satisfaction proof
 
-As suggested by @liu_limited_1989 the unitary step length should always be tried first, so the first candidate should be $\alpha_0 = 1$.
-Other suggestions known in literature about the initialization of the remaining hyper-parameters are presented in the experimental setup section to be eventually evaluated.
-<!-- The initial conditions are-->
-<!-- $$-->
-<!-- \alpha_0 = 1, a_0 = 0, b_0 = \mu, \tau_1 \approx 0.1, \tau_2 \approx 0.5, \sigma = 0.1, \rho = 0.01, \bar\alpha = 1-->
-<!-- $$-->
-<!-- 0, 1, 1. <!--Why?-1->-->
+$$
+\begin{split}
+\phi(\bar\alpha) & \leq \phi(0) + \rho\bar\alpha\phi ' (0) \\
+f(w + \bar\alpha d) - f(w) & \leq \rho\bar\alpha\nabla f(w)^Td \\
+\bar\alpha (w^TQ + q^T)d + \frac{\bar\alpha^2}{2} d^TQd + & \leq \rho\bar\alpha\nabla f(w)^Td \\
+\nabla f(w)^Td + \frac{\bar\alpha}{2} d^TQd + & \leq \rho\nabla f(w)^Td \\
+\nabla f(w)^Td - \frac{1}{2} \frac{\nabla f(w)^Td}{d^TQd} d^TQd + & \leq \rho\nabla f(w)^Td \\
+\rho & \leq \frac{1}{2} \\
+\end{split}
+$$
+
+### Wolfe satisfaction proof
+
+$$
+\begin{split}
+\phi ' (\alpha) & \geq \sigma \phi ' (0) \\
+\nabla f(w)^T d + \bar\alpha d^TQd & \geq \sigma\nabla f(w)^T d \\
+\nabla f(w)^T d - \nabla f(w)^T d & \geq \sigma\nabla f(w)^T d \\
+\sigma & \geq 0\\
+\end{split}
+$$
 
 ## Analysis of standard and modified thin QR
 
