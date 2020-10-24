@@ -248,7 +248,7 @@ For the linear least-squares problem an obvious lower bound is $\bar f = 0$.
 
 The algorithm performs an inexact line search by looking for a candidate point $\alpha_i$ at the $i$-th iteration in the interval $(a_i, b_i)$, stopping if such candidate reaches the lower bound or if it satisfies both \eqref{eqn:armijo} and \eqref{eqn:wolfe}.
 
-![Graphical depiction of the $\mu$ point.\label{fig:mu}](assets/figure.png)
+![Graphical depiction of the $\mu$ point.\label{fig:mu}](assets/rho-line.png)
 
 The Armijo condition describes a line, called $\rho$-line, in the plot $(\alpha, \phi(\alpha))$ that can be useful to bound the starting interval.
 In fact the initial search interval can be reduced from $(0,\infty)$ to $(0,\mu)$ where
