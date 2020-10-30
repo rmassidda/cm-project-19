@@ -6,12 +6,6 @@ def log(v,name):
     v = np.array(v)
     print(name+':', v.shape, v if max(v.shape, default=0)<=1 else '', sep='\t')
 
-# def crono(f,args):
-#     start = time.time()
-#     res   = f(**args)
-#     end   = time.time()
-#     return res, end-time
-
 # Construct the input matrix
 def load_dataset():
     X = np.genfromtxt('dataset/ML-CUP19-TR.csv', delimiter=',', usecols=range(1,21))
@@ -22,22 +16,16 @@ def load_dataset():
     log(X_hat,'\hat X')
     return X, X_hat
 
+# Initial data
 X, X_hat = load_dataset()
 m, n     = X_hat.shape
-
-# Random y vector
-y = np.random.rand(m)
-log(y, 'y')
-
-def evaluate_solution(w,steps,time=None):
-    r = np.linalg.norm(X_hat @ w - y) ** 2
-    print('', 'Steps:',steps,sep='\t')
-    print('', 'Residual:',r,sep='\t')
+y        = np.random.rand(m)
+f        = lambda w : np.linalg.norm(X_hat @ w - y) ** 2
 
 # Numpy solution
-print("Numpy solution")
-w, r, _, _ = np.linalg.lstsq(X_hat, y, rcond=None) 
-evaluate_solution(w,0)
+# print("Numpy solution")
+# w, r, _, _ = np.linalg.lstsq(X_hat, y, rcond=None)
+# evaluate_solution(w,0)
 
 # Gradient
 def g(w):
@@ -47,23 +35,35 @@ def g(w):
 H = X @ X.T + np.eye(n) # Explicit
 B = np.linalg.inv(H)    # Inverse
 
-# Netwon method
+MAX_STEP = 256
+
+# Newton method
 print("Newton method")
 eps = 1e-3
 w   = np.random.rand(n)
-k   = 0
 gw  = g(w)
 ngw = np.linalg.norm(gw)
-while ngw > eps:
+k   = 0
+print('', 'Steps', 'α', '|∇f(w)|',sep='\t')
+while ngw > eps and k < MAX_STEP:
+    # Direction
     d     = - B @ gw
     alpha = - (gw.T @ d)/(d.T @ H @ d)
-    w   = w + alpha * d
-    k  += 1
-    gw  = g(w)
+
+    # Next candidate
+    next_w  = w + alpha * d
+    next_gw = g(next_w)
+
+    # Update candidate
+    gw  = next_gw
+    w   = next_w
     ngw = np.linalg.norm(gw)
-    # print('Step:',k,sep='\t')
-    # log(ngw,'|∇f(w)|')
-evaluate_solution(w,k)
+
+    # Log
+    print('', k, "%.2f" % alpha, np.format_float_scientific(ngw, precision=4),sep='\t')
+
+    # Update step counter
+    k += 1
 
 # L-BFGS
 print("L-BFGS method")
@@ -73,12 +73,13 @@ s   = 0
 gw  = g(w)
 ngw = np.linalg.norm(gw)
 k   = 0
-t   = 16
+t   = 8
 p   = 0
 S   = np.zeros((t,n))
 Y   = np.zeros((t,n))
 gamma = 1
-while ngw > eps and k < 256:
+print('', 'Steps', 'α', '|∇f(w)|',sep='\t')
+while ngw > eps and k < MAX_STEP:
     H_0 = gamma * np.eye(n)
 
     # L-BFGS two-loop recursion
@@ -108,7 +109,7 @@ while ngw > eps and k < 256:
     S[p]  = next_w - w
     Y[p]  = next_gw - gw
     gamma = (S[p] @ Y[p]) / (Y[p] @ Y[p])
-    p    = ( p + 1 ) % t
+    p     = ( p + 1 ) % t
 
     # Update candidate
     gw  = next_gw
@@ -116,10 +117,7 @@ while ngw > eps and k < 256:
     ngw = np.linalg.norm(gw)
 
     # Log
-    # print('Step:',k,sep='\t')
-    # log(ngw,'|∇f(w)|')
+    print('', k, "%.2f" % alpha, np.format_float_scientific(ngw, precision=4),sep='\t')
 
     # Update step counter
     k += 1
-
-evaluate_solution(w,k)
