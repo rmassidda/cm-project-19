@@ -1,4 +1,5 @@
 import numpy as np
+from utils import load_dataset, lls_functions
 
 class Newton:
     def __init__(self, w, gw, H):
@@ -152,3 +153,36 @@ def optimize(f, g, Q, opt, eps=1e-3, max_step=256, verbose=False):
         k += 1
 
     return w, k
+
+if __name__ == "__main__":
+    # Data loading
+    X, X_hat = load_dataset()
+    m, n     = X_hat.shape
+
+    # Initial values
+    y = np.random.rand(m)
+    f, g, Q = lls_functions(X_hat, X, y)
+    w       = np.random.rand(n)
+    gw      = g(w)
+    H       = np.linalg.inv(Q)
+
+    def print_mem(o):
+        print(o, 'memory usage')
+        for attr, value in o.__dict__.items():
+            try:
+                print('', attr, value.shape, sep='\t')
+            except AttributeError:
+                pass
+        print()
+
+    opt    = Newton(w, gw, H)
+    w_c, s = optimize(f,g,Q,opt,verbose=True)
+    print_mem(opt)
+
+    opt    = BFGS(w, gw, np.eye(n))
+    w_c, s = optimize(f,g,Q,opt,verbose=True)
+    print_mem(opt)
+
+    opt    = LBFGS(w, gw, H)
+    w_c, s = optimize(f,g,Q,opt,verbose=True)
+    print_mem(opt)
