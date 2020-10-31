@@ -85,13 +85,13 @@ while ngw > eps and k < MAX_STEP:
     # L-BFGS two-loop recursion
     q = gw
     for i in range(min(t,k)): # Recent to older
-        cp    = ( p - 1 ) % t
+        cp    = p - i - 1
         rho   = 1 / (Y[cp].T @ S[cp])
         alpha = rho * S[cp] @ q
         q     = q - alpha * Y[cp]
     r = H_0 @ q
     for i in range(min(t,k)): # Older to recent
-        cp    = ( p - 1 ) % t
+        cp    = p - i - 1
         rho   = 1 / (Y[cp].T @ S[cp])
         alpha = rho * S[cp] @ q
         beta  = rho * Y[cp] @ r
