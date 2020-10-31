@@ -3,6 +3,7 @@ import numpy as np
 class Newton:
     def __init__(self, w, gw, H):
         self.w  = w
+        self.n  = w.shape[0]
         self.gw = gw
         self.H  = H
 
@@ -17,10 +18,10 @@ class Newton:
 
 class BFGS(Newton):
     def update(self, w, gw):
-        s   = np.reshape(w - self.w, (n,1))
-        Y   = np.reshape(gw - self.gw, (n,1))
+        s   = np.reshape(w - self.w, (self.n,1))
+        Y   = np.reshape(gw - self.gw, (self.n,1))
         rho = 1 / ( Y.T @ s )
-        self.H = (np.eye(n) - rho * s @ Y.T ) @ self.H @ ( np.eye(n) - rho * Y @ s.T ) + rho * s @ s.T
+        self.H = (np.eye(self.n) - rho * s @ Y.T ) @ self.H @ ( np.eye(self.n) - rho * Y @ s.T ) + rho * s @ s.T
         self.w = w
         self.gw = gw
         return w, gw
@@ -29,13 +30,13 @@ class BFGS(Newton):
         return 'BFGS'
 
 class LBFGS(Newton):
-    def __init__(self, w, gw, t, init='gamma', perturbate=None):
+    def __init__(self, w, gw, H, t=8, init='gamma', perturbate=None):
         self.w  = w
+        self.n  = w.shape[0]
         self.gw = gw
         self.k  = 0
         self.t  = t
         self.p  = 0
-        self.n  = w.shape[0]
         self.I = np.ones(self.n)
         self.S = np.zeros((self.t,self.n))
         self.Y = np.zeros((self.t,self.n))
@@ -97,7 +98,7 @@ f : R^n -> R
     The least squares problem objective function
 g : R^n -> R^n
     The gradient function
-H : R^{n*n}
+Q : R^{n*n}
     The exact Hessian
 opt : Optimizer
     The optimizer
@@ -114,7 +115,7 @@ w : R^n
     The candidate solution
 """
 
-def optimize(f, g, H, opt, eps=1e-3, max_step=256, verbose=False):
+def optimize(f, g, Q, opt, eps=1e-3, max_step=256, verbose=False):
     # Verbose
     if verbose:
         print(opt)
@@ -133,7 +134,7 @@ def optimize(f, g, H, opt, eps=1e-3, max_step=256, verbose=False):
 
         # Line search
         # TODO: parametrize
-        alpha = - (gw.T @ d)/(d.T @ H @ d)
+        alpha = - (gw.T @ d)/(d.T @ Q @ d)
 
         # Next candidate
         next_w  = w + alpha * d
