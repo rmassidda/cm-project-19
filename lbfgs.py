@@ -121,3 +121,45 @@ while ngw > eps and k < MAX_STEP:
 
     # Update step counter
     k += 1
+
+# BFGS
+print("BFGS method")
+# Looping
+eps = 1e-3
+k   = 0
+# Initial conditions
+w   = np.random.rand(n)
+gw  = g(w)
+ngw = np.linalg.norm(gw)
+Hk  = B + np.eye(n) * np.random.rand()
+I   = np.eye(n)
+print('', 'Steps', 'α', '|∇f(w)|',sep='\t')
+while ngw > eps and k < MAX_STEP:
+    # Compute search direction
+    d  = - Hk @ gw
+
+    # Line search
+    alpha = - (gw.T @ d)/(d.T @ H @ d)
+
+    # Next candidate
+    next_w  = w + alpha * d
+    next_gw = g(next_w)
+
+    # Update S and Y
+    s   = np.reshape(next_w - w, (n,1))
+    Y   = np.reshape(next_gw - gw, (n,1))
+    rho = 1 / ( Y.T @ s )
+
+    # Update H
+    Hk = (I - rho * s @ Y.T ) @ Hk @ ( I - rho * Y @ s.T ) + rho * s @ s.T
+
+    # Update candidate
+    gw  = next_gw
+    w   = next_w
+    ngw = np.linalg.norm(gw)
+
+    # Log
+    print('', k, "%.2f" % alpha, np.format_float_scientific(ngw, precision=4),sep='\t')
+
+    # Update step counter
+    k += 1
