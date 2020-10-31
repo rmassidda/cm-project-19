@@ -1,10 +1,5 @@
 import numpy as np
-
-def load_dataset():
-    X = np.genfromtxt('dataset/ML-CUP19-TR.csv', delimiter=',', usecols=range(1,21))
-    I = np.eye(X.shape[0])
-    X_hat = np.concatenate((X.T, I))
-    return X, X_hat
+from utils import load_dataset, lls_functions
 
 class Newton:
     def __init__(self, w, gw, H):
@@ -156,10 +151,8 @@ if __name__ == '__main__':
     m, n     = X_hat.shape
 
     # Define functions
-    y        = np.random.rand(m)
-    f        = lambda w : np.linalg.norm(X_hat @ w - y) ** 2
-    g        = lambda w : X_hat.T @ ( X_hat @ w - y )
-    H        = X @ X.T + np.eye(n)
+    y = np.random.rand(m)
+    f, g, H = lls_functions(X_hat, X, y)
 
     # Initial values
     w  = np.random.rand(n)
