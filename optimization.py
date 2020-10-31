@@ -1,5 +1,4 @@
 import numpy as np
-from utils import load_dataset, lls_functions
 
 class Newton:
     def __init__(self, w, gw, H):
@@ -30,20 +29,28 @@ class BFGS(Newton):
         return 'BFGS'
 
 class LBFGS(Newton):
-    def __init__(self, w, gw, t):
+    def __init__(self, w, gw, t, init='gamma', perturbate=None):
         self.w  = w
         self.gw = gw
         self.k  = 0
         self.t  = t
         self.p  = 0
         self.n  = w.shape[0]
-        self.I = np.eye(self.n)
+        self.I = np.ones(self.n)
         self.S = np.zeros((self.t,self.n))
         self.Y = np.zeros((self.t,self.n))
         self.gamma = 1
+        self.init  = init
+        self.perturbate = perturbate
 
     def get_direction(self):
-        Hk = self.gamma * self.I
+        if self.init == 'gamma':
+            init = self.gamma * self.I
+        elif self.init == 'identity':
+            init = self.I
+
+        if self.perturbate is not None:
+            init += np.random.normal(0,self.perturbate,self.n)
 
         q = self.gw
         for i in range(min(self.t,self.k)): # Recent to older
@@ -54,7 +61,7 @@ class LBFGS(Newton):
             alpha = rho * si.T @ q
             q     = q - alpha * yi
 
-        r = Hk @ q
+        r = init * q
         for i in range(min(self.t,self.k)): # Older to recent
             cp    = self.p - i -1
             si = self.S[cp]
@@ -107,7 +114,7 @@ w : R^n
     The candidate solution
 """
 
-def optimization(f, g, H, opt, eps=1e-3, max_step=256, verbose=False):
+def optimize(f, g, H, opt, eps=1e-3, max_step=256, verbose=False):
     # Verbose
     if verbose:
         print(opt)
@@ -143,30 +150,4 @@ def optimization(f, g, H, opt, eps=1e-3, max_step=256, verbose=False):
         # Update step counter
         k += 1
 
-    return w
-
-if __name__ == '__main__':
-    # Data loading
-    X, X_hat = load_dataset()
-    m, n     = X_hat.shape
-
-    # Define functions
-    y = np.random.rand(m)
-    f, g, H = lls_functions(X_hat, X, y)
-
-    # Initial values
-    w  = np.random.rand(n)
-    gw = g(w)
-
-    # Newton
-    newton = Newton(w, gw, np.linalg.inv(H))
-    optimization(f, g, H, newton, verbose=True)
-
-    # L-BFGS
-    lbfgs = LBFGS(w, gw, 8)
-    optimization(f, g, H, lbfgs, verbose=True)
-
-    # BFGS
-    h0 = np.eye(n)
-    bfgs = BFGS(w, gw,h0)
-    optimization(f, g, H, bfgs, verbose=True)
+    return w, k
