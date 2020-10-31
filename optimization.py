@@ -154,23 +154,26 @@ if __name__ == '__main__':
     # Data loading
     X, X_hat = load_dataset()
     m, n     = X_hat.shape
+
+    # Define functions
     y        = np.random.rand(m)
     f        = lambda w : np.linalg.norm(X_hat @ w - y) ** 2
     g        = lambda w : X_hat.T @ ( X_hat @ w - y )
     H        = X @ X.T + np.eye(n)
 
+    # Initial values
     w  = np.random.rand(n)
     gw = g(w)
 
     # Newton
     newton = Newton(w, gw, np.linalg.inv(H))
-    optimization(f,g,H,newton,verbose=True)
+    optimization(f, g, H, newton, verbose=True)
 
     # L-BFGS
     lbfgs = LBFGS(w, gw, 8)
-    optimization(f,g,H,lbfgs,verbose=True)
+    optimization(f, g, H, lbfgs, verbose=True)
 
     # BFGS
     h0 = np.eye(n)
     bfgs = BFGS(w, gw,h0)
-    optimization(f,g,H,bfgs,verbose=True)
+    optimization(f, g, H, bfgs, verbose=True)
