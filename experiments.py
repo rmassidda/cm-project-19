@@ -27,6 +27,24 @@ def solver(y, method, params, i, log):
     log['residual'][i] = f(w_c)
     log['steps'][i]    = s
 
+def direct_solver(y, qr_factorization, i, log):
+    # Initial values
+    f, _, _ = lls_functions(X_hat, X, y)
+    s       = 1
+
+    # Solve the LLS problem
+    start    = time.time()
+    R, vects = qr_factorization(X_hat)
+    Q1       = q1(vects, m)
+    c        = np.dot(Q1.T, y)
+    w_c      = back_substitution(R[:n, :], c)
+    end      = time.time()
+
+    # Log results
+    log['duration'][i] = end - start
+    log['residual'][i] = f(w_c)
+    log['steps'][i]    = s
+
 metrics = ['duration','residual','steps']
 
 if __name__ == '__main__':
@@ -38,13 +56,14 @@ if __name__ == '__main__':
     MAX_EXP  = 4
 
     # Test: evaluate performances on a random vector
-    methods = ['Newton', 'BFGS', 'LBFGS']
+    methods = ['Newton', 'BFGS', 'LBFGS', 'QR*']
     log = {k1: {k2: np.zeros(MAX_EXP) for k2 in metrics} for k1 in methods}
     for i in range(MAX_EXP):
         y = np.random.rand(m)
         solver(y, Newton, {}, i, log['Newton'])
         solver(y, BFGS, {'H': np.eye(n)}, i, log['BFGS'])
         solver(y, LBFGS, {}, i, log['LBFGS'])
+        direct_solver(y, lambda A: modified_qr(A, m-n+1), i, log['QR*'])
     for k1 in methods:
         print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
 
@@ -98,50 +117,3 @@ if __name__ == '__main__':
             solver(y, LBFGS, {}, i, log[k1])
     for k1 in methods:
         print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
-
-    # Numerical experiments
-    np.set_printoptions(precision=20)
-
-    # Random y vector
-    y = np.random.rand(m)
-    print('Random y vector:')
-    print(y)
-    print()
-
-    # Solve the least squares problem (numpy)
-    start = time.time()
-    w = np.linalg.lstsq(X_hat, y, rcond=None)
-    end = time.time()
-    print('Solution to the ls found in {:.2f} ms:'.format(end-start))
-    print(w[0])
-    print()
-
-    start = time.time()
-    R, vects = modified_qr(X_hat, m-n+1)
-    end = time.time()
-    print("Modified qr,", end-start, "ms:\n", R)
-    print()
-
-    start = time.time()
-    Q1 = q1(vects, m)
-    end = time.time()
-    print("Q1 reconstruction:", end-start, "ms:\n", Q1.shape)
-    print()
-
-    Qnp, Rnp = np.linalg.qr(X_hat, mode='complete')
-    print('diy Q1 vs numpy Q1 (norm of difference)')
-    print(np.linalg.norm(Qnp[:,0:n] - Q1, ord='fro'))
-    print()
-    print('diy R vs numpy R (norm of difference):')
-    print(np.linalg.norm(R[:,0:n] - Rnp[:,0:n], ord='fro'))
-    print()
-
-    start = time.time()
-    c = np.dot(Q1.T, y)
-    x = back_substitution(R[:n, :], c)
-    end = time.time()
-    print('diy solution to the ls found in {:.2f} ms'.format(end-start))
-    print()
-    print('diy solution vs numpy solution (norm of difference):')
-    print(np.linalg.norm(x-w[0]))
-    print()
