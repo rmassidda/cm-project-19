@@ -28,8 +28,6 @@ def solver(y, method, params, i, log):
     log['steps'][i]    = s
 
 metrics = ['duration','residual','steps']
-methods = ['Newton', 'BFGS', 'LBFGS']
-classes = [Newton, BFGS, LBFGS]
 
 if __name__ == '__main__':
     # Data loading
@@ -40,12 +38,27 @@ if __name__ == '__main__':
     MAX_EXP  = 4
 
     # Test: evaluate performances on a random vector
+    methods = ['Newton', 'BFGS', 'LBFGS']
     log = {k1: {k2: np.zeros(MAX_EXP) for k2 in metrics} for k1 in methods}
     for i in range(MAX_EXP):
         y = np.random.rand(m)
         solver(y, Newton, {}, i, log['Newton'])
         solver(y, BFGS, {'H': np.eye(n)}, i, log['BFGS'])
         solver(y, LBFGS, {}, i, log['LBFGS'])
+    for k1 in methods:
+        print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
+
+    # Test: evaluate different initialization for LBFGS
+    rng      = range(0, 10, 2)
+    methods  = ['γ', *['γ~1e-'+str(i) for i in rng]]
+    methods += ['I', *['I~1e-'+str(i) for i in rng]]
+    params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**-i} for i in rng]]
+    params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**-i} for i in rng]]
+    log = {k1: {k2: np.zeros(MAX_EXP) for k2 in metrics} for k1 in methods}
+    for i in range(MAX_EXP):
+        y = np.random.rand(m)
+        for k1, p in zip(methods,params):
+            solver(y, LBFGS, p, i, log[k1])
     for k1 in methods:
         print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
 
@@ -78,7 +91,6 @@ if __name__ == '__main__':
     print("Q1 reconstruction:", end-start, "ms:\n", Q1.shape)
     print()
 
-
     Qnp, Rnp = np.linalg.qr(X_hat, mode='complete')
     print('diy Q1 vs numpy Q1 (norm of difference)')
     print(np.linalg.norm(Qnp[:,0:n] - Q1, ord='fro'))
@@ -86,7 +98,6 @@ if __name__ == '__main__':
     print('diy R vs numpy R (norm of difference):')
     print(np.linalg.norm(R[:,0:n] - Rnp[:,0:n], ord='fro'))
     print()
-
 
     start = time.time()
     c = np.dot(Q1.T, y)
