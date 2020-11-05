@@ -75,67 +75,65 @@ if __name__ == '__main__':
     m, n     = X_hat.shape
 
     # Number of experiments
-    MAX_EXP  = 2
-    Y = [np.random.rand(m) for _ in range(MAX_EXP)]
+    MAX_EXP = 2
 
-    exp = lambda y: numpy_solver(y)
-    run_experiment(exp, Y, 'LLS Numpy')
+    y_generator = []
+    y_generator.append([np.random.rand(m) for _ in range(MAX_EXP)])
 
-    exp = lambda y: optimization_solver(y, Newton, {})
-    run_experiment(exp, Y, 'Newton')
+    n_theta  = 4
+    ls_theta = [i*np.pi/(2*n_theta) for i in range(n_theta)]
+    get_y    = lambda theta: theta_angled(X_hat, theta)[1]
+    for theta in ls_theta:
+        y_generator.append([get_y(theta) for _ in range(MAX_EXP)])
 
-    exp = lambda y: optimization_solver(y, BFGS, {'H': np.eye(n)})
-    run_experiment(exp, Y, 'BFGS')
+    for Y in y_generator:
 
-    exp = lambda y: optimization_solver(y, LBFGS, {})
-    run_experiment(exp, Y, 'LBFGS')
+        exp = lambda y: numpy_solver(y)
+        run_experiment(exp, Y, 'LLS Numpy')
 
-    exp = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
-    run_experiment(exp, Y, 'QR*')
+        exp = lambda y: optimization_solver(y, Newton, {})
+        run_experiment(exp, Y, 'Newton')
 
-    # Evaluate different memory for LBFGS
-    rng      = range(1, n, int(n/10))
-    methods  = ['t'+str(i) for i in rng]
-    params   = [{'t': i} for i in rng]
-    for method, p in zip(methods,params):
-        exp = lambda y: optimization_solver(y, LBFGS, p)
-        run_experiment(exp, Y, 'LBFGS '+method)
+        exp = lambda y: optimization_solver(y, BFGS, {'H': np.eye(n)})
+        run_experiment(exp, Y, 'BFGS')
 
-    # Evaluate different initialization for LBFGS
-    rng      = range(-5, 5, 2)
-    methods  = ['γ', *['γ~1e'+str(i) for i in rng]]
-    methods += ['I', *['I~1e'+str(i) for i in rng]]
-    params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**i} for i in rng]]
-    params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**i} for i in rng]]
-    for method, p in zip(methods,params):
-        exp = lambda y: optimization_solver(y, LBFGS, p)
-        run_experiment(exp, Y, 'LBFGS '+method)
+        exp = lambda y: optimization_solver(y, LBFGS, {})
+        run_experiment(exp, Y, 'LBFGS')
 
-    # Evaluate different initialization for BFGS
-    rng      = range(-5, 5, 2)
-    methods  = ['H', *['H~1e'+str(i) for i in rng]]
-    methods += ['I', *['I~1e'+str(i) for i in rng]]
-    params   = [('H',0), *[('H',10**i) for i in rng]]
-    params  += [('I',0), *[('I',10**i) for i in rng]]
-    def perturbate_H(y, eps, init):
-        _, _, Q = lls_functions(X_hat, X, y)
-        H = np.linalg.inv(Q)
-        if init == 'H':
-            return {'H': H + np.random.normal(0,eps,n)}
-        else:
-            return {'H': np.eye(n) + np.random.normal(0,eps,n)}
-    for method, (init, eps) in zip(methods,params):
-        exp = lambda y: optimization_solver(y, BFGS, perturbate_H(y, eps, init))
-        run_experiment(exp, Y, 'BFGS '+method)
+        exp = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
+        run_experiment(exp, Y, 'QR*')
 
-#     # Test: evaluate different θ
-#     n_int    = 4
-#     methods  = ['π/'+"%.2f"%(2*n_int/i) if i != 0 else '0' for i in range(0,n_int+1)]
-#     params   = [i*np.pi/(2*n_int) for i in range(0,n_int+1)]
-#     log = {k1: {k2: np.zeros(MAX_EXP) for k2 in metrics} for k1 in methods}
-#     for k1, theta in zip(methods,params):
-#         _, y = theta_angled(X_hat, theta)
-#         for i in range(MAX_EXP):
-#             solver(y, LBFGS, {}, i, log[k1])
-#     for k1 in methods:
-#         print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
+        # Evaluate different memory for LBFGS
+        rng      = range(1, n, int(n/10))
+        methods  = ['t'+str(i) for i in rng]
+        params   = [{'t': i} for i in rng]
+        for method, p in zip(methods,params):
+            exp = lambda y: optimization_solver(y, LBFGS, p)
+            run_experiment(exp, Y, 'LBFGS '+method)
+
+        # Evaluate different initialization for LBFGS
+        rng      = range(-5, 5, 2)
+        methods  = ['γ', *['γ~1e'+str(i) for i in rng]]
+        methods += ['I', *['I~1e'+str(i) for i in rng]]
+        params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**i} for i in rng]]
+        params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**i} for i in rng]]
+        for method, p in zip(methods,params):
+            exp = lambda y: optimization_solver(y, LBFGS, p)
+            run_experiment(exp, Y, 'LBFGS '+method)
+
+        # Evaluate different initialization for BFGS
+        rng      = range(-5, 5, 2)
+        methods  = ['H', *['H~1e'+str(i) for i in rng]]
+        methods += ['I', *['I~1e'+str(i) for i in rng]]
+        params   = [('H',0), *[('H',10**i) for i in rng]]
+        params  += [('I',0), *[('I',10**i) for i in rng]]
+        def perturbate_H(y, eps, init):
+            _, _, Q = lls_functions(X_hat, X, y)
+            H = np.linalg.inv(Q)
+            if init == 'H':
+                return {'H': H + np.random.normal(0,eps,n)}
+            else:
+                return {'H': np.eye(n) + np.random.normal(0,eps,n)}
+        for method, (init, eps) in zip(methods,params):
+            exp = lambda y: optimization_solver(y, BFGS, perturbate_H(y, eps, init))
+            run_experiment(exp, Y, 'BFGS '+method)
