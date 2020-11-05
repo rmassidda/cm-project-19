@@ -1,5 +1,6 @@
 from utils import load_dataset, lls_functions
 from optimization import LBFGS, BFGS, Newton, optimize
+from numerical import qr, modified_qr, q1, back_substitution
 import numpy as np
 import time
 
@@ -47,3 +48,52 @@ if __name__ == '__main__':
         solver(y, LBFGS, {}, i, log['LBFGS'])
     for k1 in methods:
         print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
+
+    # Numerical experiments
+    np.set_printoptions(precision=20)
+
+    # Random y vector
+    y = np.random.rand(m)
+    print('Random y vector:')
+    print(y)
+    print()
+
+    # Solve the least squares problem (numpy)
+    start = time.time()
+    w = np.linalg.lstsq(X_hat, y, rcond=None)
+    end = time.time()
+    print('Solution to the ls found in {:.2f} ms:'.format(end-start))
+    print(w[0])
+    print()
+
+    start = time.time()
+    R, vects = modified_qr(X_hat, m-n+1)
+    end = time.time()
+    print("Modified qr,", end-start, "ms:\n", R)
+    print()
+
+    start = time.time()
+    Q1 = q1(vects, m)
+    end = time.time()
+    print("Q1 reconstruction:", end-start, "ms:\n", Q1.shape)
+    print()
+
+
+    Qnp, Rnp = np.linalg.qr(X_hat, mode='complete')
+    print('diy Q1 vs numpy Q1 (norm of difference)')
+    print(np.linalg.norm(Qnp[:,0:n] - Q1, ord='fro'))
+    print()
+    print('diy R vs numpy R (norm of difference):')
+    print(np.linalg.norm(R[:,0:n] - Rnp[:,0:n], ord='fro'))
+    print()
+
+
+    start = time.time()
+    c = np.dot(Q1.T, y)
+    x = back_substitution(R[:n, :], c)
+    end = time.time()
+    print('diy solution to the ls found in {:.2f} ms'.format(end-start))
+    print()
+    print('diy solution vs numpy solution (norm of difference):')
+    print(np.linalg.norm(x-w[0]))
+    print()
