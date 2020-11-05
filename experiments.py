@@ -4,7 +4,7 @@ from numerical import qr, modified_qr, q1, back_substitution
 import numpy as np
 import time
 
-def solver(y, method, params):
+def optimization_solver(y, method, params):
     # Initial values
     f, g, Q = lls_functions(X_hat, X, y)
     w       = np.random.rand(n)
@@ -28,7 +28,7 @@ def solver(y, method, params):
     steps    = s
     return duration, residual, steps
 
-def direct_solver(y, qr_factorization):
+def numerical_solver(y, qr_factorization):
     # Initial values
     f, _, _ = lls_functions(X_hat, X, y)
     s       = 1
@@ -47,7 +47,7 @@ def direct_solver(y, qr_factorization):
     steps    = s
     return duration, residual, steps
 
-def solve_numpy(y):
+def numpy_solver(y):
     # Initial values
     f, _, _ = lls_functions(X_hat, X, y)
     s       = 1
@@ -78,19 +78,19 @@ if __name__ == '__main__':
     MAX_EXP  = 2
     Y = [np.random.rand(m) for _ in range(MAX_EXP)]
 
-    exp = lambda y: solve_numpy(y)
+    exp = lambda y: numpy_solver(y)
     run_experiment(exp, Y, 'LLS Numpy')
 
-    exp = lambda y: solver(y, Newton, {})
+    exp = lambda y: optimization_solver(y, Newton, {})
     run_experiment(exp, Y, 'Newton')
 
-    exp = lambda y: solver(y, BFGS, {'H': np.eye(n)})
+    exp = lambda y: optimization_solver(y, BFGS, {'H': np.eye(n)})
     run_experiment(exp, Y, 'BFGS')
 
-    exp = lambda y: solver(y, LBFGS, {})
+    exp = lambda y: optimization_solver(y, LBFGS, {})
     run_experiment(exp, Y, 'LBFGS')
 
-    exp = lambda y: direct_solver(y, lambda A: modified_qr(A, m-n+1))
+    exp = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
     run_experiment(exp, Y, 'QR*')
 
     # Evaluate different memory for LBFGS
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     methods  = ['t'+str(i) for i in rng]
     params   = [{'t': i} for i in rng]
     for method, p in zip(methods,params):
-        exp = lambda y: solver(y, LBFGS, p)
+        exp = lambda y: optimization_solver(y, LBFGS, p)
         run_experiment(exp, Y, 'LBFGS '+method)
 
     # Evaluate different initialization for LBFGS
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**i} for i in rng]]
     params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**i} for i in rng]]
     for method, p in zip(methods,params):
-        exp = lambda y: solver(y, LBFGS, p)
+        exp = lambda y: optimization_solver(y, LBFGS, p)
         run_experiment(exp, Y, 'LBFGS '+method)
 
     # Evaluate different initialization for BFGS
@@ -125,7 +125,7 @@ if __name__ == '__main__':
         else:
             return {'H': np.eye(n) + np.random.normal(0,eps,n)}
     for method, (init, eps) in zip(methods,params):
-        exp = lambda y: solver(y, BFGS, perturbate_H(y, eps, init))
+        exp = lambda y: optimization_solver(y, BFGS, perturbate_H(y, eps, init))
         run_experiment(exp, Y, 'BFGS '+method)
 
 #     # Test: evaluate different θ
