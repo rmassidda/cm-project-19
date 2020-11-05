@@ -1,4 +1,4 @@
-from utils import load_dataset, lls_functions
+from utils import load_dataset, lls_functions, theta_angled
 from optimization import LBFGS, BFGS, Newton, optimize
 from numerical import qr, modified_qr, q1, back_substitution
 import numpy as np
@@ -84,6 +84,18 @@ if __name__ == '__main__':
             else:
                 e = {'H': np.eye(n) + np.random.normal(0,eps,n)}
             solver(y, BFGS, e, i, log[k1])
+    for k1 in methods:
+        print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
+
+    # Test: evaluate different θ
+    n_int    = 4
+    methods  = ['π/'+"%.2f"%(2*n_int/i) if i != 0 else '0' for i in range(0,n_int+1)]
+    params   = [i*np.pi/(2*n_int) for i in range(0,n_int+1)]
+    log = {k1: {k2: np.zeros(MAX_EXP) for k2 in metrics} for k1 in methods}
+    for k1, theta in zip(methods,params):
+        _, y = theta_angled(X_hat, theta)
+        for i in range(MAX_EXP):
+            solver(y, LBFGS, {}, i, log[k1])
     for k1 in methods:
         print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
 
