@@ -214,7 +214,7 @@ Other then the three discussed assumptions, the theorem requires for the sequenc
 This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature such as $H^0_k = \gamma_k I$ or $H^0_k = \gamma_k H_0$ where
 
 $$
-\gamma_k = \frac{s_{k-1}^T y_{k-1}}{\|y_{k-1}\|}
+\gamma_k = \frac{s_{k-1}^T y_{k-1}}{\|y_{k-1}\|^2}
 $$
 
 Other initialization techniques may possibly be tested and evaluated experimentally.
@@ -241,7 +241,7 @@ Given the quadratic nature of the least squares problem, it is possible to compu
 To simplify the following discussion the objective function $f(w)$ is described in the form $\frac{1}{2} w^TQw+q^Tw+c$ where
 
 $$
-Q=\bar X \bar X^T, q^T = -y^T\hat X, c=-\frac{1}{2}\|y\|^2
+Q=\hat X \hat X^T, q^T = -y^T\hat X, c=-\frac{1}{2}\|y\|^2
 $$
 
 Therefore the function $\phi ' (\alpha)$ can be defined as follows
