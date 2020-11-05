@@ -62,6 +62,31 @@ if __name__ == '__main__':
     for k1 in methods:
         print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
 
+    # Test: evaluate different initialization for BFGS
+    #       the matrix may be initialized using the identity
+    #       or the actual inverse of the Hessian. When this
+    #       is used, then the behaviour is the same as the
+    #       Newton method. Hereby both approaches are tested
+    #       with various perturbations.
+    rng      = range(-5, 5, 2)
+    methods  = ['H', *['H~1e'+str(i) for i in rng]]
+    methods += ['I', *['I~1e'+str(i) for i in rng]]
+    params   = [('H',0), *[('H',10**i) for i in rng]]
+    params  += [('I',0), *[('I',10**i) for i in rng]]
+    log = {k1: {k2: np.zeros(MAX_EXP) for k2 in metrics} for k1 in methods}
+    for i in range(MAX_EXP):
+        y = np.random.rand(m)
+        _, _, Q = lls_functions(X_hat, X, y)
+        H = np.linalg.inv(Q)
+        for k1, (init, eps) in zip(methods,params):
+            if init == 'H':
+                e = {'H': H + np.random.normal(0,eps,n)}
+            else:
+                e = {'H': np.eye(n) + np.random.normal(0,eps,n)}
+            solver(y, BFGS, e, i, log[k1])
+    for k1 in methods:
+        print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
+
     # Numerical experiments
     np.set_printoptions(precision=20)
 
