@@ -49,11 +49,11 @@ if __name__ == '__main__':
         print(k1, *["%.2f" % np.average(log[k1][k2]) for k2 in metrics],sep='\t')
 
     # Test: evaluate different initialization for LBFGS
-    rng      = range(0, 10, 2)
-    methods  = ['γ', *['γ~1e-'+str(i) for i in rng]]
-    methods += ['I', *['I~1e-'+str(i) for i in rng]]
-    params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**-i} for i in rng]]
-    params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**-i} for i in rng]]
+    rng      = range(-5, 5, 2)
+    methods  = ['γ', *['γ~1e'+str(i) for i in rng]]
+    methods += ['I', *['I~1e'+str(i) for i in rng]]
+    params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**i} for i in rng]]
+    params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**i} for i in rng]]
     log = {k1: {k2: np.zeros(MAX_EXP) for k2 in metrics} for k1 in methods}
     for i in range(MAX_EXP):
         y = np.random.rand(m)
