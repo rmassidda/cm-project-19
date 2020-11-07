@@ -28,6 +28,23 @@ def optimization_solver(y, method, params):
     steps    = s
     return duration, residual, steps
 
+def __optimization_solver(y, method, params):
+    # Initial values
+    f, g, Q = lls_functions(X_hat, X, y)
+    w       = np.random.rand(n)
+    gw      = g(w)
+
+    # Fill-up missing parameters
+    params['w']  = w
+    params['gw'] = gw
+    if 'H' not in params:
+        params['H'] = np.linalg.inv(Q)
+
+    opt    = method(**params)
+    w_c, s = optimize(f,g,Q,opt)
+
+    return w_c, s
+
 def numerical_solver(y, qr_factorization):
     # Initial values
     f, _, _ = lls_functions(X_hat, X, y)
@@ -74,8 +91,12 @@ if __name__ == '__main__':
     X, X_hat = load_dataset()
     m, n     = X_hat.shape
 
+    # Input analysis
+    KX = np.linalg.cond(X_hat)
+    print('Condition number', KX)
+
     # Number of experiments
-    MAX_EXP = 2
+    MAX_EXP = 15
 
     y_generator = []
     y_generator.append([np.random.rand(m) for _ in range(MAX_EXP)])
@@ -86,7 +107,27 @@ if __name__ == '__main__':
     for theta in ls_theta:
         y_generator.append([get_y(theta) for _ in range(MAX_EXP)])
 
-    for Y in y_generator:
+    theta = np.zeros(MAX_EXP)
+    up_X = np.zeros(MAX_EXP)
+    up_y = np.zeros(MAX_EXP)
+    for c, Y in enumerate(y_generator):
+        # Study conditioning
+        for i, y in enumerate(Y):
+            # Ground truth
+            w = __optimization_solver(y, Newton, {})[0]
+            # Compute angle
+            costheta = np.linalg.norm(X_hat@w)/np.linalg.norm(y)
+            costheta = max(-1, min(costheta, 1)) # Force cos in (-1,1)
+            theta[i] = np.arccos(costheta)
+
+        # Compute conditioning upper bounds
+        up_X = KX + KX**2 * np.tan(theta)
+        up_y = KX / costheta
+
+        print('Setup n.',c)
+        print('Theta', np.average(theta), np.sqrt(np.var(theta)))
+        print('K_rel,y', np.average(up_y), np.sqrt(np.var(up_y)))
+        print('K_rel,X', np.average(up_X), np.sqrt(np.var(up_X)))
 
         exp = lambda y: numpy_solver(y)
         run_experiment(exp, Y, 'LLS Numpy')
