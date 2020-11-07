@@ -9,6 +9,8 @@ x = np.linspace(0, np.pi/2, theta_defaults.shape[1])
 for i, title in enumerate(titles):
     fig = plt.figure()
     fig.suptitle(title)
+    if title == 'Residual':
+        plt.yscale('log')
     for j, name in enumerate(def_names):
         plt.plot(x, theta_defaults[j, :, i], label=name)
     plt.legend()
@@ -19,6 +21,7 @@ X_cond = np.load('theta_Xcond.npy')
 y_cond = np.load('theta_ycond.npy')
 fig = plt.figure()
 fig.suptitle('Conditioning')
+plt.yscale('log')
 plt.plot(x, X_cond, label='Absolute')
 plt.plot(x, y_cond, label='Relative')
 plt.legend()
@@ -31,6 +34,8 @@ titles  = ['Time', 'Residual', 'Steps']
 for i, title in enumerate(titles):
     fig = plt.figure()
     fig.suptitle(title)
+    if title == 'Residual':
+        plt.yscale('log')
     plt.plot(t_rng, t_lbfgs[:, i])
     plt.show()
 
