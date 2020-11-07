@@ -382,7 +382,9 @@ to see code (unless seeing how instances is generated is much simpler by looking
 at a long winding report).
 -->
 Because of the bottom $I$ block, the input matrix $\hat{X}$ has $n$ linearly independent rows and consequently full column rank, therefore a unique solution is expected from the linear least squares problem regardless of the possible values $y$.
-Nonetheless, as discussed in the previous section, the conditioning of the problem is dependent on $y$, precisely on the angle $\theta$ between the image of $\hat{X}$ and $y$.
+Nonetheless, as discussed in the previous section, the conditioning of the problem is dependent on $y$, precisely on the angle $\theta$ between the image of $\hat{X}$ and $y$. (Figure \ref{conditioning})
+
+![Relative conditioning of the problem for $\theta \in (0, \frac{\pi}{2})$ (log-scale) \label{conditioning}](assets/conditioning.png)
 
 The problem of extracting a random vector is tackled in two different ways, choosing one or the other depending on the specific experiment.
 The first way is to extract $m$ random variables using a normal distribution, constructing so the $y$ vector by associating each component to a random variable. This is done by using the Numpy method `random.rand`.
@@ -399,17 +401,27 @@ $$
 If the previous condition holds the desired vector $y$ it is obtainable by summing $\hat{X}w + v$.
 
 # Experimental results
+Experiments executed multiple times and averaged.
+For the optimizer $\epsilon = 10^-6$ and maximum 2048 steps.
 
-Other than LBFGS also the Newton method and the BFGS have been implemented.
-We compare these three with both versions of the QR factorization and the standard least squares problem solver from `numpy`.
+![Average residual for the LLS problem for $\theta\in (0,\frac{\pi}{2})$. (log-scale) \label{residual}](assets/residual.png)
 
-Plot $\theta$ against $\kappa$ for both $y$ and $\hat{X}$. (1 plot)
+![Average residual for the LLS problem for $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$. (log-scale) \label{residual_narrow}](assets/residual_narrow.png)
 
-Plot $\theta$ against time, steps and residual for each method. (3 plots)
+The LBFGS and the modified QR implementations have been compared with the Newton method and the default Numpy implementation for the linear least squares problem.
+The plot in figure \ref{residual} show how the residual of these solutions is consistently equal, while in figure \ref{residual_narrow} the fact that even away from the limit conditions this holds true.
 
-Plot $t$ against time, steps and residual for LBFGS. (3 plots)
+![Average computation time for the LLS problem for $\theta\in (0,\frac{\pi}{2})$. Time expressed in seconds.\label{times}](assets/time.png)
 
-Table different initializations for LBFGS and BFGS with number of steps and perturbation. (2 tables)
+For what concerns the computational time. (Figure \ref{times})
+
+![Average steps for the LLS problem for $\theta\in (0,\frac{\pi}{2})$. (log-scale)\label{steps}](assets/steps.png)
+
+For what concerns the number of required steps (Figure \ref{steps}), Netwon solves with one step until $\theta \approx \frac{\pi}{2}$.
+
+The initialization method for LBFGS didn't seem to affect the computation. (Figure \ref{init})
+
+The memory $t$ is instead useful to reduce the number of steps required. (Figure \ref{memory})
 
 # Conclusions
 
