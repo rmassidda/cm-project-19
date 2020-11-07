@@ -169,12 +169,18 @@ if __name__ == '__main__':
     f, g, Q = lls_functions(X_hat, X, y)
     w  = np.random.randn(n)
     gw = g(w)
-    # LBFGS
+    # LBFGS Gamma
     opt = LBFGS(w, gw)
     w_list = optimize(f,g,Q,opt,conv_array=True)
     resid  = np.array([f(w) for w in w_list])
     print(len(resid))
     np.save('results/lbfgs-convergence', resid)
+    # LBFGS Identity
+    opt = LBFGS(w, gw, init='identity')
+    w_list = optimize(f,g,Q,opt,conv_array=True)
+    resid  = np.array([f(w) for w in w_list])
+    print(len(resid))
+    np.save('results/lbfgs-convergence-identity', resid)
     # BFGS
     opt    = BFGS(w, gw, np.eye(n))
     w_list = optimize(f,g,Q,opt,conv_array=True)
@@ -216,15 +222,3 @@ if __name__ == '__main__':
     results = np.average(results, axis=0)
     np.save('results/t_rng', t_rng)
     np.save('results/t_lbfgs', results)
-        
-    # Initialization methods
-    perturbation = [10**p for p in range(-5,5,2)]
-    inits        = ['gamma', 'identity']
-    results = np.zeros((MAX_REP, len(inits), len(perturbation)))
-    for i, init in enumerate(inits):
-        for j, p in enumerate(perturbation):
-            Y = [np.random.randn(m) for _ in range(MAX_REP)]
-            lbfgs = lambda y: optimization_solver(y, LBFGS, {'init': init, 'perturbate': p})
-            results[:,i,j] = run_experiment(lbfgs, Y, 'LBFGS '+init+' p='+str(p))[:,-1]
-    results  = np.average(results, axis=0)
-    np.save('results/init_lbfgs', results)
