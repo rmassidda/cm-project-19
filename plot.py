@@ -1,6 +1,22 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
+# init
+fig = plt.figure()
+fig.suptitle('LBFGS convergence')
+plt.yscale('log')
+# lbfgs convergence
+lbfgs_conv = np.load('results/lbfgs-convergence.npy')
+x = range(len(lbfgs_conv))
+plt.plot(x, lbfgs_conv, label='LBFGS')
+# bfgs convergence
+bfgs_conv = np.load('results/bfgs-convergence.npy')
+x = range(len(bfgs_conv))
+plt.plot(x, bfgs_conv, label='BFGS')
+# show
+plt.legend()
+plt.show()
+
 # solver, granularity, (t, r, s)
 theta_defaults = np.load('results/theta_defaults.npy')
 def_names      = ['LLS Numpy', 'Newton', 'LBFGS', 'QR*']

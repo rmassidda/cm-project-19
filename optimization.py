@@ -116,7 +116,7 @@ w : R^n
     The candidate solution
 """
 
-def optimize(f, g, Q, opt, eps=1e-3, max_step=256, verbose=False):
+def optimize(f, g, Q, opt, eps=1e-9, max_step=2048, verbose=False, conv_array=False):
     # Verbose
     if verbose:
         print(opt)
@@ -127,6 +127,9 @@ def optimize(f, g, Q, opt, eps=1e-3, max_step=256, verbose=False):
     gw  = opt.gw
     ngw = np.linalg.norm(opt.gw)
 
+    # List of candidates
+    w_list = [w]
+
     # Main loop
     k = 0
     while ngw > eps and k < max_step:
@@ -134,7 +137,6 @@ def optimize(f, g, Q, opt, eps=1e-3, max_step=256, verbose=False):
         d  = opt.get_direction()
 
         # Line search
-        # TODO: parametrize
         alpha = - (gw.T @ d)/(d.T @ Q @ d)
 
         # Next candidate
@@ -144,6 +146,7 @@ def optimize(f, g, Q, opt, eps=1e-3, max_step=256, verbose=False):
         # Update candidate
         w, gw = opt.update(next_w, next_gw)
         ngw   = np.linalg.norm(gw)
+        w_list.append(w)
 
         # Log
         if verbose:
@@ -151,6 +154,9 @@ def optimize(f, g, Q, opt, eps=1e-3, max_step=256, verbose=False):
 
         # Update step counter
         k += 1
+
+    if conv_array:
+        return w_list
 
     return w, k
 

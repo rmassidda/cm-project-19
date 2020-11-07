@@ -163,6 +163,25 @@ if __name__ == '__main__':
     MAX_REP = 5     # Repetitions
     MAX_G   = 20    # Granularity
 
+    # Study LBFGS and BFGS convergence
+    # INIT
+    y = np.random.rand(m)
+    f, g, Q = lls_functions(X_hat, X, y)
+    w  = np.random.rand(n)
+    gw = g(w)
+    # LBFGS
+    opt = LBFGS(w, gw)
+    w_list = optimize(f,g,Q,opt,conv_array=True)
+    resid  = np.array([f(w) for w in w_list])
+    print(len(resid))
+    np.save('results/lbfgs-convergence', resid)
+    # BFGS
+    opt    = BFGS(w, gw, np.eye(n))
+    w_list = optimize(f,g,Q,opt,conv_array=True)
+    resid  = np.array([f(w) for w in w_list])
+    print(len(resid))
+    np.save('results/bfgs-convergence', resid)
+
     # Range of values to plot \theta
     theta_rng = np.linspace(0, np.pi/2, MAX_G)
     results   = np.zeros((MAX_REP, len(def_solvers), MAX_G, 3))
