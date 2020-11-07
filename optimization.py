@@ -31,7 +31,7 @@ class BFGS(Newton):
         return 'BFGS'
 
 class LBFGS(Newton):
-    def __init__(self, w, gw, H, t=8, init='gamma', perturbate=None):
+    def __init__(self, w, gw, t=8, init='gamma', perturbate=None):
         self.w  = w
         self.n  = w.shape[0]
         self.gw = gw
@@ -183,6 +183,6 @@ if __name__ == "__main__":
     w_c, s = optimize(f,g,Q,opt,verbose=True)
     print_mem(opt)
 
-    opt    = LBFGS(w, gw, H)
+    opt    = LBFGS(w, gw)
     w_c, s = optimize(f,g,Q,opt,verbose=True)
     print_mem(opt)
