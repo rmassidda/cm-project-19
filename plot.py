@@ -25,9 +25,11 @@ x = np.linspace(0, np.pi/2, theta_defaults.shape[1])
 for i, title in enumerate(titles):
     fig = plt.figure()
     fig.suptitle(title)
-    if title == 'Residual':
+    if title == 'Residual' or title == 'Steps':
         plt.yscale('log')
     for j, name in enumerate(def_names):
+        if ('QR' in name or 'LLS' in name) and title=='Steps':
+            continue
         plt.plot(x, theta_defaults[j, :, i], label=name)
     plt.legend()
     plt.show()
