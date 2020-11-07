@@ -381,10 +381,35 @@ Again, you are advised to send us a version of this section by e-mail as soon as
 to see code (unless seeing how instances is generated is much simpler by looking at a short well-commented code than
 at a long winding report).
 -->
+Because of the bottom $I$ block, the input matrix $\hat{X}$ has $n$ linearly independent rows and consequently full column rank, therefore a unique solution is expected from the linear least squares problem regardless of the possible values $y$.
+Nonetheless, as discussed in the previous section, the conditioning of the problem is dependent on $y$, precisely on the angle $\theta$ between the image of $\hat{X}$ and $y$.
 
-# Implementation details
+The problem of extracting a random vector is tackled in two different ways, choosing one or the other depending on the specific experiment.
+The first way is to extract $m$ random variables using a normal distribution, constructing so the $y$ vector by associating each component to a random variable. This is done by using the Numpy method `random.rand`.
+
+When more control over the conditioning of the problem is instead required, the vector $y$ is extracted considering the $\theta$ angle as a constraint.
+Firstly a vector $w \in \mathbb{R}^n$ is extracted using multiple normal random variables as previously discussed.
+Then a vector $v$ perpendicular to the image is found, this can be done by selecting one of the rows of $Q_2$, from the $QR$ factorization of $\hat{X}$.
+The following condition must then be enforced for the $v$ vector.
+
+$$
+\| v \| = \| \hat{X}w \| \tan\theta
+$$
+
+If the previous condition holds the desired vector $y$ it is obtainable by summing $\hat{X}w + v$.
 
 # Experimental results
+
+Other than LBFGS also the Newton method and the BFGS have been implemented.
+We compare these three with both versions of the QR factorization and the standard least squares problem solver from `numpy`.
+
+Plot $\theta$ against $\kappa$ for both $y$ and $\hat{X}$. (1 plot)
+
+Plot $\theta$ against time, steps and residual for each method. (3 plots)
+
+Plot $t$ against time, steps and residual for LBFGS. (3 plots)
+
+Table different initializations for LBFGS and BFGS with number of steps and perturbation. (2 tables)
 
 # Conclusions
 
