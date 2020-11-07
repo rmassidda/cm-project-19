@@ -88,7 +88,7 @@ if __name__ == "__main__":
     np.set_printoptions(precision=20)
 
     # Random y vector
-    y = np.random.rand(m)
+    y = np.random.randn(m)
     print('Random y vector:')
     print(y)
     print()

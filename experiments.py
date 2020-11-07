@@ -29,7 +29,7 @@ s   : int
 def optimization_solver(y, method, params):
     # Starting point
     f, g, Q      = lls_functions(X_hat, X, y)
-    params['w']  = np.random.rand(n)
+    params['w']  = np.random.randn(n)
     params['gw'] = g(params['w'])
     # Construct optimizer and solve
     opt     = method(**params)
@@ -165,9 +165,9 @@ if __name__ == '__main__':
 
     # Study LBFGS and BFGS convergence
     # INIT
-    y = np.random.rand(m)
+    y = np.random.randn(m)
     f, g, Q = lls_functions(X_hat, X, y)
-    w  = np.random.rand(n)
+    w  = np.random.randn(n)
     gw = g(w)
     # LBFGS
     opt = LBFGS(w, gw)
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     # Range of values to plot t
     t_rng   = np.linspace(1, n, MAX_G).astype(int)
     results = np.zeros((MAX_REP, MAX_G, 3))
-    Y       = [np.random.rand(m) for _ in range(MAX_REP)]
+    Y       = [np.random.randn(m) for _ in range(MAX_REP)]
     for i, t in enumerate(t_rng):
         lbfgs = lambda y: optimization_solver(y, LBFGS, {'t': t})
         results[:,i,:] = run_experiment(lbfgs, Y, 'LBFGS t='+str(t))
@@ -223,7 +223,7 @@ if __name__ == '__main__':
     results = np.zeros((MAX_REP, len(inits), len(perturbation)))
     for i, init in enumerate(inits):
         for j, p in enumerate(perturbation):
-            Y = [np.random.rand(m) for _ in range(MAX_REP)]
+            Y = [np.random.randn(m) for _ in range(MAX_REP)]
             lbfgs = lambda y: optimization_solver(y, LBFGS, {'init': init, 'perturbate': p})
             results[:,i,j] = run_experiment(lbfgs, Y, 'LBFGS '+init+' p='+str(p))[:,-1]
     results  = np.average(results, axis=0)

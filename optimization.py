@@ -116,7 +116,7 @@ w : R^n
     The candidate solution
 """
 
-def optimize(f, g, Q, opt, eps=1e-9, max_step=2048, verbose=False, conv_array=False):
+def optimize(f, g, Q, opt, eps=1e-6, max_step=2048, verbose=False, conv_array=False):
     # Verbose
     if verbose:
         print(opt)
@@ -166,9 +166,9 @@ if __name__ == "__main__":
     m, n     = X_hat.shape
 
     # Initial values
-    y = np.random.rand(m)
+    y = np.random.randn(m)
     f, g, Q = lls_functions(X_hat, X, y)
-    w       = np.random.rand(n)
+    w       = np.random.randn(n)
     gw      = g(w)
     H       = np.linalg.inv(Q)
 
