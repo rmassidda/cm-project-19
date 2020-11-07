@@ -74,10 +74,11 @@ plt.show()
 # lbfgs memory
 t_lbfgs = np.load('results/t_lbfgs.npy')
 t_rng   = np.load('results/t_rng.npy')
-titles  = ['Time', 'Residual', 'Steps']
+titles  = ['time', 'residual', 'steps']
 for i, title in enumerate(titles):
     fig = plt.figure()
-    plt.xlabel(r'$\theta$')
+    plt.xlabel(r'$t$')
+    plt.ylabel(title)
     if title == 'Residual':
         plt.yscale('log')
     plt.plot(t_rng, t_lbfgs[:, i])

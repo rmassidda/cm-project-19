@@ -404,6 +404,8 @@ If the previous condition holds the desired vector $y$ it is obtainable by summi
 Experiments executed multiple times and averaged.
 For the optimizer $\epsilon = 10^-6$ and maximum 2048 steps.
 
+## Conditioning effects
+
 ![Average residual for the LLS problem for $\theta\in (0,\frac{\pi}{2})$. (log-scale) \label{residual}](assets/residual.png)
 
 ![Average residual for the LLS problem for $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$. (log-scale) \label{residual_narrow}](assets/residual_narrow.png)
@@ -419,9 +421,22 @@ For what concerns the computational time. (Figure \ref{times})
 
 For what concerns the number of required steps (Figure \ref{steps}), Netwon solves with one step until $\theta \approx \frac{\pi}{2}$.
 
-The initialization method for LBFGS didn't seem to affect the computation. (Figure \ref{init})
+## Initialization LBFGS
+![Convergence for LBFGS and BFGS\label{init}](assets/init_convergence.png)
 
-The memory $t$ is instead useful to reduce the number of steps required. (Figure \ref{memory})
+The initialization method for LBFGS didn't seem to affect the convergence, except obviously when using random initialization. Moreover the same convergence behaviour for BFGS. (Figure \ref{init})
+
+## Memory in LBFGS
+
+![Average steps for the LLS problem for $t \in (0,n)$.\label{memory_steps}](assets/memory_steps.png)
+
+![Average time for the LLS problem for $t \in (0,n)$.\label{memory_time}](assets/memory_time.png)
+
+![Average residual for the LLS problem for $t \in (0,n)$.\label{memory_residual}](assets/memory_residual.png)
+
+The memory $t$ is instead useful to reduce the number of steps required. (Figure \ref{memory_steps})
+This doesn't imply a reduction in time. (Figure \ref{memory_time})
+But surely not a difference in the quality of the solution. (Figure \ref{memory_residual})
 
 # Conclusions
 
