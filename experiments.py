@@ -5,7 +5,7 @@ from numerical import qr, modified_qr, q1, back_substitution
 import numpy as np
 import time
 
-MAX_WORKERS = 4
+MAX_WORKERS = 16
 
 """Computes the solution of the least squares problem
    by using an optimization method.
@@ -154,15 +154,14 @@ if __name__ == '__main__':
     # Default solvers
     np_lls = lambda y: numpy_solver(y)
     newton = lambda y: optimization_solver(y, Newton, {'H': H})
-    bfgs   = lambda y: optimization_solver(y, BFGS, {'H': np.eye(n)})
     lbfgs  = lambda y: optimization_solver(y, LBFGS, {})
     mod_qr = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
-    def_solvers = [np_lls, newton, bfgs, lbfgs, mod_qr]
-    def_names   = ['LLS Numpy', 'Newton', 'BFGS', 'LBFGS', 'QR*']
+    def_solvers = [np_lls, newton, lbfgs, mod_qr]
+    def_names   = ['LLS Numpy', 'Newton', 'LBFGS', 'QR*']
 
     # Constants
-    MAX_REP = 2     # Repetitions
-    MAX_G   = 3     # Granularity
+    MAX_REP = 5     # Repetitions
+    MAX_G   = 20    # Granularity
 
     # Range of values to plot \theta
     theta_rng = np.linspace(0, np.pi/2, MAX_G)
@@ -191,7 +190,7 @@ if __name__ == '__main__':
     np.save('theta_ycond', y_cond)
 
     # Range of values to plot t
-    t_rng   = np.linspace(0, n, MAX_G).astype(int)
+    t_rng   = np.linspace(1, n, MAX_G).astype(int)
     results = np.zeros((MAX_REP, MAX_G, 3))
     Y       = [np.random.rand(m) for _ in range(MAX_REP)]
     for i, t in enumerate(t_rng):
@@ -208,38 +207,11 @@ if __name__ == '__main__':
     inits        = ['gamma', 'identity']
     results = np.zeros((MAX_REP, len(inits), len(perturbation)))
     for i, init in enumerate(inits):
-        for i, p in enumerate(perturbation):
+        for j, p in enumerate(perturbation):
             Y = [np.random.rand(m) for _ in range(MAX_REP)]
             lbfgs = lambda y: optimization_solver(y, LBFGS, {'init': init, 'perturbate': p})
-            results[:,i,j] = run_experiment(lbfgs, Y, 'LBFGS p='+str(p))[:,-1]
+            results[:,i,j] = run_experiment(lbfgs, Y, 'LBFGS '+init+' p='+str(p))[:,-1]
 
     # Average the results of the multiple runs
     results  = np.average(results, axis=0)
     np.save('init_lbfgs', results)
-
-#         # Evaluate different initialization for LBFGS
-#         rng      = range(-5, 5, 2)
-#         methods  = ['γ', *['γ~1e'+str(i) for i in rng]]
-#         methods += ['I', *['I~1e'+str(i) for i in rng]]
-#         params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**i} for i in rng]]
-#         params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**i} for i in rng]]
-#         for method, p in zip(methods,params):
-#             exp = lambda y: optimization_solver(y, LBFGS, {**default, **p})
-#             run_experiment(exp, Y, 'LBFGS '+method)
-
-#         # Evaluate different initialization for BFGS
-#         rng      = range(-5, 5, 2)
-#         methods  = ['H', *['H~1e'+str(i) for i in rng]]
-#         methods += ['I', *['I~1e'+str(i) for i in rng]]
-#         params   = [('H',0), *[('H',10**i) for i in rng]]
-#         params  += [('I',0), *[('I',10**i) for i in rng]]
-#         def perturbate_H(y, eps, init):
-#             _, _, Q = lls_functions(X_hat, X, y)
-#             H = np.linalg.inv(Q)
-#             if init == 'H':
-#                 return {**default ,'H': H + np.random.normal(0,eps,n)}
-#             else:
-#                 return {**default, 'H': np.eye(n) + np.random.normal(0,eps,n)}
-#         for method, (init, eps) in zip(methods,params):
-#             exp = lambda y: optimization_solver(y, BFGS, perturbate_H(y, eps, init))
-#             run_experiment(exp, Y, 'BFGS '+method)
