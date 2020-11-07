@@ -180,14 +180,12 @@ if __name__ == '__main__':
         X_cond[i,:] = KX + KX**2 * np.tan(theta_rng)
         # Relative conditioning
         y_cond[i,:] = KX / np.cos(theta_rng)
-
-    # Average the results of the multiple runs
     results  = np.average(results, axis=0)
     X_cond = np.average(X_cond, axis=0)
     y_cond = np.average(y_cond, axis=0)
-    np.save('theta_defaults', results)
-    np.save('theta_Xcond', X_cond)
-    np.save('theta_ycond', y_cond)
+    np.save('results/theta_defaults', results)
+    np.save('results/theta_Xcond', X_cond)
+    np.save('results/theta_ycond', y_cond)
 
     # Range of values to plot t
     t_rng   = np.linspace(1, n, MAX_G).astype(int)
@@ -196,11 +194,9 @@ if __name__ == '__main__':
     for i, t in enumerate(t_rng):
         lbfgs = lambda y: optimization_solver(y, LBFGS, {'t': t})
         results[:,i,:] = run_experiment(lbfgs, Y, 'LBFGS t='+str(t))
-
-    # Average the results of the multiple runs
     results = np.average(results, axis=0)
-    np.save('t_rng', t_rng)
-    np.save('t_lbfgs', results)
+    np.save('results/t_rng', t_rng)
+    np.save('results/t_lbfgs', results)
         
     # Initialization methods
     perturbation = [10**p for p in range(-5,5,2)]
@@ -211,7 +207,5 @@ if __name__ == '__main__':
             Y = [np.random.rand(m) for _ in range(MAX_REP)]
             lbfgs = lambda y: optimization_solver(y, LBFGS, {'init': init, 'perturbate': p})
             results[:,i,j] = run_experiment(lbfgs, Y, 'LBFGS '+init+' p='+str(p))[:,-1]
-
-    # Average the results of the multiple runs
     results  = np.average(results, axis=0)
-    np.save('init_lbfgs', results)
+    np.save('results/init_lbfgs', results)
