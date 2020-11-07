@@ -1,9 +1,31 @@
 from utils import load_dataset, lls_functions, theta_angled
 from optimization import LBFGS, BFGS, Newton, optimize
+from concurrent.futures import ThreadPoolExecutor
 from numerical import qr, modified_qr, q1, back_substitution
 import numpy as np
 import time
 
+MAX_WORKERS = 4
+
+"""Computes the solution of the least squares problem
+   by using an optimization method.
+
+Parameters
+----------
+y : R^m
+    The 
+method: Class
+    The desired optimizer
+params: Dict
+    The parameters to construct the optimizer
+
+Returns
+-------
+w_c : R^n
+    The candidate solution
+s   : int
+    The number of steps
+"""
 def optimization_solver(y, method, params):
     # Starting point
     f, g, Q      = lls_functions(X_hat, X, y)
@@ -14,6 +36,23 @@ def optimization_solver(y, method, params):
     w_c, s  = optimize(f,g,Q,opt)
     return w_c, s
 
+"""Computes the solution of the least squares problem
+   by using the QR factorization.
+
+Parameters
+----------
+y : R^m
+    The 
+qr_factorization: R^{m,n} -> R^{??}, R^{??}
+    The desired factorizer
+
+Returns
+-------
+w_c : R^n
+    The candidate solution
+s   : int
+    The number of steps
+"""
 def numerical_solver(y, qr_factorization):
     R, vects = qr_factorization(X_hat)
     Q1       = q1(vects, m)
@@ -21,22 +60,83 @@ def numerical_solver(y, qr_factorization):
     w_c      = back_substitution(R[:n, :], c)
     return w_c, 1
 
+"""Computes the solution of the least squares problem
+   by using the default numpy method.
+
+Parameters
+----------
+y : R^m
+    The 
+
+Returns
+-------
+w_c : R^n
+    The candidate solution
+s   : int
+    The number of steps
+"""
 def numpy_solver(y):
     w_c = np.linalg.lstsq(X_hat, y, rcond=None)[0]
     return w_c, 1
 
-def run_experiment(solver, Y, method):
-    log = np.zeros((MAX_EXP, 3))
-    for i, y in enumerate(Y):
-        # Solve the LLS problem
-        start = time.time()
-        w, s = solver(y)
-        end = time.time()
+"""Computes the solution of the least squares problem
+   by using an arbitrary solver
 
-        # Log results (duration, residual, steps)
+Parameters
+----------
+y : R^m
+    The 
+
+solver: R^m -> (R^n, in)
+    The solver to use for the LLS problem
+
+Returns
+-------
+dur : R
+    The elapsed time
+w   : R^n
+    The candidate solution
+s   : int
+    The number of steps
+"""
+def task(y, solver):
+    start = time.time()
+    w, s  = solver(y)
+    end   = time.time()
+    dur   = end - start
+    return dur, w, s
+
+"""Computes the solution of the least squares problem
+   in parallel for multiple values of y
+
+Parameters
+----------
+solver: R^m -> (R^n, int)
+    Function that solves the LLS problem
+Y : List(R^m)
+    Contains the values of y for the multiple LLS problems
+name : string
+    Name of the solver
+
+Returns
+-------
+log : R^l x 3
+    Array containing for each y: duration, residual and steps
+"""
+def run_experiment(solver, Y, name):
+    log = np.zeros((len(Y), 3))
+    print('Running', name,len(Y),'times.')
+
+    # Multithreading to run parallel experiments
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as p:
+        results = p.map(lambda y: task(y, solver), Y)
+
+    # Log results (duration, residual, steps)
+    for i, (y, res) in enumerate(zip(Y,results)):
         f, _, _ = lls_functions(X_hat, X, y)
-        log[i, :] = [end-start, f(w), s]
-    print(method, *["%.2f" % np.average(log[:,j]) for j in range(3)],sep='\t')
+        log[i, :] = [res[0], f(res[1]), res[2]]
+
+    return log
 
 if __name__ == '__main__':
     # Data loading
@@ -51,94 +151,95 @@ if __name__ == '__main__':
     KX = np.linalg.cond(X_hat)
     print('Condition number', KX)
 
-    # Number of experiments
-    MAX_EXP = 3
+    # Default solvers
+    np_lls = lambda y: numpy_solver(y)
+    newton = lambda y: optimization_solver(y, Newton, {'H': H})
+    bfgs   = lambda y: optimization_solver(y, BFGS, {'H': np.eye(n)})
+    lbfgs  = lambda y: optimization_solver(y, LBFGS, {})
+    mod_qr = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
+    def_solvers = [np_lls, newton, bfgs, lbfgs, mod_qr]
+    def_names   = ['LLS Numpy', 'Newton', 'BFGS', 'LBFGS', 'QR*']
 
-    # Normal random y
-    y_generator = []
-    y_generator.append([np.random.rand(m) for _ in range(MAX_EXP)])
+    # Constants
+    MAX_REP = 2     # Repetitions
+    MAX_G   = 3     # Granularity
 
-    # Random y with constrained angle
-    n_theta  = 4
-    ls_theta = [i*np.pi/(2*n_theta) for i in range(n_theta)]
-    get_y    = lambda theta: theta_angled(X_hat, theta)[1]
-    for theta in ls_theta:
-        y_generator.append([get_y(theta) for _ in range(MAX_EXP)])
+    # Range of values to plot \theta
+    theta_rng = np.linspace(0, np.pi/2, MAX_G)
+    results   = np.zeros((MAX_REP, len(def_solvers), MAX_G, 3))
+    X_cond  = np.zeros((MAX_REP, MAX_G))
+    y_cond  = np.zeros((MAX_REP, MAX_G))
+    for i in range(MAX_REP):
+        # Random generate y at a given angle \theta
+        Y = [theta_angled(X_hat, theta)[1] for theta in theta_rng]
 
-    # Arrays for conditioning study
-    theta = np.zeros(MAX_EXP)
-    up_X = np.zeros(MAX_EXP)
-    up_y = np.zeros(MAX_EXP)
+        # Time, steps and residual for each solver
+        for j, (solver, name) in enumerate(zip(def_solvers, def_names)):
+            results[i,j,:] = run_experiment(solver, Y, name)
 
-    for c, Y in enumerate(y_generator):
-        # Default parameters for the optimizers
-        default = {}
+        # Absolute conditioning
+        X_cond[i,:] = KX + KX**2 * np.tan(theta_rng)
+        # Relative conditioning
+        y_cond[i,:] = KX / np.cos(theta_rng)
 
-        # Study conditioning
-        for i, y in enumerate(Y):
-            # Ground truth
-            w = optimization_solver(y, Newton, {**default, 'H': H})[0]
-            # Compute angle
-            costheta = np.linalg.norm(X_hat@w)/np.linalg.norm(y)
-            costheta = max(-1, min(costheta, 1)) # Force cos in (-1,1)
-            theta[i] = np.arccos(costheta)
+    # Average the results of the multiple runs
+    results  = np.average(results, axis=0)
+    X_cond = np.average(X_cond, axis=0)
+    y_cond = np.average(y_cond, axis=0)
+    np.save('theta_defaults', results)
+    np.save('theta_Xcond', X_cond)
+    np.save('theta_ycond', y_cond)
 
-        # Compute conditioning upper bounds
-        up_X = KX + KX**2 * np.tan(theta)
-        up_y = KX / costheta
+    # Range of values to plot t
+    t_rng   = np.linspace(0, n, MAX_G).astype(int)
+    results = np.zeros((MAX_REP, MAX_G, 3))
+    Y       = [np.random.rand(m) for _ in range(MAX_REP)]
+    for i, t in enumerate(t_rng):
+        lbfgs = lambda y: optimization_solver(y, LBFGS, {'t': t})
+        results[:,i,:] = run_experiment(lbfgs, Y, 'LBFGS t='+str(t))
 
-        # Print conditioning
-        print('Setup n.',c)
-        print('Theta', np.average(theta), np.sqrt(np.var(theta)))
-        print('K_rel,y', np.average(up_y), np.sqrt(np.var(up_y)))
-        print('K_rel,X', np.average(up_X), np.sqrt(np.var(up_X)))
+    # Average the results of the multiple runs
+    results = np.average(results, axis=0)
+    np.save('t_rng', t_rng)
+    np.save('t_lbfgs', results)
+        
+    # Initialization methods
+    perturbation = [10**p for p in range(-5,5,2)]
+    inits        = ['gamma', 'identity']
+    results = np.zeros((MAX_REP, len(inits), len(perturbation)))
+    for i, init in enumerate(inits):
+        for i, p in enumerate(perturbation):
+            Y = [np.random.rand(m) for _ in range(MAX_REP)]
+            lbfgs = lambda y: optimization_solver(y, LBFGS, {'init': init, 'perturbate': p})
+            results[:,i,j] = run_experiment(lbfgs, Y, 'LBFGS p='+str(p))[:,-1]
 
-        exp = lambda y: numpy_solver(y)
-        run_experiment(exp, Y, 'LLS Numpy')
+    # Average the results of the multiple runs
+    results  = np.average(results, axis=0)
+    np.save('init_lbfgs', results)
 
-        exp = lambda y: optimization_solver(y, Newton, {**default, 'H': H})
-        run_experiment(exp, Y, 'Newton')
+#         # Evaluate different initialization for LBFGS
+#         rng      = range(-5, 5, 2)
+#         methods  = ['γ', *['γ~1e'+str(i) for i in rng]]
+#         methods += ['I', *['I~1e'+str(i) for i in rng]]
+#         params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**i} for i in rng]]
+#         params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**i} for i in rng]]
+#         for method, p in zip(methods,params):
+#             exp = lambda y: optimization_solver(y, LBFGS, {**default, **p})
+#             run_experiment(exp, Y, 'LBFGS '+method)
 
-        exp = lambda y: optimization_solver(y, BFGS, {**default, 'H': np.eye(n)})
-        run_experiment(exp, Y, 'BFGS')
-
-        exp = lambda y: optimization_solver(y, LBFGS, default)
-        run_experiment(exp, Y, 'LBFGS')
-
-        exp = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
-        run_experiment(exp, Y, 'QR*')
-
-        # Evaluate different memory for LBFGS
-        rng      = range(1, n, int(n/10))
-        methods  = ['t'+str(i) for i in rng]
-        params   = [{'t': i} for i in rng]
-        for method, p in zip(methods,params):
-            exp = lambda y: optimization_solver(y, LBFGS, {**default, **p})
-            run_experiment(exp, Y, 'LBFGS '+method)
-
-        # Evaluate different initialization for LBFGS
-        rng      = range(-5, 5, 2)
-        methods  = ['γ', *['γ~1e'+str(i) for i in rng]]
-        methods += ['I', *['I~1e'+str(i) for i in rng]]
-        params   = [{'init': 'gamma'}, *[{'init': 'gamma', 'perturbate': 10**i} for i in rng]]
-        params  += [{'init': 'identity'}, *[{'init': 'identity', 'perturbate': 10**i} for i in rng]]
-        for method, p in zip(methods,params):
-            exp = lambda y: optimization_solver(y, LBFGS, {**default, **p})
-            run_experiment(exp, Y, 'LBFGS '+method)
-
-        # Evaluate different initialization for BFGS
-        rng      = range(-5, 5, 2)
-        methods  = ['H', *['H~1e'+str(i) for i in rng]]
-        methods += ['I', *['I~1e'+str(i) for i in rng]]
-        params   = [('H',0), *[('H',10**i) for i in rng]]
-        params  += [('I',0), *[('I',10**i) for i in rng]]
-        def perturbate_H(y, eps, init):
-            _, _, Q = lls_functions(X_hat, X, y)
-            H = np.linalg.inv(Q)
-            if init == 'H':
-                return {**default ,'H': H + np.random.normal(0,eps,n)}
-            else:
-                return {**default, 'H': np.eye(n) + np.random.normal(0,eps,n)}
-        for method, (init, eps) in zip(methods,params):
-            exp = lambda y: optimization_solver(y, BFGS, perturbate_H(y, eps, init))
-            run_experiment(exp, Y, 'BFGS '+method)
+#         # Evaluate different initialization for BFGS
+#         rng      = range(-5, 5, 2)
+#         methods  = ['H', *['H~1e'+str(i) for i in rng]]
+#         methods += ['I', *['I~1e'+str(i) for i in rng]]
+#         params   = [('H',0), *[('H',10**i) for i in rng]]
+#         params  += [('I',0), *[('I',10**i) for i in rng]]
+#         def perturbate_H(y, eps, init):
+#             _, _, Q = lls_functions(X_hat, X, y)
+#             H = np.linalg.inv(Q)
+#             if init == 'H':
+#                 return {**default ,'H': H + np.random.normal(0,eps,n)}
+#             else:
+#                 return {**default, 'H': np.eye(n) + np.random.normal(0,eps,n)}
+#         for method, (init, eps) in zip(methods,params):
+#             exp = lambda y: optimization_solver(y, BFGS, perturbate_H(y, eps, init))
+#             run_experiment(exp, Y, 'BFGS '+method)
