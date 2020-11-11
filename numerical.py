@@ -52,7 +52,7 @@ def standard_q1(hh_vects, m):
     Q = np.eye(m)
 
     for j, v in enumerate(hh_vects):
-        Q[:,j:] = Q[:,j:] - 2 * Q[:,j:] @ np.outer(v, v)
+        Q[:,j:] = Q[:,j:] - 2 * np.outer((Q[:,j:] @ v), v)
 
     return Q[:,:n]
 
