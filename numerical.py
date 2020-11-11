@@ -47,9 +47,24 @@ def modified_qr(A, l):
         hh_vectors.append(v)
     return R, hh_vectors
 
+def standard_q1(hh_vects, m):
+    n = len(hh_vects)
+    Q = np.eye(m)
+
+    for j, v in enumerate(hh_vects):
+        Q[:,j:] = Q[:,j:] - 2 * Q[:,j:] @ np.outer(v, v)
+
+    return Q[:,:n]
+
 
 def q1(hh_vects, m):
     n = len(hh_vects)
+
+    # If the Householder vectors have decresing
+    # size, they have been produced by QR and
+    # not by the modified version
+    if hh_vects[0].shape != hh_vects[1].shape:
+        return standard_q1(hh_vects, m)
 
     M = np.zeros((m-n+1,n))
     M[0, n-1] = 1.0
@@ -102,7 +117,8 @@ if __name__ == "__main__":
     print()
 
     start = time.time()
-    R, vects = modified_qr(X_hat, m-n+1)
+    # R, vects = modified_qr(X_hat, m-n+1)
+    R, vects = qr(X_hat)
     end = time.time()
     print("Modified qr,", end-start, "ms:\n", R)
     print()
