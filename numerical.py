@@ -117,8 +117,7 @@ if __name__ == "__main__":
     print()
 
     start = time.time()
-    # R, vects = modified_qr(X_hat, m-n+1)
-    R, vects = qr(X_hat)
+    R, vects = modified_qr(X_hat, m-n+1)
     end = time.time()
     print("Modified qr,", end-start, "ms:\n", R)
     print()
