@@ -381,24 +381,32 @@ Again, you are advised to send us a version of this section by e-mail as soon as
 to see code (unless seeing how instances is generated is much simpler by looking at a short well-commented code than
 at a long winding report).
 -->
-Because of the bottom $I$ block, the input matrix $\hat{X}$ has $n$ linearly independent rows and consequently full column rank, therefore a unique solution is expected from the linear least squares problem regardless of the possible values $y$.
+Because of the bottom $I$ block, the input matrix $\hat{X}$ has $n$ linearly independent rows and consequently full column rank.
+Therefore, a unique solution is expected from the linear least squares problem regardless of the possible values $y$.
 Nonetheless, as discussed in the previous section, the conditioning of the problem is dependent on $y$, precisely on the angle $\theta$ between the image of $\hat{X}$ and $y$. (Figure \ref{conditioning})
 
 ![Relative conditioning of the problem for $\theta \in (0, \frac{\pi}{2})$ (log-scale) \label{conditioning}](assets/conditioning.png)
 
-The problem of extracting a random vector is tackled in two different ways, choosing one or the other depending on the specific experiment.
-The first way is to extract $m$ random variables using a normal distribution, constructing so the $y$ vector by associating each component to a random variable. This is done by using the Numpy method `random.rand`.
+The problem of extracting a random vector $y$ is tackled in two different ways, choosing one or the other depending on the specific experiment.
+The first way is to extract $m$ random variables using a normal distribution, constructing so the $y$ vector by associating each component to a random variable. This is done by using the Numpy method `random.randn`.
 
 When more control over the conditioning of the problem is instead required, the vector $y$ is extracted considering the $\theta$ angle as a constraint.
-Firstly a vector $w \in \mathbb{R}^n$ is extracted using multiple normal random variables as previously discussed.
-Then a vector $v$ perpendicular to the image is found, this can be done by selecting one of the rows of $Q_2$, from the $QR$ factorization of $\hat{X}$.
-The following condition must then be enforced for the $v$ vector.
+Firstly a vector $v$ perpendicular to the image is required, this can be done by selecting one of the columns of $Q_2$, from the $QR$ factorization of $\hat{X}$.
+It is in fact immediate that for each $v$ column of $Q_2$ and for each $w \in \mathbb{R}^n$
+
+$$
+v^T \hat{X} w = v^T Q_1 R_1 w = 0
+$$
+
+since $v$ is orthogonal in respect to each column of $Q_1$ and different to each of them.
+This procedure isn't part of the experimental evaluation, therefore the QR factorizer from the Numpy library has been used during this step.
+By selecting a vector $w \in \mathbb{R}^n$, extracted using multiple normal random variables as previously discussed, it is necessary to constrain the norm of $v$ as in 
 
 $$
 \| v \| = \| \hat{X}w \| \tan\theta
 $$
 
-If the previous condition holds the desired vector $y$ it is obtainable by summing $\hat{X}w + v$.
+The desired vector $y$, perpendicular to $\hat{X}w$ it is finally obtainable by summing $\hat{X}w + v$.
 
 # Experimental results
 Experiments executed multiple times and averaged.

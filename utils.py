@@ -17,8 +17,11 @@ def theta_angled(A, theta):
     m, n = A.shape
     q, r = np.linalg.qr(A, 'complete')
     q2 = q[:,n:]
-    v = q2.T[0,:] # Any row of q2 is perpendicular to A image
-    x = np.random.randn(n) # Get any point in the image
+    # Any column of q2 is perpendicular to A image
+    i = np.random.randint(0, m-n)
+    v = q2[:,i]
+    # Get any point in the image
+    x = np.random.randn(n)
     Ax = A@x
     desired_norm = np.linalg.norm(Ax) * np.tan(theta)
     v = v * desired_norm / np.linalg.norm(v)
