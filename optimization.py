@@ -122,7 +122,7 @@ def optimize(f, g, Q, opt, eps=1e-6, max_step=2048, verbose=False, conv_array=Fa
     # Verbose
     if verbose:
         print(opt)
-        print('', 'Steps', 'α', '|∇f(w)|',sep='\t')
+        print('', 'Steps', 'α', '\t|∇f(w)|', '\tf(w)',sep='\t')
 
     # Initial candidate
     w   = opt.w
@@ -152,7 +152,7 @@ def optimize(f, g, Q, opt, eps=1e-6, max_step=2048, verbose=False, conv_array=Fa
 
         # Log
         if verbose:
-            print('', k, "%.2f" % alpha, np.format_float_scientific(ngw, precision=4),sep='\t')
+            print('', k, np.format_float_scientific(alpha, precision=4), np.format_float_scientific(ngw, precision=4), np.format_float_scientific(f(w), precision=4),sep='\t')
 
         # Update step counter
         k += 1
