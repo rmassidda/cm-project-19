@@ -155,38 +155,47 @@ if __name__ == '__main__':
     np_lls = lambda y: numpy_solver(y)
     newton = lambda y: optimization_solver(y, Newton, {'H': H})
     lbfgs  = lambda y: optimization_solver(y, LBFGS, {})
+    qr     = lambda y: numerical_solver(y, qr)
     mod_qr = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
-    def_solvers = [np_lls, newton, lbfgs, mod_qr]
-    def_names   = ['LLS Numpy', 'Newton', 'LBFGS', 'QR*']
+    def_solvers = [np_lls, newton, lbfgs, qr, mod_qr]
+    def_names   = ['LLS Numpy', 'Newton', 'LBFGS', 'QR', 'QR*']
 
     # Constants
     MAX_REP = 5     # Repetitions
     MAX_G   = 20    # Granularity
+    MAX_S   = 2048  # Maximum steps for the iterative methods
 
-    # Study LBFGS and BFGS convergence
-    # INIT
-    y = np.random.randn(m)
-    f, g, Q = lls_functions(X_hat, X, y)
-    w  = np.random.randn(n)
-    gw = g(w)
-    # LBFGS Gamma
-    opt = LBFGS(w, gw)
-    w_list = optimize(f,g,Q,opt,conv_array=True)
-    resid  = np.array([f(w) for w in w_list])
-    print(len(resid))
-    np.save('results/lbfgs-convergence', resid)
-    # LBFGS Identity
-    opt = LBFGS(w, gw, init='identity')
-    w_list = optimize(f,g,Q,opt,conv_array=True)
-    resid  = np.array([f(w) for w in w_list])
-    print(len(resid))
-    np.save('results/lbfgs-convergence-identity', resid)
-    # BFGS
-    opt    = BFGS(w, gw, np.eye(n))
-    w_list = optimize(f,g,Q,opt,conv_array=True)
-    resid  = np.array([f(w) for w in w_list])
-    print(len(resid))
-    np.save('results/bfgs-convergence', resid)
+    # Test the different initializations
+    # (Number of runs, Initialization methods, Residual per step)
+    resid = np.zeros((MAX_REP, 3, MAX_S)) - 1
+    for i in range(MAX_REP):
+        # Init
+        y = np.random.randn(m)
+        f, g, Q = lls_functions(X_hat, X, y)
+        w  = np.random.randn(n)
+        gw = g(w)
+
+        # LBFGS Gamma
+        opt    = LBFGS(w, gw)
+        w_list = optimize(f,g,Q,opt,conv_array=True, verbose=True)
+        _resid = np.array([f(w) for w in w_list])
+        resid[i, 0, :len(_resid)] = _resid
+
+        # LBFGS Identity
+        opt = LBFGS(w, gw, init='identity')
+        w_list = optimize(f,g,Q,opt,conv_array=True, verbose=True)
+        _resid = np.array([f(w) for w in w_list])
+        resid[i, 1, :len(_resid)] = _resid
+
+        # BFGS
+        opt    = BFGS(w, gw, np.eye(n))
+        w_list = optimize(f,g,Q,opt,conv_array=True, verbose=True)
+        _resid = np.array([f(w) for w in w_list])
+        resid[i, 2, :len(_resid)] = _resid
+
+    # Average the runs and sort
+    resid = np.average(resid, axis=0)
+    np.save('results/initializers', resid)
 
     # Range of values to plot \theta
     theta_rng = np.linspace(0, np.pi/2, MAX_G)
