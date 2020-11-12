@@ -1,0 +1,258 @@
+Condition number 158.70101828229232
+Running QR 5 times with 0 workers
+Running QR* 5 times with 0 workers
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.2441e-05	4.1504e+03	1.0367e+04
+	1	4.6988e+00	1.7129e+03	7.1077e+03
+	2	5.8083e+00	6.3167e+02	4.3524e+03
+	3	2.2707e+00	3.8537e+02	3.6034e+03
+	4	4.1725e-01	7.4976e+01	3.5187e+03
+	5	1.1454e+01	1.0631e+02	3.4832e+03
+	6	1.0217e+01	2.8971e+02	3.2416e+03
+	7	1.1427e+01	5.0177e+02	8.0810e+02
+	8	4.3134e-01	6.544e+01	2.0872e+01
+	9	8.81e-01	1.0072e+01	9.2727e+00
+	10	9.5111e-01	5.3348e-07	9.0174e+00
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.2441e-05	4.1504e+03	1.0367e+04
+	1	1.8922e-04	1.7129e+03	7.1077e+03
+	2	9.3913e-04	6.3167e+02	4.3524e+03
+	3	1.8772e-03	3.8537e+02	3.6034e+03
+	4	5.7079e-04	7.4976e+01	3.5187e+03
+	5	6.2994e-03	1.0631e+02	3.4832e+03
+	6	2.1379e-02	2.8971e+02	3.2416e+03
+	7	2.8993e-02	5.0177e+02	8.0810e+02
+	8	3.1267e-03	6.544e+01	2.0872e+01
+	9	2.7086e-03	1.0072e+01	9.2727e+00
+	10	2.5165e-03	5.3336e-07	9.0174e+00
+BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.2441e-05	4.1504e+03	1.0367e+04
+	1	1.8922e-04	1.7129e+03	7.1077e+03
+	2	9.3913e-04	6.3167e+02	4.3524e+03
+	3	1.8772e-03	3.8537e+02	3.6034e+03
+	4	5.7079e-04	7.4976e+01	3.5187e+03
+	5	6.2994e-03	1.0631e+02	3.4832e+03
+	6	2.1379e-02	2.8971e+02	3.2416e+03
+	7	2.8993e-02	5.0177e+02	8.0810e+02
+	8	3.1267e-03	6.544e+01	2.0872e+01
+	9	2.7086e-03	1.0072e+01	9.2727e+00
+	10	2.5165e-03	5.3245e-07	9.0174e+00
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1124e-05	1.7945e+03	6.1999e+03
+	1	9.642e+00	1.4700e+03	4.9623e+03
+	2	1.6755e+00	7.8828e+02	4.1295e+03
+	3	3.4832e+00	3.3006e+02	3.4818e+03
+	4	1.3907e+00	1.0957e+02	3.3474e+03
+	5	2.9397e+00	7.4904e+01	3.3082e+03
+	6	6.4586e+00	1.7891e+02	3.2275e+03
+	7	2.8814e+01	5.5365e+02	1.2501e+03
+	8	6.7885e-01	8.4500e+01	3.4648e+01
+	9	6.6797e-01	7.0013e+00	1.6166e+01
+	10	1.1220e+00	8.6614e-07	1.6025e+01
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1124e-05	1.7945e+03	6.1999e+03
+	1	3.8432e-04	1.4700e+03	4.9623e+03
+	2	3.8533e-04	7.8828e+02	4.1295e+03
+	3	1.0424e-03	3.3006e+02	3.4818e+03
+	4	1.2335e-03	1.0957e+02	3.3474e+03
+	5	3.2661e-03	7.4904e+01	3.3082e+03
+	6	1.4376e-02	1.7891e+02	3.2275e+03
+	7	6.1780e-02	5.5365e+02	1.2501e+03
+	8	3.9653e-03	8.4500e+01	3.4648e+01
+	9	2.5884e-03	7.0013e+00	1.6166e+01
+	10	2.8844e-03	8.6841e-07	1.6025e+01
+BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1124e-05	1.7945e+03	6.1999e+03
+	1	3.8432e-04	1.4700e+03	4.9623e+03
+	2	3.8533e-04	7.8828e+02	4.1295e+03
+	3	1.0424e-03	3.3006e+02	3.4818e+03
+	4	1.2335e-03	1.0957e+02	3.3474e+03
+	5	3.2661e-03	7.4904e+01	3.3082e+03
+	6	1.4376e-02	1.7891e+02	3.2275e+03
+	7	6.1780e-02	5.5365e+02	1.2501e+03
+	8	3.9653e-03	8.4500e+01	3.4648e+01
+	9	2.5884e-03	7.0013e+00	1.6166e+01
+	10	2.8844e-03	8.6306e-07	1.6025e+01
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1536e-05	4.0181e+03	1.4510e+04
+	1	5.5849e+00	2.3502e+03	1.09e+04
+	2	7.5471e+00	7.6659e+02	3.9545e+03
+	3	5.3376e-01	2.8682e+02	3.5980e+03
+	4	3.0315e+00	1.6887e+02	3.4653e+03
+	5	1.3547e+00	7.6976e+01	3.4190e+03
+	6	5.4128e+00	1.1366e+02	3.3759e+03
+	7	8.0084e+01	4.9413e+02	1.0099e+03
+	8	4.3251e-01	8.5193e+01	3.8e+01
+	9	6.6659e-01	4.5873e+00	1.9298e+01
+	10	1.0328e+00	9.6158e-07	1.9242e+01
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1536e-05	4.0181e+03	1.4510e+04
+	1	2.2361e-04	2.3502e+03	1.09e+04
+	2	1.2574e-03	7.6659e+02	3.9545e+03
+	3	6.0663e-04	2.8682e+02	3.5980e+03
+	4	1.6132e-03	1.6887e+02	3.4653e+03
+	5	1.6229e-03	7.6976e+01	3.4190e+03
+	6	7.2729e-03	1.1366e+02	3.3759e+03
+	7	1.8314e-01	4.9413e+02	1.0099e+03
+	8	3.9806e-03	8.5193e+01	3.8e+01
+	9	2.5768e-03	4.5873e+00	1.9298e+01
+	10	2.6537e-03	9.7024e-07	1.9242e+01
+BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1536e-05	4.0181e+03	1.4510e+04
+	1	2.2361e-04	2.3502e+03	1.09e+04
+	2	1.2574e-03	7.6659e+02	3.9545e+03
+	3	6.0663e-04	2.8682e+02	3.5980e+03
+	4	1.6132e-03	1.6887e+02	3.4653e+03
+	5	1.6229e-03	7.6976e+01	3.4190e+03
+	6	7.2729e-03	1.1366e+02	3.3759e+03
+	7	1.8314e-01	4.9413e+02	1.0099e+03
+	8	3.9806e-03	8.5193e+01	3.8e+01
+	9	2.5768e-03	4.5873e+00	1.9298e+01
+	10	2.6537e-03	9.6107e-07	1.9242e+01
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1978e-05	3.6062e+03	9.8507e+03
+	1	9.7377e+00	1.9002e+03	4.7936e+03
+	2	7.3513e-01	5.7347e+02	3.9858e+03
+	3	7.2998e+00	3.0681e+02	3.4935e+03
+	4	1.2357e+00	6.9284e+01	3.3581e+03
+	5	6.5413e+00	1.1554e+02	3.3151e+03
+	6	2.3195e+01	4.6408e+02	2.5821e+03
+	7	2.8987e+00	4.6456e+02	5.8137e+02
+	8	5.6491e-01	5.3422e+01	1.5669e+01
+	9	1.0033e+00	7.3228e+00	8.2619e+00
+	10	1.0811e+00	6.7098e-07	8.1143e+00
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1978e-05	3.6062e+03	9.8507e+03
+	1	3.8886e-04	1.9002e+03	4.7936e+03
+	2	2.2374e-04	5.7347e+02	3.9858e+03
+	3	1.4969e-03	3.0681e+02	3.4935e+03
+	4	1.4380e-03	6.9284e+01	3.3581e+03
+	5	8.9503e-03	1.1554e+02	3.3151e+03
+	6	5.4905e-02	4.6408e+02	2.5821e+03
+	7	9.2899e-03	4.6456e+02	5.8137e+02
+	8	2.6212e-03	5.3422e+01	1.5669e+01
+	9	2.5955e-03	7.3228e+00	8.2619e+00
+	10	2.7541e-03	6.7872e-07	8.1143e+00
+BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.1978e-05	3.6062e+03	9.8507e+03
+	1	3.8886e-04	1.9002e+03	4.7936e+03
+	2	2.2374e-04	5.7347e+02	3.9858e+03
+	3	1.4969e-03	3.0681e+02	3.4935e+03
+	4	1.4380e-03	6.9284e+01	3.3581e+03
+	5	8.9503e-03	1.1554e+02	3.3151e+03
+	6	5.4905e-02	4.6408e+02	2.5821e+03
+	7	9.2899e-03	4.6456e+02	5.8137e+02
+	8	2.6212e-03	5.3422e+01	1.5669e+01
+	9	2.5955e-03	7.3228e+00	8.2619e+00
+	10	2.7541e-03	6.7098e-07	8.1143e+00
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.0070e-05	2.9313e+03	8.2832e+03
+	1	5.3105e+00	1.3903e+03	6.4683e+03
+	2	5.3421e+00	1.0214e+03	4.6876e+03
+	3	1.4826e+00	2.2449e+02	3.7622e+03
+	4	2.7955e+00	1.0903e+02	3.6430e+03
+	5	8.8988e-01	8.5468e+01	3.6228e+03
+	6	1.0425e+01	1.6809e+02	3.5424e+03
+	7	2.6356e+01	5.9097e+02	1.8600e+03
+	8	1.1621e+00	1.1220e+02	5.1195e+01
+	9	5.1612e-01	1.3371e+01	1.8711e+01
+	10	1.084e+00	8.6666e-07	1.8218e+01
+L-BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.0070e-05	2.9313e+03	8.2832e+03
+	1	2.1123e-04	1.3903e+03	6.4683e+03
+	2	9.2119e-04	1.0214e+03	4.6876e+03
+	3	8.8704e-04	2.2449e+02	3.7622e+03
+	4	2.3655e-03	1.0903e+02	3.6430e+03
+	5	1.7032e-03	8.5468e+01	3.6228e+03
+	6	1.0998e-02	1.6809e+02	3.5424e+03
+	7	5.9544e-02	5.9097e+02	1.8600e+03
+	8	5.1793e-03	1.1220e+02	5.1195e+01
+	9	2.5801e-03	1.3371e+01	1.8711e+01
+	10	2.7577e-03	8.6610e-07	1.8218e+01
+BFGS
+	Steps	α		|∇f(w)|		f(w)
+	0	4.0070e-05	2.9313e+03	8.2832e+03
+	1	2.1123e-04	1.3903e+03	6.4683e+03
+	2	9.2119e-04	1.0214e+03	4.6876e+03
+	3	8.8704e-04	2.2449e+02	3.7622e+03
+	4	2.3655e-03	1.0903e+02	3.6430e+03
+	5	1.7032e-03	8.5468e+01	3.6228e+03
+	6	1.0998e-02	1.6809e+02	3.5424e+03
+	7	5.9544e-02	5.9097e+02	1.8600e+03
+	8	5.1793e-03	1.1220e+02	5.1195e+01
+	9	2.5801e-03	1.3371e+01	1.8711e+01
+	10	2.7577e-03	8.6569e-07	1.8218e+01
+Running LLS Numpy 30 times with 0 workers
+Running Newton 30 times with 0 workers
+Running LBFGS 30 times with 0 workers
+/home/rmassidda/Dropbox/cm-project-2019/optimization.py:83: RuntimeWarning: invalid value encountered in double_scalars
+  self.gamma = (self.S[self.p].T @ self.Y[self.p]) / (self.Y[self.p].T @ self.Y[self.p])
+/home/rmassidda/Dropbox/cm-project-2019/optimization.py:64: RuntimeWarning: divide by zero encountered in double_scalars
+  rho   = 1 / (yi.T @ si)
+/home/rmassidda/Dropbox/cm-project-2019/optimization.py:65: RuntimeWarning: invalid value encountered in matmul
+  alpha = rho * si.T @ q
+/home/rmassidda/Dropbox/cm-project-2019/optimization.py:73: RuntimeWarning: divide by zero encountered in double_scalars
+  rho   = 1 / (yi.T @ si)
+/home/rmassidda/Dropbox/cm-project-2019/optimization.py:74: RuntimeWarning: invalid value encountered in multiply
+  beta  = rho * yi.T @ r
+Running QR* 30 times with 0 workers
+Running LLS Numpy 30 times with 0 workers
+Running Newton 30 times with 0 workers
+Running LBFGS 30 times with 0 workers
+Running QR* 30 times with 0 workers
+Running LLS Numpy 30 times with 0 workers
+Running Newton 30 times with 0 workers
+Running LBFGS 30 times with 0 workers
+Running QR* 30 times with 0 workers
+Running LLS Numpy 30 times with 0 workers
+Running Newton 30 times with 0 workers
+Running LBFGS 30 times with 0 workers
+Running QR* 30 times with 0 workers
+Running LLS Numpy 30 times with 0 workers
+Running Newton 30 times with 0 workers
+Running LBFGS 30 times with 0 workers
+Running QR* 30 times with 0 workers
+Running LBFGS t=1 5 times with 0 workers
+Running LBFGS t=61 5 times with 0 workers
+Running LBFGS t=122 5 times with 0 workers
+Running LBFGS t=183 5 times with 0 workers
+Running LBFGS t=244 5 times with 0 workers
+Running LBFGS t=305 5 times with 0 workers
+Running LBFGS t=365 5 times with 0 workers
+Running LBFGS t=426 5 times with 0 workers
+Running LBFGS t=487 5 times with 0 workers
+Running LBFGS t=548 5 times with 0 workers
+Running LBFGS t=609 5 times with 0 workers
+Running LBFGS t=670 5 times with 0 workers
+Running LBFGS t=730 5 times with 0 workers
+Running LBFGS t=791 5 times with 0 workers
+Running LBFGS t=852 5 times with 0 workers
+Running LBFGS t=913 5 times with 0 workers
+Running LBFGS t=974 5 times with 0 workers
+Running LBFGS t=1035 5 times with 0 workers
+Running LBFGS t=1095 5 times with 0 workers
+Running LBFGS t=1156 5 times with 0 workers
+Running LBFGS t=1217 5 times with 0 workers
+Running LBFGS t=1278 5 times with 0 workers
+Running LBFGS t=1339 5 times with 0 workers
+Running LBFGS t=1400 5 times with 0 workers
+Running LBFGS t=1460 5 times with 0 workers
+Running LBFGS t=1521 5 times with 0 workers
+Running LBFGS t=1582 5 times with 0 workers
+Running LBFGS t=1643 5 times with 0 workers
+Running LBFGS t=1704 5 times with 0 workers
+Running LBFGS t=1765 5 times with 0 workers

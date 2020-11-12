@@ -3,9 +3,8 @@ from optimization import LBFGS, BFGS, Newton, optimize
 from concurrent.futures import ThreadPoolExecutor
 from numerical import qr, modified_qr, q1, back_substitution
 import numpy as np
+import sys
 import time
-
-MAX_WORKERS = 16
 
 """Computes the solution of the least squares problem
    by using an optimization method.
@@ -123,13 +122,16 @@ Returns
 log : R^l x 3
     Array containing for each y: duration, residual and steps
 """
-def run_experiment(solver, Y, name):
+def run_experiment(solver, Y, name, nw):
     log = np.zeros((len(Y), 3))
-    print('Running', name,len(Y),'times.')
+    print('Running', name,len(Y),'times with',nw,'workers')
 
     # Multithreading to run parallel experiments
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as p:
-        results = p.map(lambda y: task(y, solver), Y)
+    if nw == 0:
+        results = list(map(lambda y: task(y, solver), Y))
+    else:
+        with ThreadPoolExecutor(max_workers=nw) as p:
+            results = p.map(lambda y: task(y, solver), Y)
 
     # Log results (duration, residual, steps)
     for i, (y, res) in enumerate(zip(Y,results)):
@@ -139,6 +141,9 @@ def run_experiment(solver, Y, name):
     return log
 
 if __name__ == '__main__':
+    # Number of workers
+    nw = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+
     # Data loading
     X, X_hat = load_dataset()
     m, n     = X_hat.shape
@@ -155,15 +160,22 @@ if __name__ == '__main__':
     np_lls = lambda y: numpy_solver(y)
     newton = lambda y: optimization_solver(y, Newton, {'H': H})
     lbfgs  = lambda y: optimization_solver(y, LBFGS, {})
-    qr     = lambda y: numerical_solver(y, qr)
+    std_qr = lambda y: numerical_solver(y, qr)
     mod_qr = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
-    def_solvers = [np_lls, newton, lbfgs, qr, mod_qr]
-    def_names   = ['LLS Numpy', 'Newton', 'LBFGS', 'QR', 'QR*']
+    def_solvers = [np_lls, newton, lbfgs, mod_qr]
+    def_names   = ['LLS Numpy', 'Newton', 'LBFGS', 'QR*']
 
     # Constants
     MAX_REP = 5     # Repetitions
-    MAX_G   = 20    # Granularity
+    MAX_G   = 30    # Granularity
     MAX_S   = 2048  # Maximum steps for the iterative methods
+
+    # Test the difference in performances for QR and QR*
+    Y = [np.random.randn(m) for i in range(MAX_REP)]
+    std_results = run_experiment(std_qr, Y, 'QR', nw)
+    mod_results = run_experiment(mod_qr, Y, 'QR*', nw)
+    np.save('results/mod_results', mod_results)
+    np.save('results/std_results', std_results)
 
     # Test the different initializations
     # (Number of runs, Initialization methods, Residual per step)
@@ -208,7 +220,7 @@ if __name__ == '__main__':
 
         # Time, steps and residual for each solver
         for j, (solver, name) in enumerate(zip(def_solvers, def_names)):
-            results[i,j,:] = run_experiment(solver, Y, name)
+            results[i,j,:] = run_experiment(solver, Y, name, nw)
 
         # Absolute conditioning
         X_cond[i,:] = KX + KX**2 * np.tan(theta_rng)
@@ -227,7 +239,7 @@ if __name__ == '__main__':
     Y       = [np.random.randn(m) for _ in range(MAX_REP)]
     for i, t in enumerate(t_rng):
         lbfgs = lambda y: optimization_solver(y, LBFGS, {'t': t})
-        results[:,i,:] = run_experiment(lbfgs, Y, 'LBFGS t='+str(t))
+        results[:,i,:] = run_experiment(lbfgs, Y, 'LBFGS t='+str(t), nw)
     results = np.average(results, axis=0)
     np.save('results/t_rng', t_rng)
     np.save('results/t_lbfgs', results)
