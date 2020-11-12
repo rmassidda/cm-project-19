@@ -13,22 +13,19 @@ def householder_vector(x):
     v = v / np.linalg.norm(v)
     return v, s
 
-
 def qr(A):
     hh_vectors = []
     m, n = A.shape
     R = np.array(A)
     for k in range(0, n):
-        x = R[k:, k]
-        if np.all(x==0):
+        if np.all(R[k:,k] == 0):
             continue
-        v, s = householder_vector(x)
+        v, s = householder_vector(R[k:, k])
         R[k, k] = s
-        R[k+1:, k] = np.zeros(m-k-1)
-        R[k:, k+1:] = R[k:, k+1:] - 2*np.outer(v, (np.dot(v, R[k:, k+1:])))
+        R[k+1:, k] = 0
+        R[k:, k+1:] = R[k:, k+1:] - 2 * np.outer(v, v.T @ R[k:, k+1:])
         hh_vectors.append(v)
     return R, hh_vectors
-
 
 # l: dimension of householder vectors
 def modified_qr(A, l):
