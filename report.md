@@ -411,7 +411,7 @@ $$
 The desired vector $y$ it is finally obtainable by summing $\hat{X}w + v$.
 
 # Experimental results
-The described and implemented techniques have been thoroughly evaluated against themselves and against the NumPy built-in method to solve the linear least squares problem.
+The implemented techniques have been thoroughly evaluated against themselves and against the NumPy built-in method to solve the linear least squares problem.
 
 $\dots$
 
@@ -425,16 +425,17 @@ Default conditions of the L-BFGS algorithm are reported in table \ref{table:lbfg
   \centering
   \caption{Default parameter for the L-BFGS optimizer.}
   \label{table:lbfgs_init}
-  \begin{tabular}{llr}
-    & Parameter & \\
+  \begin{tabular}{lr}
+    Parameter & \\
   \hline
-    $t$ & Memory & 8 \\
-    $\epsilon$ & Gradient threshold  & $1\mathrm{e}{-6}$ \\
-      & Max step & 2048 \\
+    Memory & 8 \\
+    Gradient threshold  & $1\mathrm{e}{-6}$ \\
+    Max step & 2048 \\
+    Initialization & $\gamma$ \\
   \end{tabular}
 \end{table}
 
-For the following experiment, only the behavior of the modified version $QR*$ has been studied.
+For the following experiments, only the behavior of the modified version $QR*$ has been studied.
 A comparison between the performances of standard $QR$ and $QR*$ is reported in table \ref{table:qr_comparison}.
 
 \begin{table}[h]
@@ -453,10 +454,10 @@ A comparison between the performances of standard $QR$ and $QR*$ is reported in 
 
 ## Conditioning effects
 
-The angle $\theta$ between the image of $\hat{X}$ and the chosen vector $y$ has a great impact on the conditioning of the problem.
+The angle $\theta$ between the image of $\hat{X}$ and the vector $y$ has a great impact on the conditioning of the problem.
 The average behavior of the different methods against the $\theta$ value has been plotted in figure \ref{fig:theta}.
 Figure \ref{fig:theta_residual} highlights how all the evaluated methods have almost overlapping curves for what concerns the residual of the problem, whilst showing a significant difference for the times in figure \ref{fig:theta_time}.
-It is evident both in figure \ref{fig:theta_time} and \ref{fig:theta_steps} that as the conditioning of the problem worsen the more affected method is the L-BFGS, that isn't able to converge within the limit of the maximum steps allowed.
+It is evident both in figures \ref{fig:theta_time} and \ref{fig:theta_steps} that as the conditioning of the problem worsen the more affected method is the L-BFGS, that isn't able to converge within the limit of the maximum steps allowed.
 
 \begin{figure}[h]
   \centering
@@ -469,7 +470,7 @@ It is evident both in figure \ref{fig:theta_time} and \ref{fig:theta_steps} that
   \label{fig:theta}
 \end{figure}
 
-The same metrics have been studied also away from the extreme regions of $\theta$ for what concerns the conditioning.
+The same metrics have been studied away from the extreme regions of $\theta$ for what concerns the conditioning.
 Therefore the average results in the interval $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$, also introducing the standard Newton method in the comparison, are reported in table \ref{table:theta_narrow}.
 As seen in figure \ref{fig:theta_narrow_time} in such interval the execution time is constant for each method.
 
@@ -496,10 +497,11 @@ As seen in figure \ref{fig:theta_narrow_time} in such interval the execution tim
 
 ## Initialization L-BFGS
 
-Two different initialization techniques have been tested for the L-BFGS algorithm, precisely the use of $H^0_k = I$ or $H^0_k = \gamma_k I$.
-The BFGS algorithm has been implemented using $H_0 = I$ to offer further insights.
-Table \ref{table:sample_run} shows how the three variants converge exactly in the same way, whilst it is interesting that the use of $I$ to initialize both L-BFGS and BFGS results in the same sequence of step-size $\{\alpha_i\}$.
-Regardless of the chosen initialization technique the L-BFGS converges $r$-linearly as expected. (Figure \ref{fig:LBFGS_r})
+Two different initialization techniques have been tested for the L-BFGS algorithm, precisely the use of $H^0_i = I$ and $H^0_i = \gamma_i I$.
+To offer further insights, the BFGS algorithm has been implemented using $H_0 = I$.
+Table \ref{table:sample_run} shows how the three variants converge exactly in the same way.
+It is interesting that the use of $I$ to initialize both L-BFGS and BFGS results in the same sequence of step-size $\{\alpha_i\}$.
+Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly as expected. (Figure \ref{fig:LBFGS_r})
 
 \begin{table}[t]
   \centering
@@ -536,8 +538,9 @@ Regardless of the chosen initialization technique the L-BFGS converges $r$-linea
 ## Memory in L-BFGS
 
 The L-BFGS algorithm has been tested for different values of memory $t \in (1,n)$, the average results of multiple runs are reported in figure \ref{fig:memory}.
-Whilst the memory size had no impact on the residual (figure \ref{fig:memory_residual}), a significant reduction of the number of steps occurs even for minimal amounts of memory before stabilizing.
-Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how the increase of the memory also as an increasing effect on the time required by the algorithm and consequently on the time per step.
+Whilst the memory size had no impact on the residual (figure \ref{fig:memory_residual}), a significant reduction of the number of steps occurs even for minimal amounts of memory.
+Anyhow the number of required steps quickly stabilizes, and it is not influenced by further memory increase.
+Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how the increase of the memory has an increasing effect on the time required by the algorithm and consequently on the time per step.
 
 \begin{figure}[h]
   \centering
