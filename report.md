@@ -1,7 +1,9 @@
 ---
 documentclass: IEEEtran
 bibliography: bibliography.bib
-header-includes: \usepackage{amsthm}
+header-includes: |
+  \usepackage{amsthm}
+  \usepackage{subfig}
 ...
 
 \title{Analysis of optimization and numerical approaches to solve the linear least square problem}
@@ -406,45 +408,147 @@ $$
 \| v \| = \| \hat{X}w \| \tan\theta
 $$
 
-The desired vector $y$, perpendicular to $\hat{X}w$ it is finally obtainable by summing $\hat{X}w + v$.
+The desired vector $y$ it is finally obtainable by summing $\hat{X}w + v$.
 
 # Experimental results
-Experiments executed multiple times and averaged.
-For the optimizer $\epsilon = 10^-6$ and maximum 2048 steps.
+The described and implemented techniques have been thoroughly evaluated against themselves and against the NumPy built-in method to solve the linear least squares problem.
+
+$\dots$
+
+Many of the described tests report the average of multiple runs, this is aimed to ensure the reproducibility of the experimental results, especially when random behavior plays a role.
+The number of runs per experiment is fixed, moreover they are executed sequentially to avoid with certainty the effect of parallelization overhead.
+
+For what concerns the optimization techniques, the different tunable parameters are discussed in each experiment when relevant.
+Default conditions of the L-BFGS algorithm are reported in table \ref{table:lbfgs_init}.
+
+\begin{table}[h]
+  \centering
+  \caption{Default parameter for the L-BFGS optimizer.}
+  \label{table:lbfgs_init}
+  \begin{tabular}{llr}
+    & Parameter & \\
+  \hline
+    $t$ & Memory & 8 \\
+    $\epsilon$ & Gradient threshold  & $1\mathrm{e}{-6}$ \\
+      & Max step & 2048 \\
+  \end{tabular}
+\end{table}
+
+For the following experiment, only the behavior of the modified version $QR*$ has been studied.
+A comparison between the performances of standard $QR$ and $QR*$ is reported in table \ref{table:qr_comparison}.
+
+\begin{table}[h]
+  \centering
+  \caption{Average results over multiple runs with normal random extracted $y$}
+  \label{table:qr_comparison}
+  \begin{tabular}{lrr}
+  \hline
+  Model   &     Time &   Residual \\
+  \hline
+  QR*     &  1.62066 &    21.1557 \\
+  QR      & 32.8074  &    21.1557 \\
+  \hline
+  \end{tabular}
+\end{table}
 
 ## Conditioning effects
 
-![Average residual for the LLS problem for $\theta\in (0,\frac{\pi}{2})$. (log-scale) \label{residual}](assets/residual.png)
+The angle $\theta$ between the image of $\hat{X}$ and the chosen vector $y$ has a great impact on the conditioning of the problem.
+The average behavior of the different methods against the $\theta$ value has been plotted in figure \ref{fig:theta}.
+Figure \ref{fig:theta_residual} highlights how all the evaluated methods have almost overlapping curves for what concerns the residual of the problem, whilst showing a significant difference for the times in figure \ref{fig:theta_time}.
+It is evident both in figure \ref{fig:theta_time} and \ref{fig:theta_steps} that as the conditioning of the problem worsen the more affected method is the L-BFGS, that isn't able to converge within the limit of the maximum steps allowed.
 
-![Average residual for the LLS problem for $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$. (log-scale) \label{residual_narrow}](assets/residual_narrow.png)
+\begin{figure}[h]
+  \centering
+  \subfloat[][Residual in log-scale]{\includegraphics[width=0.5\textwidth]{assets/theta_residual.png}\label{fig:theta_residual}}
+  \qquad
+  \subfloat[][Execution time in seconds, lin-scale]{\includegraphics[width=0.5\textwidth]{assets/theta_time.png}\label{fig:theta_time}}
+  \qquad
+  \subfloat[][Steps for convergence, log-scale]{\includegraphics[width=0.5\textwidth]{assets/theta_steps.png}\label{fig:theta_steps}}
+  \caption{Average residual (\ref{fig:theta_residual}), execution time (\ref{fig:theta_time}) and steps (\ref{fig:theta_steps}) for $\theta \in (0, \frac{pi}{2})$}
+  \label{fig:theta}
+\end{figure}
 
-The LBFGS and the modified QR implementations have been compared with the Newton method and the default Numpy implementation for the linear least squares problem.
-The plot in figure \ref{residual} show how the residual of these solutions is consistently equal, while in figure \ref{residual_narrow} the fact that even away from the limit conditions this holds true.
+The same metrics have been studied also away from the extreme regions of $\theta$ for what concerns the conditioning.
+Therefore the average results in the interval $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$, also introducing the standard Newton method in the comparison, are reported in table \ref{table:theta_narrow}.
+As seen in figure \ref{fig:theta_narrow_time} in such interval the execution time is constant for each method.
 
-![Average computation time for the LLS problem for $\theta\in (0,\frac{\pi}{2})$. Time expressed in seconds.\label{times}](assets/time.png)
+\begin{table}[h]
+  \centering
+  \caption{Comparison of different metrics obtained by averaging the results of multiple runs for $y$ such that $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$.}
+  \label{table:theta_narrow}
+  \begin{tabular}{lrrr}
+  Model     &      Time &   Residual &   Steps \\
+  \hline
+  LLS Numpy & 1.7221    &    45068.4 &  1      \\
+  Newton    & 0.0305718 &    45068.4 &  1      \\
+  LBFGS     & 0.0818654 &    45068.4 & 11.2571 \\
+  QR*       & 1.39376   &    45068.4 &  1      \\
+  \end{tabular}
+\end{table}
 
-For what concerns the computational time. (Figure \ref{times})
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{assets/theta_narrow_time.png}
+  \caption{Average execution time in for the LLS problem for $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$}
+  \label{fig:theta_narrow_time}
+\end{figure}
 
-![Average steps for the LLS problem for $\theta\in (0,\frac{\pi}{2})$. (log-scale)\label{steps}](assets/steps.png)
+## Initialization L-BFGS
 
-For what concerns the number of required steps (Figure \ref{steps}), Netwon solves with one step until $\theta \approx \frac{\pi}{2}$.
+Two different initialization techniques have been tested for the L-BFGS algorithm, precisely the use of $H^0_k = I$ or $H^0_k = \gamma_k I$.
+The BFGS algorithm has been implemented using $H_0 = I$ to offer further insights.
+Table \ref{table:sample_run} shows how the three variants converge exactly in the same way, whilst it is interesting that the use of $I$ to initialize both L-BFGS and BFGS results in the same sequence of step-size $\{\alpha_i\}$.
+Regardless of the chosen initialization technique the L-BFGS converges $r$-linearly as expected. (Figure \ref{fig:LBFGS_r})
 
-## Initialization LBFGS
-![Convergence for LBFGS and BFGS\label{init}](assets/init_convergence.png)
+\begin{table}[t]
+  \centering
+  \caption{Sample run of L-BFGS initialized with $I$, $\gamma I$ and BFGS initialized with $I$.}
+  \label{table:sample_run}
+  \begin{tabular}{l|ccc|ccc|ccc}
+    \multicolumn{1}{c}{} & \multicolumn{3}{c}{$\gamma$ L-BFGS} & \multicolumn{3}{c}{$I$ L-BFGS} & \multicolumn{3}{c}{$I$ BFGS} \\
+    Step & $\alpha$ & $\nabla f(w)$ & $f(w)$ & $\alpha$ & $\nabla f(w)$ & $f(w)$ & $\alpha$ & $\nabla f(w)$ & $f(w)$ \\
+    \hline
+    0 & 4.2441e-05 & 4.1504e+03 & 1.0367e+04 & 4.2441e-05 & 4.1504e+03 & 1.0367e+04 & 4.2441e-05 & 4.1504e+03 & 1.0367e+04 \\
+    1 & 4.6988e+00 & 1.7129e+03 & 7.1077e+03 & 1.8922e-04 & 1.7129e+03 & 7.1077e+03 & 1.8922e-04 & 1.7129e+03 & 7.1077e+03 \\
+    2 & 5.8083e+00 & 6.3167e+02 & 4.3524e+03 & 9.3913e-04 & 6.3167e+02 & 4.3524e+03 & 9.3913e-04 & 6.3167e+02 & 4.3524e+03 \\
+    3 & 2.2707e+00 & 3.8537e+02 & 3.6034e+03 & 1.8772e-03 & 3.8537e+02 & 3.6034e+03 & 1.8772e-03 & 3.8537e+02 & 3.6034e+03 \\
+    4 & 4.1725e-01 & 7.4976e+01 & 3.5187e+03 & 5.7079e-04 & 7.4976e+01 & 3.5187e+03 & 5.7079e-04 & 7.4976e+01 & 3.5187e+03 \\
+    5 & 1.1454e+01 & 1.0631e+02 & 3.4832e+03 & 6.2994e-03 & 1.0631e+02 & 3.4832e+03 & 6.2994e-03 & 1.0631e+02 & 3.4832e+03 \\
+    6 & 1.0217e+01 & 2.8971e+02 & 3.2416e+03 & 2.1379e-02 & 2.8971e+02 & 3.2416e+03 & 2.1379e-02 & 2.8971e+02 & 3.2416e+03 \\
+    7 & 1.1427e+01 & 5.0177e+02 & 8.0810e+02 & 2.8993e-02 & 5.0177e+02 & 8.0810e+02 & 2.8993e-02 & 5.0177e+02 & 8.0810e+02 \\
+    8 & 4.3134e-01 & 6.544e+01 & 2.0872e+01 & 3.1267e-03 & 6.544e+01 & 2.0872e+01 & 3.1267e-03 & 6.544e+01 & 2.0872e+01 \\
+    9 & 8.81e-01 & 1.0072e+01 & 9.2727e+00 & 2.7086e-03 & 1.0072e+01 & 9.2727e+00 & 2.7086e-03 & 1.0072e+01 & 9.2727e+00 \\
+    10 & 9.5111e-01 & 5.3348e-07 & 9.0174e+00 & 2.5165e-03 & 5.3336e-07 & 9.0174e+00 & 2.5165e-03 & 5.3245e-07 & 9.0174e+00 \\
+  \end{tabular}
+\end{table}
 
-The initialization method for LBFGS didn't seem to affect the convergence, except obviously when using random initialization. Moreover the same convergence behaviour for BFGS. (Figure \ref{init})
+\begin{figure}[h]
+  \centering
+  \subfloat[][log-scale]{\includegraphics[width=0.5\textwidth]{assets/LBFGS_r_log.png}\label{fig:LBFGS_r_log}}
+  \qquad
+  \subfloat[][lin-scale]{\includegraphics[width=0.5\textwidth]{assets/LBFGS_r_linear.png}\label{fig:LBFGS_r_linear}}
+  \qquad
+  \caption{Average convergence over multiple runs of the L-BFGS algorithm with $r \approx 0.737$}
+  \label{fig:LBFGS_r}
+\end{figure}
 
-## Memory in LBFGS
+## Memory in L-BFGS
 
-![Average steps for the LLS problem for $t \in (0,n)$.\label{memory_steps}](assets/memory_steps.png)
+The L-BFGS algorithm has been tested for different values of memory $t \in (1,n)$, the average results of multiple runs are reported in figure \ref{fig:memory}.
+Whilst the memory size had no impact on the residual (figure \ref{fig:memory_residual}), a significant reduction of the number of steps occurs even for minimal amounts of memory before stabilizing.
+Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how the increase of the memory also as an increasing effect on the time required by the algorithm and consequently on the time per step.
 
-![Average time for the LLS problem for $t \in (0,n)$.\label{memory_time}](assets/memory_time.png)
-
-![Average residual for the LLS problem for $t \in (0,n)$.\label{memory_residual}](assets/memory_residual.png)
-
-The memory $t$ is instead useful to reduce the number of steps required. (Figure \ref{memory_steps})
-This doesn't imply a reduction in time. (Figure \ref{memory_time})
-But surely not a difference in the quality of the solution. (Figure \ref{memory_residual})
+\begin{figure}[h]
+  \centering
+  \subfloat[][Residual in lin-scale]{\includegraphics[width=0.5\textwidth]{assets/memory_residual.png}\label{fig:memory_residual}}
+  \qquad
+  \subfloat[][Execution time in seconds, lin-scale]{\includegraphics[width=0.5\textwidth]{assets/memory_time.png}\label{fig:memory_time}}
+  \qquad
+  \subfloat[][Steps for convergence, lin-scale]{\includegraphics[width=0.5\textwidth]{assets/memory_steps.png}\label{fig:memory_steps}}
+  \caption{Average residual (\ref{fig:memory_residual}), execution time (\ref{fig:memory_time}) and steps (\ref{fig:memory_steps}) for L-BFGS with different memory $t \in (0,n)$}
+  \label{fig:memory}
+\end{figure}
 
 # Conclusions
 
