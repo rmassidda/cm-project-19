@@ -6,26 +6,24 @@ import numpy as np
 import sys
 import time
 
-"""Computes the solution of the least squares problem
-   by using an optimization method.
-
-Parameters
-----------
-y : R^m
-    The 
-method: Class
-    The desired optimizer
-params: Dict
-    The parameters to construct the optimizer
-
-Returns
--------
-w_c : R^n
-    The candidate solution
-s   : int
-    The number of steps
-"""
 def optimization_solver(y, method, params):
+    """
+    Computes the solution of the least squares problem
+    by using an optimization method.
+
+    Parameters
+    ----------
+    y : ndarray
+    method: Optimizer
+    params: dict
+
+    Returns
+    -------
+    w_c : ndarray
+        The candidate solution
+    s   : int
+        The number of required steps
+    """
     # Starting point
     f, g, Q      = lls_functions(X_hat, X, y)
     params['w']  = np.random.randn(n)
@@ -35,115 +33,119 @@ def optimization_solver(y, method, params):
     w_c, s  = opt.optimize(f,g,Q)
     return w_c, s
 
-"""Computes the solution of the least squares problem
-   by using the QR factorization.
-
-Parameters
-----------
-y : R^m
-    The 
-qr_factorization: R^{m,n} -> R^{??}, R^{??}
-    The desired factorizer
-
-Returns
--------
-w_c : R^n
-    The candidate solution
-s   : int
-    The number of steps
-"""
 def numerical_solver(y, qr_factorization):
+    """
+    Computes the solution of the least squares problem
+    by using the QR factorization as implemented for
+    the project
+
+    Parameters
+    ----------
+    y : ndarray
+    qr_factorization: function
+
+    Returns
+    -------
+    w_c : ndarray
+        The candidate solution
+    s   : int
+        The number of required steps
+    """
     R, vects = qr_factorization(X_hat)
     Q1       = q1(vects, m)
     c        = np.dot(Q1.T, y)
     w_c      = back_substitution(R[:n, :], c)
     return w_c, 1
 
-"""Computes the solution of the least squares problem
-   by using the default numpy method.
-
-Parameters
-----------
-y : R^m
-    The 
-
-Returns
--------
-w_c : R^n
-    The candidate solution
-s   : int
-    The number of steps
-"""
 def numpy_solver(y):
+    """
+    Computes the solution of the least squares problem
+    by using the provided np.linalg.lstsq method.
+
+    Parameters
+    ----------
+    y : ndarray
+
+    Returns
+    -------
+    w_c : ndarray
+        The candidate solution
+    s   : int
+        The number of required steps
+    """
     w_c = np.linalg.lstsq(X_hat, y, rcond=None)[0]
     return w_c, 1
 
-"""Computes the solution of the least squares problem
-   by using the numpy QR factorization.
-
-Parameters
-----------
-y : R^m
-    The 
-
-Returns
--------
-w_c : R^n
-    The candidate solution
-s   : int
-    The number of steps
-"""
 def numpy_qr_solver(y):
+    """
+    Computes the solution of the least squares problem
+    by using the provided np.linalg.qr method.
+
+    Parameters
+    ----------
+    y : ndarray
+
+    Returns
+    -------
+    w_c : ndarray
+        The candidate solution
+    s   : int
+        The number of required steps
+    """
     Q1, R = np.linalg.qr(X_hat, mode='reduced')
     c    = np.dot(Q1.T, y)
     w_c  = back_substitution(R[:n, :], c)
     return w_c, 1
 
-"""Computes the solution of the least squares problem
-   by using an arbitrary solver
-
-Parameters
-----------
-y : R^m
-    The 
-
-solver: R^m -> (R^n, in)
-    The solver to use for the LLS problem
-
-Returns
--------
-dur : R
-    The elapsed time
-w   : R^n
-    The candidate solution
-s   : int
-    The number of steps
-"""
 def task(y, solver):
+    """
+    Computes the solution of the least squares problem
+    by using an arbitrary solver
+
+    Parameters
+    ----------
+    y : ndarray
+    solver : function
+
+    Returns
+    -------
+    dur : float
+        Time in seconds to solve the problem
+    w_c : ndarray
+        The candidate solution
+    s   : int
+        The number of required steps
+    """
     start = time.time()
     w, s  = solver(y)
     end   = time.time()
     dur   = end - start
     return dur, w, s
 
-"""Computes the solution of the least squares problem
-   in parallel for multiple values of y
+def run_experiment(solver, Y, name, nw=0):
+    """
+    Computes either sequentially or in parallel
+    multiple least squares problems.
 
-Parameters
-----------
-solver: R^m -> (R^n, int)
-    Function that solves the LLS problem
-Y : List(R^m)
-    Contains the values of y for the multiple LLS problems
-name : string
-    Name of the solver
+    Parameters
+    ----------
+    solver : function
+        Function that solves a LLS problem
+    Y : ndarray
+        Array containing the different y for each problem
+    name : str
+        Name of the solver
+    nw : int, optional
+        Number of workers, if zero the experiments are run
+        sequentially without any overhead
 
-Returns
--------
-log : R^l x 3
-    Array containing for each y: duration, residual and steps
-"""
-def run_experiment(solver, Y, name, nw):
+    Returns
+    -------
+    log : ndarray
+        Array containing for each solution the duration in
+        seconds, the residual and the number of required
+        steps
+    """
     log = np.zeros((len(Y), 3))
     print('Running', name,len(Y),'times with',nw,'workers')
 
