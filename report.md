@@ -453,8 +453,9 @@ A comparison between the performances of standard $QR$ and $QR*$ is reported in 
   \hline
   Model   &     Time &   Residual \\
   \hline
-  QR*     &  1.62066 &    21.1557 \\
-  QR      & 32.8074  &    21.1557 \\
+  Numpy QR &  1.07022 &    18.5621 \\
+  QR*      &  1.63437 &    18.5621 \\
+  QR       & 33.0972  &    18.5621 \\
   \end{tabular}
   \end{adjustbox}
 \end{table}
@@ -489,10 +490,11 @@ As seen in figure \ref{fig:theta_narrow_time} in such interval the execution tim
   \begin{tabular}{lrrr}
   Model     &      Time &   Residual &   Steps \\
   \hline
-  LLS Numpy & 1.7221    &    45068.4 &  1      \\
-  Newton    & 0.0305718 &    45068.4 &  1      \\
-  LBFGS     & 0.0818654 &    45068.4 & 11.2571 \\
-  QR*       & 1.39376   &    45068.4 &  1      \\
+  LLS Numpy & 1.7487    &    37186.1 &  1      \\
+  Newton    & 0.0304131 &    37186.1 &  1      \\
+  LBFGS     & 0.0819783 &    37186.1 & 11.2143 \\
+  QR Numpy  & 1.10429   &    37186.1 &  1      \\
+  QR*       & 1.2718    &    37186.1 &  1      \\
   \end{tabular}
   \end{adjustbox}
 \end{table}
