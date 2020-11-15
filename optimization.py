@@ -1,23 +1,41 @@
 import numpy as np
 from utils import load_dataset, lls_functions
 
-class Newton:
-    def __init__(self, w, gw, H):
+class Optimizer:
+    def __init__(self, w, gw, name):
         self.w  = w
         self.n  = w.shape[0]
         self.gw = gw
+        self.name = name
+
+    def update(self, w, gw):
+        self.w  = w
+        self.gw = gw
+        return w, gw
+
+    def __str__(self):
+        return self.name
+
+class Gradient(Optimizer):
+    def __init__(self, w, gw, name='Gradient'):
+        super().__init__(w, gw, name)
+
+    def get_direction(self):
+        return - self.gw
+
+class Newton(Optimizer):
+    def __init__(self, w, gw, H, name='Newton'):
+        super().__init__(w, gw, name)
         self.H  = H
 
     def get_direction(self):
         return - self.H @ self.gw
 
-    def update(self, w, gw):
-        return w, gw
-
-    def __str__(self):
-        return 'Newton'
-
 class BFGS(Newton):
+    def __init__(self, w, gw, H, name='BFGS'):
+        super().__init__(w, gw, H, name)
+        self.H  = H
+
     def update(self, w, gw):
         s   = np.reshape(w - self.w, (self.n,1))
         Y   = np.reshape(gw - self.gw, (self.n,1))
@@ -27,14 +45,9 @@ class BFGS(Newton):
         self.gw = gw
         return w, gw
 
-    def __str__(self):
-        return 'BFGS'
-
-class LBFGS(Newton):
-    def __init__(self, w, gw, t=8, init='gamma', perturbate=None):
-        self.w  = w
-        self.n  = w.shape[0]
-        self.gw = gw
+class LBFGS(Optimizer):
+    def __init__(self, w, gw, t=8, init='gamma', perturbate=None, name='L-BFGS'):
+        super().__init__(w, gw, name)
         self.k  = 0
         self.t  = t
         self.p  = 0
@@ -86,10 +99,6 @@ class LBFGS(Newton):
         self.w = w
         self.gw = gw
         return w, gw
-
-    def __str__(self):
-        return 'L-BFGS'
-
 
 """Computes the solution of the least squares problem
    by using variations of the Newton method such as 
@@ -183,6 +192,10 @@ if __name__ == "__main__":
                 pass
         print()
 
+    opt    = Gradient(w, gw)
+    w_c, s = optimize(f,g,Q,opt,max_step=32,verbose=True)
+    print_mem(opt)
+
     opt    = Newton(w, gw, H)
     w_c, s = optimize(f,g,Q,opt,verbose=True)
     print_mem(opt)
@@ -191,6 +204,10 @@ if __name__ == "__main__":
     w_c, s = optimize(f,g,Q,opt,verbose=True)
     print_mem(opt)
 
-    opt    = LBFGS(w, gw)
+    opt    = LBFGS(w, gw, name='L-BFGS, γ init')
+    w_c, s = optimize(f,g,Q,opt,verbose=True)
+    print_mem(opt)
+
+    opt    = LBFGS(w, gw, init='identity', name='L-BFGS, I init')
     w_c, s = optimize(f,g,Q,opt,verbose=True)
     print_mem(opt)
