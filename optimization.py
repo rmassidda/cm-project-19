@@ -2,6 +2,37 @@ import numpy as np
 from utils import load_dataset, lls_functions
 
 class Optimizer:
+    """
+    Class representing a generic a optimizer for the
+    linear least squares problem. Inheriting objects
+    should redefine update and get_direction methods
+
+    Attributes
+    ----------
+    w : ndarray
+        Current candidate point
+    n : int
+        Shape of the candidate point
+    gw : ndarray
+        Gradient of the candidate point
+    name : str
+        Name of the optimizer
+
+    Methods
+    -------
+    update(w, gw)
+        Updates the current candidate point
+
+    get_direction()
+        Returns the direction to search for the next candidate
+
+    optimize(f, g, Q, eps, max_step=2048, verbose=False, conv_array=False)
+        Solves the LLS problem and returns either the candidate solution
+        or the list of all the encountered candidates
+
+    __str__()
+        Returns the name of the optimizer
+    """
     def __init__(self, w, gw, name):
         self.w  = w
         self.n  = w.shape[0]
@@ -13,10 +44,93 @@ class Optimizer:
         self.gw = gw
         return w, gw
 
+    def get_direction(self):
+        raise NotImplementedError
+
+    def optimize(self, f, g, Q, eps=1e-6, max_step=2048, verbose=False, conv_array=False):
+        """
+        Function that solves the LLS problem using the optimizer
+
+        Parameters
+        ----------
+        f : function
+            Objective function
+        g : function
+            Gradient function
+        Q : ndarray
+            Hessian of the objective function
+        eps : float, optional
+            Threshold for the gradient stopping condition
+        max_step : int, optional
+            Maximum number of steps to optimize
+        verbose : bool, optional
+            Flag to print the state of the optimizer during each iteration
+        conv_array : bool, optional
+            Flag to return the candidate solution and the number of steps
+            or the whole sequence of candidates
+
+        Returns
+        -------
+        w : ndarray
+            The candidate solution
+        k : int
+            Number of steps
+        w_list : list
+            List of candidates
+        """
+        # Verbose
+        if verbose:
+            print(self)
+            print('', 'Steps', 'α', '\t|∇f(w)|', '\tf(w)',sep='\t')
+
+        # Initial candidate
+        w   = self.w
+        gw  = self.gw
+        ngw = np.linalg.norm(self.gw)
+
+        # List of candidates
+        w_list = [w]
+
+        # Main loop
+        k = 0
+        while ngw > eps and k < max_step:
+            # Compute search direction
+            d  = self.get_direction()
+
+            # Line search
+            alpha = - (gw.T @ d)/(d.T @ Q @ d)
+
+            # Next candidate
+            next_w  = w + alpha * d
+            next_gw = g(next_w)
+
+            # Update candidate
+            w, gw = self.update(next_w, next_gw)
+            ngw   = np.linalg.norm(gw)
+            w_list.append(w)
+
+            # Log
+            if verbose:
+                print('', k,
+                    np.format_float_scientific(alpha, precision=4),
+                    np.format_float_scientific(ngw, precision=4),
+                    np.format_float_scientific(f(w), precision=4),sep='\t')
+
+            # Update step counter
+            k += 1
+
+        if conv_array:
+            return w_list
+        else:
+            return w, k
+
     def __str__(self):
         return self.name
 
 class Gradient(Optimizer):
+    """
+    Steepest Gradient Descent
+    """
     def __init__(self, w, gw, name='Gradient'):
         super().__init__(w, gw, name)
 
@@ -24,6 +138,14 @@ class Gradient(Optimizer):
         return - self.gw
 
 class Newton(Optimizer):
+    """
+    Newton method
+
+    Attributes
+    ----------
+    H : ndarray
+        Inverse of the Hessian matrix
+    """
     def __init__(self, w, gw, H, name='Newton'):
         super().__init__(w, gw, name)
         self.H  = H
@@ -32,6 +154,15 @@ class Newton(Optimizer):
         return - self.H @ self.gw
 
 class BFGS(Newton):
+    """
+    Broyden-Fletcher-Goldfarb-Shanno method
+
+    Attributes
+    ----------
+    H : ndarray
+        Inverse of the Hessian matrix approximated by the BFGS method.
+        A possible initialization for the method is the identity matrix.
+    """
     def __init__(self, w, gw, H, name='BFGS'):
         super().__init__(w, gw, H, name)
         self.H  = H
@@ -46,6 +177,19 @@ class BFGS(Newton):
         return w, gw
 
 class LBFGS(Optimizer):
+    """
+    Limited-memory BFGS method
+
+    Attributes
+    ----------
+    t : int, optional
+        Size of the memory
+    init : str, optional
+        Initialization of the optimizer, this can be either 'gamma', 'identity' or 'random'
+    perturbate : float, optional
+        If not none, the initialization of the matrix is summed with a random normal
+        vector with zero variance and average equal to perturbate
+    """
     def __init__(self, w, gw, t=8, init='gamma', perturbate=None, name='L-BFGS'):
         super().__init__(w, gw, name)
         self.k  = 0
@@ -100,77 +244,6 @@ class LBFGS(Optimizer):
         self.gw = gw
         return w, gw
 
-"""Computes the solution of the least squares problem
-   by using variations of the Newton method such as 
-   BFGS and L-BFGS
-
-Parameters
-----------
-f : R^n -> R
-    The least squares problem objective function
-g : R^n -> R^n
-    The gradient function
-Q : R^{n*n}
-    The exact Hessian
-opt : Optimizer
-    The optimizer
-eps : R
-    The threshold over the gradient norm to stop the iterations
-max_step : int
-    The threshold over the number of steps to stop the iterations
-verbose : bool
-    Flag to print the state of the optimizer during each iteration
-
-Returns
--------
-w : R^n
-    The candidate solution
-"""
-
-def optimize(f, g, Q, opt, eps=1e-6, max_step=2048, verbose=False, conv_array=False):
-    # Verbose
-    if verbose:
-        print(opt)
-        print('', 'Steps', 'α', '\t|∇f(w)|', '\tf(w)',sep='\t')
-
-    # Initial candidate
-    w   = opt.w
-    gw  = opt.gw
-    ngw = np.linalg.norm(opt.gw)
-
-    # List of candidates
-    w_list = [w]
-
-    # Main loop
-    k = 0
-    while ngw > eps and k < max_step:
-        # Compute search direction
-        d  = opt.get_direction()
-
-        # Line search
-        alpha = - (gw.T @ d)/(d.T @ Q @ d)
-
-        # Next candidate
-        next_w  = w + alpha * d
-        next_gw = g(next_w)
-
-        # Update candidate
-        w, gw = opt.update(next_w, next_gw)
-        ngw   = np.linalg.norm(gw)
-        w_list.append(w)
-
-        # Log
-        if verbose:
-            print('', k, np.format_float_scientific(alpha, precision=4), np.format_float_scientific(ngw, precision=4), np.format_float_scientific(f(w), precision=4),sep='\t')
-
-        # Update step counter
-        k += 1
-
-    if conv_array:
-        return w_list
-
-    return w, k
-
 if __name__ == "__main__":
     # Data loading
     X, X_hat = load_dataset()
@@ -193,21 +266,21 @@ if __name__ == "__main__":
         print()
 
     opt    = Gradient(w, gw)
-    w_c, s = optimize(f,g,Q,opt,max_step=32,verbose=True)
+    w_c, s = opt.optimize(f,g,Q,max_step=32,verbose=True)
     print_mem(opt)
 
     opt    = Newton(w, gw, H)
-    w_c, s = optimize(f,g,Q,opt,verbose=True)
+    w_c, s = opt.optimize(f,g,Q,verbose=True)
     print_mem(opt)
 
     opt    = BFGS(w, gw, np.eye(n))
-    w_c, s = optimize(f,g,Q,opt,verbose=True)
+    w_c, s = opt.optimize(f,g,Q,verbose=True)
     print_mem(opt)
 
     opt    = LBFGS(w, gw, name='L-BFGS, γ init')
-    w_c, s = optimize(f,g,Q,opt,verbose=True)
+    w_c, s = opt.optimize(f,g,Q,verbose=True)
     print_mem(opt)
 
     opt    = LBFGS(w, gw, init='identity', name='L-BFGS, I init')
-    w_c, s = optimize(f,g,Q,opt,verbose=True)
+    w_c, s = opt.optimize(f,g,Q,verbose=True)
     print_mem(opt)

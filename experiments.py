@@ -1,5 +1,5 @@
 from utils import load_dataset, lls_functions, theta_angled
-from optimization import LBFGS, BFGS, Newton, optimize
+from optimization import LBFGS, BFGS, Newton
 from concurrent.futures import ThreadPoolExecutor
 from numerical import qr, modified_qr, q1, back_substitution
 import numpy as np
@@ -32,7 +32,7 @@ def optimization_solver(y, method, params):
     params['gw'] = g(params['w'])
     # Construct optimizer and solve
     opt     = method(**params)
-    w_c, s  = optimize(f,g,Q,opt)
+    w_c, s  = opt.optimize(f,g,Q)
     return w_c, s
 
 """Computes the solution of the least squares problem
@@ -213,19 +213,19 @@ if __name__ == '__main__':
 
         # LBFGS Gamma
         opt    = LBFGS(w, gw)
-        w_list = optimize(f,g,Q,opt,conv_array=True, verbose=True)
+        w_list = opt.optimize(f,g,Q,conv_array=True, verbose=True)
         _resid = np.array([f(w) for w in w_list])
         resid[i, 0, :len(_resid)] = _resid
 
         # LBFGS Identity
         opt = LBFGS(w, gw, init='identity')
-        w_list = optimize(f,g,Q,opt,conv_array=True, verbose=True)
+        w_list = opt.optimize(f,g,Q,conv_array=True, verbose=True)
         _resid = np.array([f(w) for w in w_list])
         resid[i, 1, :len(_resid)] = _resid
 
         # BFGS
         opt    = BFGS(w, gw, np.eye(n))
-        w_list = optimize(f,g,Q,opt,conv_array=True, verbose=True)
+        w_list = opt.optimize(f,g,Q,conv_array=True, verbose=True)
         _resid = np.array([f(w) for w in w_list])
         resid[i, 2, :len(_resid)] = _resid
 
