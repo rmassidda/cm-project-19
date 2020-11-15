@@ -4,6 +4,7 @@ bibliography: bibliography.bib
 header-includes: |
   \usepackage{amsthm}
   \usepackage{subfig}
+  \usepackage{adjustbox}
 ...
 
 \title{Analysis of optimization and numerical approaches to solve the linear least square problem}
@@ -25,6 +26,9 @@ University of Pisa \\
 \begin{abstract}
   The linear least square problem can be tackled using a wide range of optimization or numerical methods. The L-BFGS method of the class of limited-memory quasi-Newton algorithms has been chosen for the former, whilst the thin QR factorization with Householder reflectors for the latter. Both these algorithms have been implemented from scratch using Python language, to finally experiment over their performances in terms of precision, stability and speed. The accordance of the implementations with the underlying theoretical models is also studied and discussed.
 \end{abstract}
+
+<!-- Used to space tables -->
+\renewcommand{\arraystretch}{1.5}
 
 <!--
 Setting the stage
@@ -425,6 +429,7 @@ Default conditions of the L-BFGS algorithm are reported in table \ref{table:lbfg
   \centering
   \caption{Default parameter for the L-BFGS optimizer.}
   \label{table:lbfgs_init}
+  \begin{adjustbox}{min width=0.3\textwidth}
   \begin{tabular}{lr}
     Parameter & \\
   \hline
@@ -433,6 +438,7 @@ Default conditions of the L-BFGS algorithm are reported in table \ref{table:lbfg
     Max step & 2048 \\
     Initialization & $\gamma$ \\
   \end{tabular}
+  \end{adjustbox}
 \end{table}
 
 For the following experiments, only the behavior of the modified version $QR*$ has been studied.
@@ -442,14 +448,15 @@ A comparison between the performances of standard $QR$ and $QR*$ is reported in 
   \centering
   \caption{Average results over multiple runs with normal random extracted $y$}
   \label{table:qr_comparison}
+  \begin{adjustbox}{min width=0.3\textwidth}
   \begin{tabular}{lrr}
   \hline
   Model   &     Time &   Residual \\
   \hline
   QR*     &  1.62066 &    21.1557 \\
   QR      & 32.8074  &    21.1557 \\
-  \hline
   \end{tabular}
+  \end{adjustbox}
 \end{table}
 
 ## Conditioning effects
@@ -478,6 +485,7 @@ As seen in figure \ref{fig:theta_narrow_time} in such interval the execution tim
   \centering
   \caption{Comparison of different metrics obtained by averaging the results of multiple runs for $y$ such that $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$.}
   \label{table:theta_narrow}
+  \begin{adjustbox}{min width=0.4\textwidth}
   \begin{tabular}{lrrr}
   Model     &      Time &   Residual &   Steps \\
   \hline
@@ -486,6 +494,7 @@ As seen in figure \ref{fig:theta_narrow_time} in such interval the execution tim
   LBFGS     & 0.0818654 &    45068.4 & 11.2571 \\
   QR*       & 1.39376   &    45068.4 &  1      \\
   \end{tabular}
+  \end{adjustbox}
 \end{table}
 
 \begin{figure}[h]
@@ -504,9 +513,9 @@ It is interesting that the use of $I$ to initialize both L-BFGS and BFGS results
 Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly as expected. (Figure \ref{fig:LBFGS_r})
 
 \begin{table}[t]
-  \centering
   \caption{Sample run of L-BFGS initialized with $I$, $\gamma I$ and BFGS initialized with $I$.}
   \label{table:sample_run}
+  \centering\begin{adjustbox}{min width=0.4\textwidth}
   \begin{tabular}{l|ccc}
     \multicolumn{1}{c}{} & \multicolumn{3}{c}{$\gamma$ L-BFGS} \\
     Step & $\alpha$ & $\nabla f(w)$ & $f(w)$ \\
@@ -524,10 +533,11 @@ Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly
     10 & 9.5111e-01 & 5.3348e-07 & 9.0174e+00 \\
     \hline
   \end{tabular}
+  \end{adjustbox}
   \newline
   \vspace*{0.5 cm}
   \newline
-  \centering
+  \begin{adjustbox}{min width=0.4\textwidth}
   \begin{tabular}{l|ccc}
     \multicolumn{1}{c}{} & \multicolumn{3}{c}{$I$ L-BFGS} \\
     Step & $\alpha$ & $\nabla f(w)$ & $f(w)$ \\
@@ -545,10 +555,11 @@ Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly
     10 & 2.5165e-03 & 5.3336e-07 & 9.0174e+00 \\
     \hline
   \end{tabular}
+  \end{adjustbox}
   \newline
   \vspace*{0.5 cm}
   \newline
-  \centering
+  \begin{adjustbox}{min width=0.4\textwidth}
   \begin{tabular}{l|ccc}
     \multicolumn{1}{c}{} & \multicolumn{3}{c}{$I$ BFGS} \\
     Step & $\alpha$ & $\nabla f(w)$ & $f(w)$ \\
@@ -565,6 +576,7 @@ Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly
     9 & 2.7086e-03 & 1.0072e+01 & 9.2727e+00 \\
     10 & 2.5165e-03 & 5.3245e-07 & 9.0174e+00 \\
   \end{tabular}
+  \end{adjustbox}
 \end{table}
 
 \begin{figure}[h]
