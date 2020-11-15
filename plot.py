@@ -15,7 +15,7 @@ t_lbfgs     = np.load('results/t_lbfgs.npy')
 #
 # Conditioning of the problem for various \theta
 #
-fig = plt.figure()
+fig = plt.figure('conditioning')
 plt.yscale('log')
 plt.xlabel(r'$\theta$')
 plt.plot(range(X_cond.shape[0]), X_cond, label=r'$\kappa_{rel,\hat{X}\to w}$')
@@ -28,9 +28,10 @@ plt.show()
 #
 def_names      = ['LLS Numpy', 'Newton', 'LBFGS', 'Numpy QR', 'QR*']
 titles         = ['Time (s)', 'Residual', 'Steps']
+fname          = ['time', 'residual', 'step']
 x = np.linspace(0, np.pi/2, theta_def.shape[1])
-for i, title in enumerate(titles):
-    fig = plt.figure()
+for i, (title, f) in enumerate(zip(titles,fname)):
+    fig = plt.figure('theta_'+f)
     plt.xlabel(r'$\theta$')
     plt.ylabel(title)
     if title == 'Residual' or title == 'Steps':
@@ -51,8 +52,8 @@ for i, title in enumerate(titles):
 x = np.linspace(0, np.pi/2, theta_def.shape[1])
 a = int(len(x) / 4)
 b = a * 3
-for i, title in enumerate(titles):
-    fig = plt.figure()
+for i, (title, f) in enumerate(zip(titles,fname)):
+    fig = plt.figure('theta_narrow_'+f)
     plt.xlabel(r'$\theta$')
     plt.ylabel(title)
     if title == 'Residual':
@@ -80,7 +81,7 @@ for r in r_rng:
 print('r-line', r)
 scale = ['linear', 'log']
 for s in scale:
-    fig = plt.figure()
+    fig = plt.figure('LBFGS_r_'+s)
     plt.xlabel('Steps')
     plt.yscale(s)
     plt.plot(range(limit), diff, label=r'$f(w_i) - f(w^*)$')
@@ -91,10 +92,9 @@ for s in scale:
 #
 # Plot of the residual curve for the LBFGS method (linscale e logscale)
 #
-fig = plt.figure()
 scale = ['linear', 'log']
 for s in scale:
-    fig = plt.figure()
+    fig = plt.figure('LBFGS_residual_'+s)
     plt.xlabel('Steps')
     plt.yscale(s)
     plt.plot(range(limit), resid)
@@ -104,8 +104,8 @@ for s in scale:
 # Average residual, time and steps for different memory values in LBFGS
 #
 titles  = ['Time (s)', 'residual', 'steps']
-for i, title in enumerate(titles):
-    fig = plt.figure()
+for i, (title, f) in enumerate(zip(titles,fname)):
+    fig = plt.figure('memory_'+f)
     plt.xlabel(r'$t$')
     plt.ylabel(title)
     plt.plot(t_rng, t_lbfgs[:, i])
