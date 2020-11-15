@@ -406,7 +406,7 @@ $$
 
 since $v$ is orthogonal in respect to each column of $Q_1$ and different to each of them.
 This procedure isn't part of the experimental evaluation, therefore the QR factorizer from the Numpy library has been used during this step.
-By selecting a vector $w \in \mathbb{R}^n$, extracted using multiple normal random variables as previously discussed, it is necessary to constrain the norm of $v$ as in 
+By selecting a vector $w \in \mathbb{R}^n$, extracted using multiple normal random variables as previously discussed, it is necessary to constrain the norm of $v$ as in
 
 $$
 \| v \| = \| \hat{X}w \| \tan\theta
@@ -474,7 +474,7 @@ It is evident both in figures \ref{fig:theta_time} and \ref{fig:theta_steps} tha
   \subfloat[][Execution time in seconds, lin-scale]{\includegraphics[width=0.5\textwidth]{assets/theta_time.png}\label{fig:theta_time}}
   \qquad
   \subfloat[][Steps for convergence, log-scale]{\includegraphics[width=0.5\textwidth]{assets/theta_steps.png}\label{fig:theta_steps}}
-  \caption{Average residual (\ref{fig:theta_residual}), execution time (\ref{fig:theta_time}) and steps (\ref{fig:theta_steps}) for $\theta \in (0, \frac{pi}{2})$}
+  \caption{Average residual (\ref{fig:theta_residual}), execution time (\ref{fig:theta_time}) and steps (\ref{fig:theta_steps}) for $\theta \in (0, \frac{\pi}{2})$}
   \label{fig:theta}
 \end{figure}
 
