@@ -8,12 +8,12 @@ import time
 
 Parameters
 ----------
-x : R^k
+x : ndarray, R^k
     Input vector
 
 Returns
 -------
-v : R^k
+v : ndarray, R^k
     Householder vector (unitary) relative to input vector x
 s : double
     Norm of the input vector x
@@ -41,14 +41,14 @@ def householder_vector(x):
 
 Parameters
 ----------
-A : R^(m x n)
+A : ndarray, R^(m x n)
     Input matrix
 
 Returns
 -------
-R : R^(m x n)
+R : ndarray, R^(m x n)
     The R matrix of the QR factorization
-hh_vects : list
+hh_vects : list of ndarray
     Householder vectors resulting from the factorization
 """
 def qr(A):
@@ -81,7 +81,7 @@ def qr(A):
 
 Parameters
 ----------
-A : R^(m x n), with m = k + n
+A : ndarray, R^(m x n) (m = k + n)
     Input matrix
 
 l : int
@@ -89,9 +89,9 @@ l : int
 
 Returns
 -------
-R : R^(m x n)
+R : ndarray, R^(m x n)
     The R matrix of the QR factorization
-hh_vects : list
+hh_vects : list of ndarray
     Householder vectors (of dimension k+1) resulting from the factorization
 """
 def modified_qr(A, l):
@@ -126,7 +126,7 @@ def modified_qr(A, l):
 
 Parameters
 ----------
-hh_vects : list
+hh_vects : list of ndarray
     Householder vectors yielded by the thin QR factorization
 
 m : int
@@ -134,7 +134,7 @@ m : int
 
 Returns
 -------
-Q1 : R^(m x n)
+Q1 : ndarray, R^(m x n)
     The reduced Q1 matrix of the QR factorization
 """
 def standard_q1(hh_vects, m):
@@ -154,7 +154,7 @@ def standard_q1(hh_vects, m):
 
 Parameters
 ----------
-hh_vects : list
+hh_vects : list of ndarray
     Householder vectors yielded by the thin QR factorization
 
 m : int
@@ -162,7 +162,7 @@ m : int
 
 Returns
 -------
-Q1 : R^(m x n)
+Q1 : ndarray, R^(m x n)
     The reduced Q1 matrix of the QR factorization
 """
 def q1(hh_vects, m):
@@ -199,14 +199,14 @@ def q1(hh_vects, m):
 
 Parameters
 ----------
-U : R^(n x n)
+U : ndarray, R^(n x n)
     upper triangular matrix
 
-b : R^n
+b : ndarray, R^n
 
 Returns
 -------
-x : R^n
+x : ndarray, R^n
     Solution to the system
 """
 def back_substitution(U, b):
