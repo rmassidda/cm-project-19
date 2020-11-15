@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Load results of the experiments from file
+num_results = np.load('results/num_results.npy')
 mod_results = np.load('results/mod_results.npy')
 std_results = np.load('results/std_results.npy')
 resid       = np.load('results/initializers.npy')
@@ -25,7 +26,7 @@ plt.show()
 #
 # Average residual, time and steps for different methods and various \theta
 #
-def_names      = ['LLS Numpy', 'Newton', 'LBFGS', 'QR*']
+def_names      = ['LLS Numpy', 'Newton', 'LBFGS', 'Numpy QR', 'QR*']
 titles         = ['Time (s)', 'Residual', 'Steps']
 x = np.linspace(0, np.pi/2, theta_def.shape[1])
 for i, title in enumerate(titles):
@@ -122,7 +123,7 @@ except ModuleNotFoundError:
 x = np.linspace(0, np.pi/2, theta_def.shape[1])
 a = int(len(x) / 4)
 b = a * 3
-models = np.array(['LLS Numpy', 'Newton', 'LBFGS', 'QR*']).reshape((4,1))
+models = np.array(['LLS Numpy', 'Newton', 'LBFGS', 'QR Numpy', 'QR*']).reshape((5,1))
 heads  = ['Model', 'Time', 'Residual', 'Steps']
 avg_metrics = np.average(theta_def[:, a:b, :], axis=1)
 avg_metrics = np.concatenate((models, avg_metrics), axis=1)
@@ -135,9 +136,10 @@ else:
 #
 # Comparison of QR and QR*
 #
+num_results = np.concatenate((['Numpy QR'], np.average(num_results, axis=0))).reshape((1,4))
 mod_results = np.concatenate((['QR*'], np.average(mod_results, axis=0))).reshape((1,4))
 std_results = np.concatenate((['QR'], np.average(std_results, axis=0))).reshape((1,4))
-qr_compare  = np.concatenate((mod_results, std_results), axis=0)
+qr_compare  = np.concatenate((num_results, mod_results, std_results), axis=0)
 heads  = ['Model', 'Time', 'Residual', 'Steps']
 if no_tab:
     print(heads)

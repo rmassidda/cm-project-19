@@ -79,6 +79,27 @@ def numpy_solver(y):
     return w_c, 1
 
 """Computes the solution of the least squares problem
+   by using the numpy QR factorization.
+
+Parameters
+----------
+y : R^m
+    The 
+
+Returns
+-------
+w_c : R^n
+    The candidate solution
+s   : int
+    The number of steps
+"""
+def numpy_qr_solver(y):
+    Q1, R = np.linalg.qr(X_hat, mode='reduced')
+    c    = np.dot(Q1.T, y)
+    w_c  = back_substitution(R[:n, :], c)
+    return w_c, 1
+
+"""Computes the solution of the least squares problem
    by using an arbitrary solver
 
 Parameters
@@ -162,8 +183,9 @@ if __name__ == '__main__':
     lbfgs  = lambda y: optimization_solver(y, LBFGS, {})
     std_qr = lambda y: numerical_solver(y, qr)
     mod_qr = lambda y: numerical_solver(y, lambda A: modified_qr(A, m-n+1))
-    def_solvers = [np_lls, newton, lbfgs, mod_qr]
-    def_names   = ['LLS Numpy', 'Newton', 'LBFGS', 'QR*']
+    num_qr = lambda y: numpy_qr_solver(y)
+    def_solvers = [np_lls, newton, lbfgs, num_qr, mod_qr]
+    def_names   = ['LLS Numpy', 'Newton', 'LBFGS', 'QR Numpy', 'QR*']
 
     # Constants
     MAX_REP = 5     # Repetitions
@@ -172,8 +194,10 @@ if __name__ == '__main__':
 
     # Test the difference in performances for QR and QR*
     Y = [np.random.randn(m) for i in range(MAX_REP)]
+    num_results = run_experiment(num_qr, Y, 'Numpy QR', nw)
     std_results = run_experiment(std_qr, Y, 'QR', nw)
     mod_results = run_experiment(mod_qr, Y, 'QR*', nw)
+    np.save('results/num_results', num_results)
     np.save('results/mod_results', mod_results)
     np.save('results/std_results', std_results)
 
