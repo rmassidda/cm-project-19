@@ -125,7 +125,7 @@ $$
 f(w_i) - f(w_*) \leq r^i (f(w_0) - f(w_*))
 $$
 
-so that the sequence $\{w_i\}$ converges R-linearly.
+so that the sequence $\{w_i\}$ converges $r$-linearly.
 
 Firstly the objective function $f$ should be twice continuously differentiable.
 Given the formulation of the least squares problem this is immediately true, the gradient and the Hessian of the objective function are definable as in:
