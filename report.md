@@ -430,7 +430,7 @@ By default the L-BFGS method initializes the implicit representation of the inve
 The execution of the optimizer halts when either when $\|\nabla f(w)\| < 1\mathrm{e}{-6}$ or after $i_{\textrm{MAX}} = 2048$ steps.
 Eventually, differences from the default parameters are discussed in each experiment when relevant.
 
-Table \ref{table:qr_comparison} shows a comparison between the standard QR, the modified QR (QR\*) and NumPy's \texttt{qr} which are all used in the context of a least squares problem. The most significative comparison is the one between QR and QR\*. With this particular instantiation of the input matrix $\hat{X}$, $k=m-n=20$ which is much smaller than $m=1785$. As predicted by the theoretical analysis, this brings the QR* version to outperform the standard one with a speedup greater than 20.
+Table \ref{table:qr_comparison} shows a comparison between the standard QR, the modified QR (QR\*) and NumPy's \texttt{qr} which are all used in the context of a least squares problem. The most significative comparison is the one between QR and QR\*. With this particular instantiation of the input matrix $\hat{X}$, $k=m-n=20$ which is much smaller than $m=1785$. As predicted by the theoretical analysis, this brings the QR* version to outperform the standard one with a speedup greater than 20.\
 As already stated before, NumPy's \texttt{qr} applies a standard QR factorization similar to the one employed in our standard QR. However, for the reasons outlined above, NumPy's version is about 30 times faster than its Python equivalent and it also beats QR* even without employing any optimization relative to the specific input data.
 
 \begin{table}[h]
@@ -455,7 +455,7 @@ The angle $\theta$ between the image of $\hat{X}$ and the vector $y$ has a great
 The average behavior of the different methods against the $\theta$ value has been plotted in figure \ref{fig:theta}. For the sake of simplicity, standard QR has been left aside, keeping just the QR* version which has the same algorithmic properties and a lower execution time.\
 Figure \ref{fig:theta_residual} highlights how all the evaluated methods have almost overlapping curves for what concerns the residual of the problem, whilst showing a significant difference for the times in figure \ref{fig:theta_time}.
 It is evident from figures \ref{fig:theta_time} and \ref{fig:theta_steps} that, as the conditioning of the problem worsen, the L-BFGS method isn't able to converge within the limit of the $i_{\textrm{MAX}}$ steps allowed.
-This phenomenom can also be observed in figure \ref{fig:r-convergence} where the average $r$ coefficient of multiple runs has been plotted against increasing values of $\theta$.
+This phenomenon can also be observed in figure \ref{fig:r-convergence} where the average $r$ coefficient of multiple runs has been plotted against increasing values of $\theta$.
 
 \begin{figure}[h]
   \includegraphics[width=0.5\textwidth]{assets/r-convergence.png}
