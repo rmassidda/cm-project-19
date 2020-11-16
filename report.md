@@ -481,13 +481,15 @@ As seen in figure \ref{fig:theta_narrow_time} in such interval the execution tim
   \label{table:theta_narrow}
   \begin{adjustbox}{min width=0.4\textwidth}
   \begin{tabular}{lrrr}
-  Model     &      Time (s) &   Residual &   Steps \\
-  \hline
-  LLS Numpy & 1.7487    &    37186.1 &  1      \\
-  Newton    & 0.0304    &    37186.1 &  1      \\
-  LBFGS     & 0.0820    &    37186.1 & 11.2143 \\
-  QR Numpy  & 1.1043    &    37186.1 &  1      \\
-  QR*       & 1.2718    &    37186.1 &  1      \\
+    \hline
+    Model     &   Time (s) &  Relative error &   Steps \\
+    \hline
+    LLS Numpy &  1.77815 &      1.99132e-13 &  1      \\
+    Newton    &  0.03161 &      4.22283e-12 &  1      \\
+    LBFGS     &  0.08400 &      1.64317e-08 & 11.1133 \\
+    Numpy QR  &  1.15588 &      1.63735e-14 &  1      \\
+    QR*       &  1.35123 &      5.04789e-14 &  1      \\
+    \hline
   \end{tabular}
   \end{adjustbox}
 \end{table}
