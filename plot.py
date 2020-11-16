@@ -2,6 +2,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Load results of the experiments from file
+opt_w       = np.load('results/opt_w.npy')
+tilde_w     = np.load('results/tilde_w.npy')
+X_cond_ub   = np.load('results/X_cond_ub.npy')
+y_cond_ub   = np.load('results/y_cond_ub.npy')
 avg_r       = np.load('results/avg_r.npy')
 num_results = np.load('results/num_results.npy')
 mod_results = np.load('results/mod_results.npy')
@@ -12,6 +16,31 @@ X_cond      = np.load('results/theta_Xcond.npy')
 y_cond      = np.load('results/theta_ycond.npy')
 t_rng       = np.load('results/t_rng.npy')
 t_lbfgs     = np.load('results/t_lbfgs.npy')
+
+#
+# Plot the upper bound
+#
+x     = np.linspace(0, np.pi/2, len(X_cond_ub))
+left  = np.array([np.linalg.norm(wt - wo)/np.linalg.norm(wo) for wt, wo in zip(tilde_w, opt_w)])
+prec  = np.finfo(np.float64).eps
+
+right_X = X_cond_ub * prec
+fig = plt.figure('conditioning upper-bound Xhat')
+plt.xlabel(r'$\theta$')
+plt.yscale('log')
+plt.plot(x, left, label='Relative error')
+plt.plot(x, right_X, label=r'$\partial\hat{X}$ upper-bound')
+plt.legend(fontsize="x-large")
+plt.show()
+
+right_y = y_cond_ub * prec
+fig = plt.figure('conditioning upper-bound y')
+plt.xlabel(r'$\theta$')
+plt.yscale('log')
+plt.plot(x, left, label='Relative error')
+plt.plot(x, right_y, label=r'$\partial y$ upper-bound')
+plt.legend(fontsize="x-large")
+plt.show()
 
 #
 # Average convergence rate for increasing \theta

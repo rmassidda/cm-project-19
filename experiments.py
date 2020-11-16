@@ -194,6 +194,37 @@ if __name__ == '__main__':
     MAX_G   = 30    # Granularity
     MAX_S   = 2048  # Maximum steps for the iterative methods
 
+    # Test conditioning upper bound for QR*
+    print('QR* conditioning upper bound')
+    theta_rng = np.linspace(0, np.pi/2, MAX_G)
+    results   = np.zeros((MAX_REP, MAX_G, 3))
+    opt_w     = np.zeros((MAX_REP, MAX_G, n))
+    tilde_w   = np.zeros((MAX_REP, MAX_G, n))
+    X_cond_ub = np.zeros((MAX_REP, MAX_G))
+    y_cond_ub = np.zeros((MAX_REP, MAX_G))
+    for i in range(MAX_REP):
+        # Random generate y at a given angle \theta
+        theta_pair  = [theta_angled(X_hat, theta) for theta in theta_rng]
+        opt_w[i][:] = np.array([e[0] for e in theta_pair])
+        Y           = [e[1] for e in theta_pair]
+
+        for j, y in enumerate(Y):
+            tilde_w[i,j] = mod_qr(y)[0]
+
+        # X hat conditioning
+        X_cond_ub[i,:] = KX + KX**2 * np.tan(theta_rng)
+        # y conditioning
+        y_cond_ub[i,:] = KX / np.cos(theta_rng)
+    opt_w     = np.average(opt_w, axis=0)
+    tilde_w   = np.average(tilde_w, axis=0)
+    X_cond_ub = np.average(X_cond_ub, axis=0)
+    y_cond_ub = np.average(y_cond_ub, axis=0)
+    np.save('results/opt_w',opt_w)
+    np.save('results/tilde_w',tilde_w)
+    np.save('results/X_cond_ub',X_cond_ub)
+    np.save('results/y_cond_ub',y_cond_ub)
+    print('QR* conditioning upper bound done')
+
     # Test the convergence rate for different increasing conditioning
     theta_rng = np.linspace(0, np.pi/2, MAX_G)
     avg_r     = np.zeros((2*MAX_REP,MAX_G))
