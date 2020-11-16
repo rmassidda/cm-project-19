@@ -472,8 +472,8 @@ This phenomenon can also be observed in figure \ref{fig:r-convergence} where the
 \end{figure}
 
 The same metrics have been studied away from the extreme regions of $\theta$ for what concerns the conditioning.
-Therefore the average results in the interval $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$, also introducing the standard Newton method in the comparison, are reported in table \ref{table:theta_narrow}.
-As seen in figure \ref{fig:theta_narrow_time} in such interval the execution time is constant for each method.
+The average results in the interval $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$ are reported in table \ref{table:theta_narrow}, introducing the standard Newton method in the comparison. Since Numpy QR and QR* employ almost identical algorithms, their respective measured relative errors are very close to each other.\
+As can be seen in Figure \ref{fig:theta_narrow_time}, in the same interval $(\frac{\pi}{8}, \frac{3\pi}{8})$ the execution time is constant for each method.
 
 \begin{table}[h]
   \centering
