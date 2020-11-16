@@ -194,6 +194,41 @@ if __name__ == '__main__':
     MAX_G   = 30    # Granularity
     MAX_S   = 2048  # Maximum steps for the iterative methods
 
+    # Test the convergence rate for different increasing conditioning
+    theta_rng = np.linspace(0, np.pi/2, MAX_G)
+    avg_r     = np.zeros((2*MAX_REP,MAX_G))
+    for i in range(2*MAX_REP):
+        # Random generate y at a given angle \theta
+        Y = [theta_angled(X_hat, theta)[1] for theta in theta_rng]
+        for j, y in enumerate(Y):
+            # Init
+            f, g, Q = lls_functions(X_hat, X, y)
+            w  = np.random.randn(n)
+            gw = g(w)
+
+            # LBFGS Gamma
+            opt    = LBFGS(w, gw)
+            w_list = opt.optimize(f,g,Q,conv_array=True, verbose=False)
+            resid  = np.array([f(w) for w in w_list])
+
+            # Compute r
+            f_opt = resid[-1]
+            diff  = resid - f_opt
+            r_rng = np.linspace(0, 1, 100)
+            for r in r_rng:
+                comp = [diff[0]*(r**z) for z in range(len(resid))]
+                try:
+                    if (diff <= comp).all():
+                        break
+                except RuntimeWarning:
+                    r = 1
+                    break
+            # Update i-th repetition for j-th theta
+            avg_r[i,j] = r
+
+    avg_r = np.average(avg_r, axis=0)
+    np.save('results/avg_r', avg_r)
+
     # Test the difference in performances for QR and QR*
     Y = [np.random.randn(m) for i in range(MAX_REP)]
     num_results = run_experiment(num_qr, Y, 'Numpy QR', nw)

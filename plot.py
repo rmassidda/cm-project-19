@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # Load results of the experiments from file
+avg_r       = np.load('results/avg_r.npy')
 num_results = np.load('results/num_results.npy')
 mod_results = np.load('results/mod_results.npy')
 std_results = np.load('results/std_results.npy')
@@ -11,6 +12,16 @@ X_cond      = np.load('results/theta_Xcond.npy')
 y_cond      = np.load('results/theta_ycond.npy')
 t_rng       = np.load('results/t_rng.npy')
 t_lbfgs     = np.load('results/t_lbfgs.npy')
+
+#
+# Average convergence rate for increasing \theta
+#
+x = np.linspace(0, np.pi/2, len(avg_r))
+fig = plt.figure('r-convergence')
+plt.xlabel(r'$\theta$')
+plt.ylabel(r'$r$-convergence')
+plt.plot(range(len(avg_r)), avg_r)
+plt.show()
 
 #
 # Conditioning of the problem for various \theta
