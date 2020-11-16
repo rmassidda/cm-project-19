@@ -502,6 +502,14 @@ As seen in figure \ref{fig:theta_narrow_time} in such interval the execution tim
   \label{fig:theta_narrow_time}
 \end{figure}
 
+Figure \ref{fig:upper-bound} shows the significance of the theoretical upper bound of the relative error with respect to perturbations of $\hat{X}$ of the order of machine precision \footnote{On our machine this was obtained by calling the method \texttt{np.finfo(np.float64).eps} $ \approx 2.22*10^{-16}$.}. By varying $\theta$ in $(0,\frac{\pi}{2})$, the upper bound is never exceeded by the measured relative error.
+
+\begin{figure}[h]
+  \includegraphics[width=0.5\textwidth]{assets/conditioning_upper-bound_Xhat.png}
+  \caption{Upper bound of the relative error and measured relative error for $\theta \in (0,\frac{\pi}{2})$}
+  \label{fig:upper-bound}
+\end{figure}
+
 ## Initialization L-BFGS
 
 Two different initialization techniques have been tested for the L-BFGS algorithm, precisely the use of $H^0_i = I$ and $H^0_i = \gamma_i I$.
