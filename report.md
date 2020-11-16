@@ -419,31 +419,18 @@ The desired vector $y$ is finally obtainable by summing $\hat{X}w + v$.
 The implemented techniques have been thoroughly evaluated against themselves and against the NumPy built-in methods to solve the linear least squares problem.
 
 Many of the described tests report the average of multiple runs, this is aimed to ensure the reproducibility of the experimental results, especially when random behavior plays a role.
-The number of runs per experiment is fixed, moreover they are executed sequentially to avoid with certainty the effect of parallelization overhead.
+The number of runs per experiment is fixed, moreover they are executed sequentially to avoid with certainty the effects of parallelization overhead.
 
-The two NumPy built-in methods used in this context are \texttt{lstsq}, which solves the least squares problem through a divide-and-conquer SVD based approach, and \texttt{qr}, which computes a standard QR factorization of a matrix through Householder reflectors as in our case. \texttt{lstsq} can be used directly as it is, while the call to the \texttt{qr} method has to be followed by a back substitution phase.\
+The two NumPy built-in methods used in this context are \texttt{lstsq}, which solves the least squares problem through a divide-and-conquer SVD based approach, and \texttt{qr}, which computes a standard QR factorization of a matrix through Householder reflectors as in our case. \texttt{lstsq} can be used directly as it is, while the call to the \texttt{qr} method has to be followed by a back substitution phase.
 Both methods' source code point to different LAPACK core subroutines written in Fortran. This implies that these methods will most likely outperform any equivalent version written in Python because of the slowness of the interpreter. Nonetheless, they will be used to obtain interesting reference values for the experimental analysis.
 
-For what concerns the optimization techniques, the different tunable parameters are discussed in each experiment when relevant.
-Default conditions of the L-BFGS algorithm are reported in table \ref{table:lbfgs_init}.
+The L-BFGS method has been implemented using the two-loop recursion algorithm described in @nocedal_numerical_2006, due to the fact that it does not require to explicitly store the $H_i$ approximation.
+Anyhow, the formulations are equivalent and therefore the already described convergence results hold.
+By default the L-BFGS method initializes the implicit representation of the inverse Hessian by using $H_i^0 = \gamma I$, and exploits the memory of the previous $t=8$ steps.
+The execution of the optimizer halts when either when $\|\nabla f(w)\| < 1\mathrm{e}{-6}$ or after $i_{\textrm{MAX}} = 2048$ steps.
+Eventually, differences from the default parameters are discussed in each experiment when relevant.
 
-\begin{table}[h]
-  \centering
-  \caption{Default parameter for the L-BFGS optimizer.}
-  \label{table:lbfgs_init}
-  \begin{adjustbox}{min width=0.3\textwidth}
-  \begin{tabular}{lr}
-    Parameter & \\
-  \hline
-    Memory & 8 \\
-    Gradient threshold  & $1\mathrm{e}{-6}$ \\
-    Max step & 2048 \\
-    Initialization & $\gamma$ \\
-  \end{tabular}
-  \end{adjustbox}
-\end{table}
-
-Table \ref{table:qr_comparison} shows a comparison between the standard QR, the modified QR (QR\*) and NumPy's \texttt{qr} which are all used in the context of a least squares problem. The most significative comparison is the one between QR and QR\*. With this particular instantiation of the input matrix $\hat{X}$, $k=m-n=20$ which is much smaller than $m=1785$. As predicted by the theoretical analysis, this brings the QR* version to outperform the standard one with a speedup greater than 20.\
+Table \ref{table:qr_comparison} shows a comparison between the standard QR, the modified QR (QR\*) and NumPy's \texttt{qr} which are all used in the context of a least squares problem. The most significative comparison is the one between QR and QR\*. With this particular instantiation of the input matrix $\hat{X}$, $k=m-n=20$ which is much smaller than $m=1785$. As predicted by the theoretical analysis, this brings the QR* version to outperform the standard one with a speedup greater than 20.
 As already stated before, NumPy's \texttt{qr} applies a standard QR factorization similar to the one employed in our standard QR. However, for the reasons outlined above, NumPy's version is about 30 times faster than its Python equivalent and it also beats QR* even without employing any optimization relative to the specific input data.
 
 \begin{table}[h]
@@ -467,7 +454,7 @@ As already stated before, NumPy's \texttt{qr} applies a standard QR factorizatio
 The angle $\theta$ between the image of $\hat{X}$ and the vector $y$ has a great impact on the conditioning of the problem.
 The average behavior of the different methods against the $\theta$ value has been plotted in figure \ref{fig:theta}. For the sake of simplicity, standard QR has been left aside, keeping just the QR* version which has the same algorithmic properties and a lower execution time.\
 Figure \ref{fig:theta_residual} highlights how all the evaluated methods have almost overlapping curves for what concerns the residual of the problem, whilst showing a significant difference for the times in figure \ref{fig:theta_time}.
-It is evident both in figures \ref{fig:theta_time} and \ref{fig:theta_steps} that as the conditioning of the problem worsen the more affected method is the L-BFGS, that isn't able to converge within the limit of the maximum steps allowed.
+It is evident from figures \ref{fig:theta_time} and \ref{fig:theta_steps} that, as the conditioning of the problem worsen, the L-BFGS method isn't able to converge within the limit of the $i_{\textrm{MAX}}$ steps allowed.
 
 \begin{figure}[h]
   \centering
@@ -511,7 +498,7 @@ As seen in figure \ref{fig:theta_narrow_time} in such interval the execution tim
 ## Initialization L-BFGS
 
 Two different initialization techniques have been tested for the L-BFGS algorithm, precisely the use of $H^0_i = I$ and $H^0_i = \gamma_i I$.
-To offer further insights, the BFGS algorithm has been implemented using $H_0 = I$.
+To offer further insights, the BFGS algorithm has been implemented and compared, initializing it by using $H_0 = I$.
 Table \ref{table:sample_run} shows how the three variants converge exactly in the same way.
 It is interesting that the use of $I$ to initialize both L-BFGS and BFGS results in the same sequence of step-size $\{\alpha_i\}$.
 Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly as expected. (Figure \ref{fig:LBFGS_r})
@@ -599,6 +586,7 @@ The L-BFGS algorithm has been tested for different values of memory $t \in (1,n)
 Whilst the memory size had no impact on the residual (figure \ref{fig:memory_residual}), a significant reduction of the number of steps occurs even for minimal amounts of memory.
 Anyhow the number of required steps quickly stabilizes, and it is not influenced by further memory increase.
 Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how the increase of the memory has an increasing effect on the time required by the algorithm and consequently on the time per step.
+Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how as $t$ grows the time per step and consequently the time required by the algorithm increase.
 
 \begin{figure}[h]
   \centering
