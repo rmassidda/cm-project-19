@@ -15,11 +15,12 @@ t_lbfgs     = np.load('results/t_lbfgs.npy')
 #
 # Conditioning of the problem for various \theta
 #
+x = np.linspace(0, np.pi/2, X_cond.shape[0])
 fig = plt.figure('conditioning')
 plt.yscale('log')
 plt.xlabel(r'$\theta$')
-plt.plot(range(X_cond.shape[0]), X_cond, label=r'$\kappa_{rel,\hat{X}\to w}$')
-plt.plot(range(y_cond.shape[0]), y_cond, label=r'$\kappa_{rel,y \to w}$')
+plt.plot(x, X_cond, label=r'$\kappa_{rel,\hat{X}\to w}$')
+plt.plot(x, y_cond, label=r'$\kappa_{rel,y \to w}$')
 plt.legend(fontsize="x-large")
 plt.show()
 
