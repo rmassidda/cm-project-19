@@ -228,6 +228,7 @@ if __name__ == "__main__":
     # Data loading
     X, X_hat = load_dataset()
     m, n     = X_hat.shape
+    print(m, n)
 
     # Numerical experiments
     np.set_printoptions(precision=20)

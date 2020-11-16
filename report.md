@@ -387,6 +387,8 @@ Again, you are advised to send us a version of this section by e-mail as soon as
 to see code (unless seeing how instances is generated is much simpler by looking at a short well-commented code than
 at a long winding report).
 -->
+As specified in the project assignment, in our experiments the tall thin matrix $X$ will be the $1765 \times 20$ matrix from the ML-cup dataset. This implies that $\hat{X}$ will be a $1785 \times 1765$ matrix.
+
 Because of the bottom $I$ block, the input matrix $\hat{X}$ has $n$ linearly independent rows and consequently full column rank.
 Therefore, a unique solution is expected from the linear least squares problem regardless of the possible values $y$.
 Nonetheless, as discussed in the previous section, the conditioning of the problem is dependent on $y$, precisely on the angle $\theta$ between the image of $\hat{X}$ and $y$. (Figure \ref{conditioning})
@@ -420,8 +422,8 @@ The implemented techniques have been thoroughly evaluated against themselves and
 Many of the described tests report the average of multiple runs, this is aimed to ensure the reproducibility of the experimental results, especially when random behavior plays a role.
 The number of runs per experiment is fixed, moreover they are executed sequentially to avoid with certainty the effect of parallelization overhead.
 
-The two NumPy built-in methods used in this context are \texttt{lstsq}, which solves the least squares problem through a divide-and-conquer SVD based approach, and \texttt{qr}, which computes the QR factorization of a matrix through Householder reflectors as in our case. \texttt{lstsq} can be used directly as it is, while the call to the \texttt{qr} method has to be followed by a back substitution phase.\
-Both methods' source code points to different LAPACK core subroutines written in Fortran. This implies that these methods will most likely outperform any equivalent version written in Python, because the interpreter will inevitably slow things down. Nonetheless, they will be used to obtain interesting reference values for the experimental analysis.
+The two NumPy built-in methods used in this context are \texttt{lstsq}, which solves the least squares problem through a divide-and-conquer SVD based approach, and \texttt{qr}, which computes a standard QR factorization of a matrix through Householder reflectors as in our case. \texttt{lstsq} can be used directly as it is, while the call to the \texttt{qr} method has to be followed by a back substitution phase.\
+Both methods' source code point to different LAPACK core subroutines written in Fortran. This implies that these methods will most likely outperform any equivalent version written in Python because of the slowness of the interpreter. Nonetheless, they will be used to obtain interesting reference values for the experimental analysis.
 
 For what concerns the optimization techniques, the different tunable parameters are discussed in each experiment when relevant.
 Default conditions of the L-BFGS algorithm are reported in table \ref{table:lbfgs_init}.
@@ -442,8 +444,8 @@ Default conditions of the L-BFGS algorithm are reported in table \ref{table:lbfg
   \end{adjustbox}
 \end{table}
 
-For the following experiments, only the behavior of the modified version $QR*$ has been studied.
-A comparison between the performances of standard $QR$ and $QR*$ is reported in table \ref{table:qr_comparison}.
+Table \ref{table:qr_comparison} shows a comparison between the standard QR, the modified QR (QR\*) and NumPy's \texttt{qr} which are all used in the context of a least squares problem. The most significative comparison is the one between QR and QR\*. With this particular instantiation of the input matrix $\hat{X}$, $k=m-n=20$ which is much smaller than $m=1785$. As predicted by the theoretical analysis, this brings the QR* version to outperform the standard one with a speedup greater than 20.\
+As already stated before, NumPy's \texttt{qr} applies a standard QR factorization similar to the one employed in our standard QR. However, for the reasons outlined above, NumPy's version is about 30 times faster than its Python equivalent and it also beats QR* even without employing any optimization relative to the specific input data.
 
 \begin{table}[h]
   \centering
@@ -464,7 +466,7 @@ A comparison between the performances of standard $QR$ and $QR*$ is reported in 
 ## Conditioning effects
 
 The angle $\theta$ between the image of $\hat{X}$ and the vector $y$ has a great impact on the conditioning of the problem.
-The average behavior of the different methods against the $\theta$ value has been plotted in figure \ref{fig:theta}.
+The average behavior of the different methods against the $\theta$ value has been plotted in figure \ref{fig:theta}. For the sake of simplicity, standard QR has been left aside, keeping just the QR* version which has the same algorithmic properties and a lower execution time.\
 Figure \ref{fig:theta_residual} highlights how all the evaluated methods have almost overlapping curves for what concerns the residual of the problem, whilst showing a significant difference for the times in figure \ref{fig:theta_time}.
 It is evident both in figures \ref{fig:theta_time} and \ref{fig:theta_steps} that as the conditioning of the problem worsen the more affected method is the L-BFGS, that isn't able to converge within the limit of the maximum steps allowed.
 
