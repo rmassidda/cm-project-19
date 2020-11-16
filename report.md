@@ -46,7 +46,7 @@ Note that we do not want to see code at this point: that would be premature to p
 -->
 
 # Introduction
-Given a dataset composed by a matrix $\hat{X} \in \mathbb{R}^{m \times n}$ with $m \geq n$ and a vector $y \in \mathbb{R}^m$, the solution of the linear least square (LLS) problem is the vector $w \in \mathbb{R}^n$ that fits best the data assuming a linear function between $\hat{X}$ and $y$. [@nocedal_numerical_2006 p. 50]
+Given a dataset composed by a matrix $\hat{X} \in \mathbb{R}^{m \times n}$ with $m \geq n$ and a vector $y \in \mathbb{R}^m$, the solution of the linear least square (LLS) problem is the vector $w \in \mathbb{R}^n$ that, assuming a linear function between $\hat{X}$ and $y$, best fits the data.  [@nocedal_numerical_2006 p. 50]
 This can be formalized as the following minimization problem:
 
 $$
@@ -61,7 +61,6 @@ $$
 
 Where $X \in \mathbb{R}^{n \times k}$ is a tall thin matrix, thus $m = k + n$.
 The LLS problem can be dealt both with iterative methods or with direct numerical methods.
-One algorithm has been chosen for each of these fields to finally discuss their experimental results.
 
 ## L-BFGS
 <!-- Breve descrizione del metodo L-BFGS, a che famiglia appartiene e come si distingue da BFGS -->
@@ -72,7 +71,7 @@ $$
 w_{i+1} = w_i - \alpha_i H_i \nabla f_i
 $$
 
-The smaller memory requirements of this variation are due to the fact that the Hessian approximation $H_i$ is stored implicitly, and built over a fixed number of vector pairs $\{s_j, y_j\}$ of the previous $t$ iterations and an initial matrix $H_i^0$. Where
+The smaller memory requirements of this variation are due to the fact that the inverse Hessian approximation $H_i$ is stored implicitly, and built over a fixed number of vector pairs $\{s_j, y_j\}$ of the previous $t$ iterations and an initial matrix $H_i^0$. Where
 
 $$
 s_i = w_{i+1} - w_i, \quad y_i = \nabla f_{i+1} - \nabla f_i
@@ -94,7 +93,7 @@ H_i & = (V^T_{i-1} \dots V^T_{i-t}) H_i^0 (V_{i-t} \dots V_{i-1}) \\
 $$
 
 Different strategies to initialize the $H_i^0$ matrix are proposed in the literature, and so they will be tested experimentally.
-Finally, the step size $\alpha_i$ is found by performing an inexact line search based on the Armijo-Wolfe conditions.
+Finally, the exact step size $\alpha_i$ can be directly computed given the quadratic nature of the problem.
 
 ## Thin QR factorization
 For the numerical counterpart, the thin QR factorization with Householder reflectors has been implemented as described in [@trefethen_numerical_1997].
