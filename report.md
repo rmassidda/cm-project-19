@@ -455,6 +455,13 @@ The angle $\theta$ between the image of $\hat{X}$ and the vector $y$ has a great
 The average behavior of the different methods against the $\theta$ value has been plotted in figure \ref{fig:theta}. For the sake of simplicity, standard QR has been left aside, keeping just the QR* version which has the same algorithmic properties and a lower execution time.\
 Figure \ref{fig:theta_residual} highlights how all the evaluated methods have almost overlapping curves for what concerns the residual of the problem, whilst showing a significant difference for the times in figure \ref{fig:theta_time}.
 It is evident from figures \ref{fig:theta_time} and \ref{fig:theta_steps} that, as the conditioning of the problem worsen, the L-BFGS method isn't able to converge within the limit of the $i_{\textrm{MAX}}$ steps allowed.
+This phenomenom can also be observed in figure \ref{fig:r-convergence} where the average $r$ coefficient of multiple runs has been plotted against increasing values of $\theta$.
+
+\begin{figure}[h]
+  \includegraphics[width=0.5\textwidth]{assets/r-convergence.png}
+  \caption{Average $r$-value for values $\theta \in (0, \frac{\pi}{2})$}
+  \label{fig:r-convergence}
+\end{figure}
 
 \begin{figure}[h]
   \centering

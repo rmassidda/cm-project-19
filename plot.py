@@ -20,7 +20,7 @@ x = np.linspace(0, np.pi/2, len(avg_r))
 fig = plt.figure('r-convergence')
 plt.xlabel(r'$\theta$')
 plt.ylabel(r'$r$-convergence')
-plt.plot(range(len(avg_r)), avg_r)
+plt.plot(x, avg_r)
 plt.show()
 
 #
