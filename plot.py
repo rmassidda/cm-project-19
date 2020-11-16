@@ -69,11 +69,22 @@ else:
 #
 # Plot the upper bound
 #
-x     = np.linspace(0, np.pi/2, len(X_cond_ub))
-left  = np.array([np.linalg.norm(wt - wo)/np.linalg.norm(wo) for wt, wo in zip(tilde_w, opt_w)])
-prec  = np.finfo(np.float64).eps
+reps, gran = opt_w.shape[:-1]
+left    = np.zeros(gran)
+right_X = np.zeros(gran)
+right_y = np.zeros(gran)
+prec    = np.finfo(np.float64).eps
 
-right_X = X_cond_ub * prec
+for i in range(reps):
+    left += np.array([np.linalg.norm(wt - wo)/np.linalg.norm(wo) for wt, wo in zip(tilde_w[i], opt_w[i])])
+    right_X += X_cond_ub[i] * prec
+    right_y += y_cond_ub[i] * prec
+
+left    /= reps
+right_X /= reps
+right_y /= reps
+
+x = np.linspace(0, np.pi/2, gran)
 fig = plt.figure('conditioning upper-bound Xhat')
 plt.xlabel(r'$\theta$')
 plt.yscale('log')
@@ -82,7 +93,6 @@ plt.plot(x, right_X, label=r'$\partial\hat{X}$ upper-bound')
 plt.legend(fontsize="x-large")
 plt.show()
 
-right_y = y_cond_ub * prec
 fig = plt.figure('conditioning upper-bound y')
 plt.xlabel(r'$\theta$')
 plt.yscale('log')

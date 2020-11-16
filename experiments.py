@@ -225,7 +225,6 @@ if __name__ == '__main__':
     # Test conditioning upper bound for QR*
     print('QR* conditioning upper bound')
     theta_rng = np.linspace(0, np.pi/2, MAX_G)
-    results   = np.zeros((MAX_REP, MAX_G, 3))
     opt_w     = np.zeros((MAX_REP, MAX_G, n))
     tilde_w   = np.zeros((MAX_REP, MAX_G, n))
     X_cond_ub = np.zeros((MAX_REP, MAX_G))
@@ -243,10 +242,6 @@ if __name__ == '__main__':
         X_cond_ub[i,:] = KX + KX**2 * np.tan(theta_rng)
         # y conditioning
         y_cond_ub[i,:] = KX / np.cos(theta_rng)
-    opt_w     = np.average(opt_w, axis=0)
-    tilde_w   = np.average(tilde_w, axis=0)
-    X_cond_ub = np.average(X_cond_ub, axis=0)
-    y_cond_ub = np.average(y_cond_ub, axis=0)
     np.save('results/opt_w',opt_w)
     np.save('results/tilde_w',tilde_w)
     np.save('results/X_cond_ub',X_cond_ub)
