@@ -406,21 +406,22 @@ $$
 
 since $v$ is orthogonal in respect to each column of $Q_1$ and different to each of them.
 This procedure isn't part of the experimental evaluation, therefore the QR factorizer from the Numpy library has been used during this step.
-By selecting a vector $w \in \mathbb{R}^n$, extracted using multiple normal random variables as previously discussed, it is necessary to constrain the norm of $v$ as in
+By selecting a vector $w \in \mathbb{R}^n$, extracted using multiple normal random variables as previously discussed, it is necessary to set the norm of $v$ as in
 
 $$
 \| v \| = \| \hat{X}w \| \tan\theta
 $$
 
-The desired vector $y$ it is finally obtainable by summing $\hat{X}w + v$.
+The desired vector $y$ is finally obtainable by summing $\hat{X}w + v$.
 
 # Experimental results
-The implemented techniques have been thoroughly evaluated against themselves and against the NumPy built-in method to solve the linear least squares problem.
-
-$\dots$
+The implemented techniques have been thoroughly evaluated against themselves and against the NumPy built-in methods to solve the linear least squares problem.
 
 Many of the described tests report the average of multiple runs, this is aimed to ensure the reproducibility of the experimental results, especially when random behavior plays a role.
 The number of runs per experiment is fixed, moreover they are executed sequentially to avoid with certainty the effect of parallelization overhead.
+
+The two NumPy built-in methods used in this context are \texttt{lstsq}, which solves the least squares problem through a divide-and-conquer SVD based approach, and \texttt{qr}, which computes the QR factorization of a matrix through Householder reflectors as in our case. \texttt{lstsq} can be used directly as it is, while the call to the \texttt{qr} method has to be followed by a back substitution phase.\
+Both methods' source code points to different LAPACK core subroutines written in Fortran. This implies that these methods will most likely outperform any equivalent version written in Python, because the interpreter will inevitably slow things down. Nonetheless, they will be used to obtain interesting reference values for the experimental analysis.
 
 For what concerns the optimization techniques, the different tunable parameters are discussed in each experiment when relevant.
 Default conditions of the L-BFGS algorithm are reported in table \ref{table:lbfgs_init}.
