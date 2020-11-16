@@ -616,4 +616,9 @@ Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how as $t
 
 # Conclusions
 
+In this report we have explored analytically and experimentally direct and iterative approaches to the least squares problem.\
+In the analytical sections, we have recalled the main properties of the algorithms...
+For what concerns the direct numerical approaches, we first recalled the structure of the standard thin QR factorization based on Householder reflectors. Then, we introduced a new modified version of the algorithm to be applied on matrices of the form specified in the project assignment. This brought the algorithm to be more efficient on this specific type of data while still maintaining the nice stability properties of the standard QR algorithm.
+In the experimental part of the report, we evaluated the Python implementations of the studied approaches on the ML-cup dataset by comparing them with each other and against NumPy's built-in methods. By doing this, we confirmed experimentally the main presuppositions outlined in the report. For what concerns the direct approaches, the modified QR algorithm resulted around 20 times faster than the standard version. Moreover, we checked the behaviour of the algorithm with respect to its accuracy, which stayed below the theoretical upper bounds outlined in the analytical part of the report.
+
 # Bibliography
