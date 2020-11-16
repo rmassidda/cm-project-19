@@ -1,7 +1,15 @@
 import numpy as np
 from matplotlib import pyplot as plt
+try:
+    from tabulate import tabulate
+    no_tab = False
+except ModuleNotFoundError:
+    no_tab = True
+
 
 # Load results of the experiments from file
+nar_res     = np.load('results/nar_res.npy')
+nar_opt_w   = np.load('results/nar_opt_w.npy')
 opt_w       = np.load('results/opt_w.npy')
 tilde_w     = np.load('results/tilde_w.npy')
 X_cond_ub   = np.load('results/X_cond_ub.npy')
@@ -18,13 +26,65 @@ t_rng       = np.load('results/t_rng.npy')
 t_lbfgs     = np.load('results/t_lbfgs.npy')
 
 #
+# Narrow interval table
+#
+# ((MAX_REP, len(def_solvers), MAX_G, 3, n))
+# ((MAX_REP, MAX_G, n))
+def_names  = ['LLS Numpy', 'Newton', 'LBFGS', 'Numpy QR', 'QR*']
+heads      = ['Model', 'Time (s)', 'Relative error', 'Steps']
+table      = np.zeros((len(def_names),3))
+for i, model in enumerate(def_names):
+    results = nar_res[:,i,:,:,:]
+    # Get the averages
+    avg = results
+    avg = np.average(avg,axis=0)   # Average over the replicas
+    avg = np.average(avg, axis=0)  # Average over the thetas
+    table[i,0] = avg[0][0]
+    table[i,2] = avg[2][0]
+
+    # Compute relative error
+    reps = results.shape[0] # Number of replicas
+    gran = results.shape[1] # Number of thetas
+
+    # Compute the relative errors
+    rels = []
+    for r in range(reps):
+        for g in range(gran):
+            tilde = results[r,g,1]
+            opt   = nar_opt_w[r,g]
+            rel   = np.linalg.norm(tilde - opt)/np.linalg.norm(opt)
+            rels.append(rel)
+    rels = np.array(rels)
+    rels = np.average(rels)
+    table[i,1] = rels
+
+if no_tab:
+    print(heads)
+    print(table)
+else:
+    def_names = np.array(def_names).reshape(5,1)
+    table = np.concatenate((def_names,table), axis=1)
+    print(tabulate(table, headers=heads, tablefmt='latex'), end='\n\n')
+
+#
 # Plot the upper bound
 #
-x     = np.linspace(0, np.pi/2, len(X_cond_ub))
-left  = np.array([np.linalg.norm(wt - wo)/np.linalg.norm(wo) for wt, wo in zip(tilde_w, opt_w)])
-prec  = np.finfo(np.float64).eps
+reps, gran = opt_w.shape[:-1]
+left    = np.zeros(gran)
+right_X = np.zeros(gran)
+right_y = np.zeros(gran)
+prec    = np.finfo(np.float64).eps
 
-right_X = X_cond_ub * prec
+for i in range(reps):
+    left += np.array([np.linalg.norm(wt - wo)/np.linalg.norm(wo) for wt, wo in zip(tilde_w[i], opt_w[i])])
+    right_X += X_cond_ub[i] * prec
+    right_y += y_cond_ub[i] * prec
+
+left    /= reps
+right_X /= reps
+right_y /= reps
+
+x = np.linspace(0, np.pi/2, gran)
 fig = plt.figure('conditioning upper-bound Xhat')
 plt.xlabel(r'$\theta$')
 plt.yscale('log')
@@ -33,7 +93,6 @@ plt.plot(x, right_X, label=r'$\partial\hat{X}$ upper-bound')
 plt.legend(fontsize="x-large")
 plt.show()
 
-right_y = y_cond_ub * prec
 fig = plt.figure('conditioning upper-bound y')
 plt.xlabel(r'$\theta$')
 plt.yscale('log')
@@ -151,12 +210,6 @@ for i, (title, f) in enumerate(zip(titles,fname)):
     plt.ylabel(title)
     plt.plot(t_rng, t_lbfgs[:, i])
     plt.show()
-
-try:
-    from tabulate import tabulate
-    no_tab = False
-except ModuleNotFoundError:
-    no_tab = True
 
 #
 # Table avg for the intervals in the narrow

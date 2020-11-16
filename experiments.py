@@ -122,7 +122,7 @@ def task(y, solver):
     dur   = end - start
     return dur, w, s
 
-def run_experiment(solver, Y, name, nw=0):
+def run_experiment(solver, Y, name, nw=0,residual=True):
     """
     Computes either sequentially or in parallel
     multiple least squares problems.
@@ -138,15 +138,21 @@ def run_experiment(solver, Y, name, nw=0):
     nw : int, optional
         Number of workers, if zero the experiments are run
         sequentially without any overhead
+    residual : boolean, optional
+        Flag to return either the residual or the candidate
+        point
 
     Returns
     -------
     log : ndarray
         Array containing for each solution the duration in
-        seconds, the residual and the number of required
-        steps
+        seconds, the residual or the candidate point and
+        the number of required steps
     """
-    log = np.zeros((len(Y), 3))
+    if residual:
+        log = np.zeros((len(Y), 3))
+    else:
+        log = np.zeros((len(Y), 3, n))
     print('Running', name,len(Y),'times with',nw,'workers')
 
     # Multithreading to run parallel experiments
@@ -156,10 +162,15 @@ def run_experiment(solver, Y, name, nw=0):
         with ThreadPoolExecutor(max_workers=nw) as p:
             results = p.map(lambda y: task(y, solver), Y)
 
-    # Log results (duration, residual, steps)
+    # Log results (duration, residual or candidate, steps)
     for i, (y, res) in enumerate(zip(Y,results)):
         f, _, _ = lls_functions(X_hat, X, y)
-        log[i, :] = [res[0], f(res[1]), res[2]]
+        if residual:
+            log[i, :] = [res[0], f(res[1]), res[2]]
+        else:
+            log[i, 0, 0] = res[0]
+            log[i, 1]    = res[1]
+            log[i, 2, 0] = res[2]
 
     return log
 
@@ -194,10 +205,26 @@ if __name__ == '__main__':
     MAX_G   = 30    # Granularity
     MAX_S   = 2048  # Maximum steps for the iterative methods
 
+    # Relative error for the solvers in pi/8, 3pi/8
+    theta_rng = np.linspace(np.pi/8, 3*np.pi/8, MAX_G)
+    nar_res   = np.zeros((MAX_REP, len(def_solvers), MAX_G, 3, n))
+    nar_opt_w = np.zeros((MAX_REP, MAX_G, n))
+    for i in range(MAX_REP):
+        # Random generate y at a given angle \theta
+        theta_pair  = [theta_angled(X_hat, theta) for theta in theta_rng]
+        Y           = [e[1] for e in theta_pair]
+        # Insert optimal values
+        nar_opt_w[i][:] = np.array([e[0] for e in theta_pair])
+
+        # Time, steps and candidate point for each solver
+        for j, (solver, name) in enumerate(zip(def_solvers, def_names)):
+            nar_res[i,j,:] = run_experiment(solver, Y, name, residual=False)
+    np.save('results/nar_res', nar_res)
+    np.save('results/nar_opt_w', nar_opt_w)
+
     # Test conditioning upper bound for QR*
     print('QR* conditioning upper bound')
     theta_rng = np.linspace(0, np.pi/2, MAX_G)
-    results   = np.zeros((MAX_REP, MAX_G, 3))
     opt_w     = np.zeros((MAX_REP, MAX_G, n))
     tilde_w   = np.zeros((MAX_REP, MAX_G, n))
     X_cond_ub = np.zeros((MAX_REP, MAX_G))
@@ -215,10 +242,6 @@ if __name__ == '__main__':
         X_cond_ub[i,:] = KX + KX**2 * np.tan(theta_rng)
         # y conditioning
         y_cond_ub[i,:] = KX / np.cos(theta_rng)
-    opt_w     = np.average(opt_w, axis=0)
-    tilde_w   = np.average(tilde_w, axis=0)
-    X_cond_ub = np.average(X_cond_ub, axis=0)
-    y_cond_ub = np.average(y_cond_ub, axis=0)
     np.save('results/opt_w',opt_w)
     np.save('results/tilde_w',tilde_w)
     np.save('results/X_cond_ub',X_cond_ub)
