@@ -484,9 +484,9 @@ As seen in figure \ref{fig:theta_narrow_time} in such interval the execution tim
   Model     &      Time (s) &   Residual &   Steps \\
   \hline
   LLS Numpy & 1.7487    &    37186.1 &  1      \\
-  Newton    & 0.0304131 &    37186.1 &  1      \\
-  LBFGS     & 0.0819783 &    37186.1 & 11.2143 \\
-  QR Numpy  & 1.10429   &    37186.1 &  1      \\
+  Newton    & 0.0304    &    37186.1 &  1      \\
+  LBFGS     & 0.0820    &    37186.1 & 11.2143 \\
+  QR Numpy  & 1.1043    &    37186.1 &  1      \\
   QR*       & 1.2718    &    37186.1 &  1      \\
   \end{tabular}
   \end{adjustbox}
