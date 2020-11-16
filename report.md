@@ -390,7 +390,7 @@ As specified in the project assignment, in our experiments the tall thin matrix 
 
 Because of the bottom $I$ block, the input matrix $\hat{X}$ has $n$ linearly independent rows and consequently full column rank.
 Therefore, a unique solution is expected from the linear least squares problem regardless of the possible values $y$.
-Nonetheless, as discussed in the previous section, the conditioning of the problem is dependent on $y$, precisely on the angle $\theta$ between the image of $\hat{X}$ and $y$. (Figure \ref{conditioning})
+Nonetheless, as discussed in the previous section, the conditioning of the problem is dependent on $y$, precisely on the angle $\theta$ between the image of $\hat{X}$ and $y$. Figure \ref{conditioning} shows how the two upper bounds of relative errors change by varying $\theta$ in $(0, \frac{\pi}{2})$, with both curves exploding when $\theta$ is near $\frac{\pi}{2}$.
 
 ![Relative conditioning of the problem for $\theta \in (0, \frac{\pi}{2})$ (log-scale) \label{conditioning}](assets/conditioning.png)
 
