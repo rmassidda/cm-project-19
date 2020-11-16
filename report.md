@@ -435,16 +435,13 @@ As already stated before, NumPy's \texttt{qr} applies a standard QR factorizatio
 
 \begin{table}[h]
   \centering
-  \caption{Average results over multiple runs with normal random extracted $y$}
+  \caption{Average execution in time in seconds over multiple runs with normal random extracted $y$}
   \label{table:qr_comparison}
   \begin{adjustbox}{min width=0.3\textwidth}
-  \begin{tabular}{lrr}
+  \begin{tabular}{ccc}
+    Numpy QR & QR* & QR \\
   \hline
-  Model   &     Time (s) &   Residual \\
-  \hline
-  Numpy QR &  1.07022 &    18.5621 \\
-  QR*      &  1.63437 &    18.5621 \\
-  QR       & 33.0972  &    18.5621 \\
+    1.07022 &  1.63437 & 33.0972  \\
   \end{tabular}
   \end{adjustbox}
 \end{table}
