@@ -3,22 +3,22 @@ import numpy as np
 import time
 
 
-"""Computes the Householder vector relative to an input
-   vector.
-
-Parameters
-----------
-x : ndarray, R^k
-    Input vector
-
-Returns
--------
-v : ndarray, R^k
-    Householder vector (unitary) relative to input vector x
-s : double
-    Norm of the input vector x
-"""
 def householder_vector(x):
+    """Computes the Householder vector relative to an input
+       vector.
+
+    Parameters
+    ----------
+    x : ndarray, R^k
+        Input vector
+
+    Returns
+    -------
+    v : ndarray, R^k
+        Householder vector (unitary) relative to input vector x
+    s : double
+        Norm of the input vector x
+    """
 
     if np.all(x==0):
         return np.zeros(x.shape[0]), 0
@@ -36,22 +36,22 @@ def householder_vector(x):
     return v, s
 
 
-"""Computes the thin Householder QR factorization of
-   a matrix.
-
-Parameters
-----------
-A : ndarray, R^(m x n)
-    Input matrix
-
-Returns
--------
-R : ndarray, R^(m x n)
-    The R matrix of the QR factorization
-hh_vects : list of ndarray
-    Householder vectors resulting from the factorization
-"""
 def qr(A):
+    """Computes the thin Householder QR factorization of
+       a matrix.
+
+    Parameters
+    ----------
+    A : ndarray, R^(m x n)
+        Input matrix
+
+    Returns
+    -------
+    R : ndarray, R^(m x n)
+        The R matrix of the QR factorization
+    hh_vects : list of ndarray
+        Householder vectors resulting from the factorization
+    """
 
     hh_vectors = []
     m, n = A.shape
@@ -75,26 +75,26 @@ def qr(A):
     return R, hh_vectors
 
 
-"""Computes the thin Householder QR factorization of
-   a matrix having X in R^(k x n) as its upper block
-   and I_n as its lower block.
-
-Parameters
-----------
-A : ndarray, R^(m x n) (m = k + n)
-    Input matrix
-
-l : int
-    dimension of the Householder vectors (k+1)
-
-Returns
--------
-R : ndarray, R^(m x n)
-    The R matrix of the QR factorization
-hh_vects : list of ndarray
-    Householder vectors (of dimension k+1) resulting from the factorization
-"""
 def modified_qr(A, l):
+    """Computes the thin Householder QR factorization of
+       a matrix having X in R^(k x n) as its upper block
+       and I_n as its lower block.
+
+    Parameters
+    ----------
+    A : ndarray, R^(m x n) (m = k + n)
+        Input matrix
+
+    l : int
+        dimension of Householder vectors (k+1)
+
+    Returns
+    -------
+    R : ndarray, R^(m x n)
+        The R matrix of the QR factorization
+    hh_vects : list of ndarray
+        Householder vectors (of dimension k+1) resulting from the factorization
+    """
     assert l > 0
 
     hh_vects = []
@@ -121,23 +121,23 @@ def modified_qr(A, l):
     return R, hh_vects
 
 
-"""Reconstructs the reduced Q1 matrix from a list of householder
-   vectors yielded by a standard thin QR factorization.
-
-Parameters
-----------
-hh_vects : list of ndarray
-    Householder vectors yielded by the thin QR factorization
-
-m : int
-    number of rows of the factorized matrix A
-
-Returns
--------
-Q1 : ndarray, R^(m x n)
-    The reduced Q1 matrix of the QR factorization
-"""
 def standard_q1(hh_vects, m):
+    """Reconstructs the reduced Q1 matrix from a list of householder
+       vectors yielded by a standard thin QR factorization.
+
+    Parameters
+    ----------
+    hh_vects : list of ndarray
+        Householder vectors yielded by the thin QR factorization
+
+    m : int
+        number of rows of the factorized matrix A
+
+    Returns
+    -------
+    Q1 : ndarray, R^(m x n)
+        The reduced Q1 matrix of the QR factorization
+    """
 
     n = len(hh_vects)
     Q = np.eye(m)
@@ -149,23 +149,23 @@ def standard_q1(hh_vects, m):
     return Q[:,:n]
 
 
-"""Reconstructs the Q matrix from a list of householder
-   vectors yielded by a standard or modified thin QR factorization.
-
-Parameters
-----------
-hh_vects : list of ndarray
-    Householder vectors yielded by the thin QR factorization
-
-m : int
-    number of rows of the factorized matrix A
-
-Returns
--------
-Q1 : ndarray, R^(m x n)
-    The reduced Q1 matrix of the QR factorization
-"""
 def q1(hh_vects, m):
+    """Reconstructs the Q matrix from a list of householder
+       vectors yielded by a standard or modified thin QR factorization.
+
+    Parameters
+    ----------
+    hh_vects : list of ndarray
+        Householder vectors yielded by the thin QR factorization
+
+    m : int
+        number of rows of the factorized matrix A
+
+    Returns
+    -------
+    Q1 : ndarray, R^(m x n)
+        The reduced Q1 matrix of the QR factorization
+    """
 
     n = len(hh_vects)
 
@@ -195,21 +195,21 @@ def q1(hh_vects, m):
     return Q1
 
 
-"""Solves the system Ux=b through back substitution.
-
-Parameters
-----------
-U : ndarray, R^(n x n)
-    upper triangular matrix
-
-b : ndarray, R^n
-
-Returns
--------
-x : ndarray, R^n
-    Solution to the system
-"""
 def back_substitution(U, b):
+    """Solves the system Ux=b through back substitution.
+
+    Parameters
+    ----------
+    U : ndarray, R^(n x n)
+        upper triangular matrix
+
+    b : ndarray, R^n
+
+    Returns
+    -------
+    x : ndarray, R^n
+        Solution to the system
+    """
 
     n = U.shape[1]
     x = np.zeros(n)
