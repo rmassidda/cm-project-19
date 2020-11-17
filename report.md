@@ -473,7 +473,7 @@ This phenomenon can also be observed in figure \ref{fig:r-convergence} where the
 
 The same metrics have been studied away from the extreme regions of $\theta$ for what concerns the conditioning.
 The average results in the interval $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$ are reported in table \ref{table:theta_narrow}, introducing the standard Newton method in the comparison.
-Given the quadratic nature of the problem, the Netwon method is able to get a candidate solution in just one step. With the same $\epsilon$ as the stopping condition, the L-BFGS requires instead multiple steps and achieves a bigger relative error on the solution. The relation between the relative error and the parameter $\epsilon$ is dealt in the following section.
+Given the quadratic nature of the problem, the Netwon method is able to get a candidate solution in just one step. With the same $\varepsilon$ as the stopping condition, the L-BFGS requires instead multiple steps and achieves a bigger relative error on the solution. The relation between the relative error and the parameter $\varepsilon$ is dealt in the following section.
 For what concerns the numerical methods, since Numpy QR and QR* employ almost identical algorithms, their respective measured relative errors are very close to each other.\
 As can be seen in Figure \ref{fig:theta_narrow_time}, in the same interval $(\frac{\pi}{8}, \frac{3\pi}{8})$ the execution time is constant for each method.
 
@@ -512,18 +512,18 @@ Figure \ref{fig:upper-bound} shows the significance of the theoretical upper bou
 \end{figure}
 
 ## Stopping condition L-BFGS
-The L-BFGS optimizer uses the $\epsilon$ parameter as a threshold to check the gradient norm $\|\nabla f(w)\|$, and to eventually stop the iteration.
-Intuitively the lower $\epsilon$ is set, the more the optimizer is able to obtain better solutions.
-This behavior is plotted in figure \ref{fig:narrow_relative_error}, where the relative error $\frac{\|\tilde{w}_* - w_*\|}{\|w_*\|}$ actually decreases with the value of the threshold $\epsilon$, reaching the precision of QR*.
+The L-BFGS optimizer uses the $\varepsilon$ parameter as a threshold to check the gradient norm $\|\nabla f(w)\|$, and to eventually stop the iteration.
+Intuitively the lower $\varepsilon$ is set, the more the optimizer is able to obtain better solutions.
+This behavior is plotted in figure \ref{fig:narrow_relative_error}, where the relative error $\frac{\|\tilde{w}_* - w_*\|}{\|w_*\|}$ actually decreases with the value of the threshold $\varepsilon$, reaching the precision of QR*.
 
 Anyhow, effects of conditioning are not negligible.
-Figure \ref{fig:near_pihalf} reports the relative error for $\theta$ approaching to $\frac{\pi}{2}$ for different $\epsilon$ thresholds.
+Figure \ref{fig:near_pihalf} reports the relative error for $\theta$ approaching to $\frac{\pi}{2}$ for different $\varepsilon$ thresholds.
 It should be noticed how lower thresholds can't be satisfied the more $\theta$ is near to $\frac{\pi}{2}$, in such case the computed relative error is \texttt{nan} and the line is interrupted.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{assets/narrow_relative_error.png}
-  \caption{Average relative error for the QR* method and the L-BFGS optimizer with different $\epsilon$ thresholds. $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$}
+  \caption{Average relative error for the QR* method and the L-BFGS optimizer with different $\varepsilon$ thresholds. $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$}
   \label{fig:narrow_relative_error}
 \end{figure}
 
@@ -531,7 +531,7 @@ It should be noticed how lower thresholds can't be satisfied the more $\theta$ i
 \begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{assets/near_pihalf_relative_error.png}
-  \caption{Average relative error for the QR* method and the L-BFGS optimizer with different $\epsilon$ thresholds. Lines are interrupted for \texttt{nan} values. $\theta\in (\frac{\pi}{2}-1,\frac{\pi}{2})$}
+  \caption{Average relative error for the QR* method and the L-BFGS optimizer with different $\varepsilon$ thresholds. Lines are interrupted for \texttt{nan} values. $\theta\in (\frac{\pi}{2}-1,\frac{\pi}{2})$}
   \label{fig:near_pihalf}
 \end{figure}
 
