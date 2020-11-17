@@ -563,9 +563,7 @@ Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly
     \hline
   \end{tabular}
   \end{adjustbox}
-  \newline
-  \vspace*{0.5 cm}
-  \newline
+  \newline\vspace*{0.5 cm}\newline
   \begin{adjustbox}{min width=0.4\textwidth}
   \begin{tabular}{l|ccc}
     \multicolumn{1}{c}{} & \multicolumn{3}{c}{$I$ L-BFGS} \\
@@ -585,9 +583,7 @@ Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly
     \hline
   \end{tabular}
   \end{adjustbox}
-  \newline
-  \vspace*{0.5 cm}
-  \newline
+  \newline\vspace*{0.5 cm}\newline
   \begin{adjustbox}{min width=0.4\textwidth}
   \begin{tabular}{l|ccc}
     \multicolumn{1}{c}{} & \multicolumn{3}{c}{$I$ BFGS} \\
@@ -606,6 +602,7 @@ Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly
     10 & 2.5165e-03 & 5.3245e-07 & 9.0174e+00 \\
   \end{tabular}
   \end{adjustbox}
+  \newline\vspace*{0.5 cm}\newline
 \end{table}
 
 \begin{figure}
