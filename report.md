@@ -512,7 +512,7 @@ Figure \ref{fig:upper-bound} shows the significance of the theoretical upper bou
 ## Initialization L-BFGS
 
 Two different initialization techniques have been tested for the L-BFGS algorithm, precisely the use of $H^0_i = I$ and $H^0_i = \gamma_i I$.
-To offer further insights, the BFGS algorithm has been implemented and compared, initializing it by using $H_0 = I$.
+To offer further insights, the BFGS algorithm has also been implemented and compared, initializing it by using $H_0 = I$.
 Table \ref{table:sample_run} shows how the three variants converge exactly in the same way.
 It is interesting that the use of $I$ to initialize both L-BFGS and BFGS results in the same sequence of step-size $\{\alpha_i\}$.
 Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly as expected. (Figure \ref{fig:LBFGS_r})
@@ -600,7 +600,6 @@ The L-BFGS algorithm has been tested for different values of memory $t \in (1,n)
 Whilst the memory size had no impact on the residual (figure \ref{fig:memory_residual}), a significant reduction of the number of steps occurs even for minimal amounts of memory.
 Anyhow the number of required steps quickly stabilizes, and it is not influenced by further memory increase.
 Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how the increase of the memory has an increasing effect on the time required by the algorithm and consequently on the time per step.
-Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how as $t$ grows the time per step and consequently the time required by the algorithm increase.
 
 \begin{figure}[h]
   \centering
