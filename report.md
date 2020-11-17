@@ -509,6 +509,30 @@ Figure \ref{fig:upper-bound} shows the significance of the theoretical upper bou
   \label{fig:upper-bound}
 \end{figure}
 
+## Stopping condition L-BFGS
+The L-BFGS optimizer uses the $\epsilon$ parameter as a threshold to check the gradient norm $\|\nabla f(w)\|$, and to eventually stop the iteration.
+Intuitively the lower $\epsilon$ is set, the more the optimizer is able to obtain better solutions.
+This behavior is plotted in figure \ref{fig:narrow_relative_error}, where the relative error $\frac{\|\tilde{w}_* - w_*\|}{\|w_*\|}$ actually decreases with the value of the threshold $\epsilon$, reaching the precision of QR*.
+
+Anyhow, effects of conditioning are not negligible.
+Figure \ref{fig:near_pihalf} reports the relative error for $\theta$ approaching to $\frac{\pi}{2}$ for different $\epsilon$ thresholds.
+It should be noticed how lower thresholds can't be satisfied the more $\theta$ is near to $\frac{\pi}{2}$, in such case the computed relative error is \texttt{nan} and the line is interrupted.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{assets/narrow_relative_error.png}
+  \caption{Average relative error for the QR* method and the L-BFGS optimizer with different $\epsilon$ thresholds. $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$}
+  \label{fig:narrow_relative_error}
+\end{figure}
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{assets/near_pihalf_relative_error.png}
+  \caption{Average relative error for the QR* method and the L-BFGS optimizer with different $\epsilon$ thresholds. Lines are interrupted for \texttt{nan} values. $\theta\in (\frac{\pi}{2}-1,\frac{\pi}{2})$}
+  \label{fig:near_pihalf}
+\end{figure}
+
 ## Initialization L-BFGS
 
 Two different initialization techniques have been tested for the L-BFGS algorithm, precisely the use of $H^0_i = I$ and $H^0_i = \gamma_i I$.
@@ -597,7 +621,7 @@ Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly
 ## Memory in L-BFGS
 
 The L-BFGS algorithm has been tested for different values of memory $t \in (1,n)$, the average results of multiple runs are reported in figure \ref{fig:memory}.
-Whilst the memory size had no impact on the residual (figure \ref{fig:memory_residual}), a significant reduction of the number of steps occurs even for minimal amounts of memory.
+Whilst the memory size had no impact neither on the residual (figure \ref{fig:memory_residual}) nor on the relative error, a significant reduction of the number of steps occurs even for minimal amounts of memory.
 Anyhow the number of required steps quickly stabilizes, and it is not influenced by further memory increase.
 Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how the increase of the memory has an increasing effect on the time required by the algorithm and consequently on the time per step.
 
