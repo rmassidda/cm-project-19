@@ -8,6 +8,8 @@ except ModuleNotFoundError:
 
 
 # Load results of the experiments from file
+rel_near_hp = np.load('results/rel_near_halfpi.npy')
+rel_nar     = np.load('results/rel_nar.npy')
 nar_res     = np.load('results/nar_res.npy')
 nar_opt_w   = np.load('results/nar_opt_w.npy')
 opt_w       = np.load('results/opt_w.npy')
@@ -24,6 +26,39 @@ X_cond      = np.load('results/theta_Xcond.npy')
 y_cond      = np.load('results/theta_ycond.npy')
 t_rng       = np.load('results/t_rng.npy')
 t_lbfgs     = np.load('results/t_lbfgs.npy')
+
+#
+# Relative error of L-BFGS near pi/2 with diff precision
+#
+# ((16,len(precision)))
+distance  = [np.pi/2 - 10**-d for d in range(8)]
+precision = ['QR*', r'$\epsilon=$ 1e-3', r'$\epsilon=$ 1e-6', r'$\epsilon=$ 1e-9']
+
+fig = plt.figure('near pihalf relative error')
+plt.xlabel(r'$\theta$')
+plt.yscale('log')
+locs, labels = plt.xticks()
+plt.xticks(range(8), labels=[r'$\frac{\pi}{2}$ - 1e-'+str(d) for d in range(8)],fontsize=9)
+# plt.xticks(range(8), labels=[r'$- 1e-'+str(d)+'$' for d in range(8)])
+for i, p in enumerate(precision):
+    plt.plot(range(8), rel_near_hp[:8,i], label=p)
+plt.legend(fontsize="x-large")
+plt.show()
+
+#
+# Precision of L-BFGS near pi/2
+#
+# ((MAX_G,len(precision)))
+theta_rng = np.linspace(np.pi/8, 3*np.pi/8, rel_nar.shape[0])
+precision = ['QR*', r'$\epsilon=$ 1e-3', r'$\epsilon=$ 1e-6', r'$\epsilon=$ 1e-9']
+
+fig = plt.figure('narrow relative error')
+plt.xlabel(r'$\theta$')
+plt.yscale('log')
+for i, p in enumerate(precision):
+    plt.plot(theta_rng, rel_nar[:, i], label=p)
+plt.legend(fontsize="x-large")
+plt.show()
 
 #
 # Narrow interval table

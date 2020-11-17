@@ -205,6 +205,62 @@ if __name__ == '__main__':
     MAX_G   = 30    # Granularity
     MAX_S   = 2048  # Maximum steps for the iterative methods
 
+    # Relative error for increasing memory in L-BFGS
+    # near to np.pi/2
+    precision = [0, 1e-3, 1e-6, 1e-9, 1e-12]
+    rel_near_halfpi = np.zeros((MAX_REP,16,len(precision)))
+    for distance in range(8):
+        print('Testing for theta=',np.pi/2 - 10**-distance)
+        for i in range(MAX_REP):
+            w_opt, y = theta_angled(X_hat, np.pi/2 - 10**-distance)
+            for j, eps in enumerate(precision):
+                if eps == 0:
+                    # Solve using QR*
+                    w, _ = mod_qr(y)
+                    rel  = np.linalg.norm(w_opt-w)/np.linalg.norm(w_opt)
+                else:
+                    # Solve using L-BFGS
+                    f, g, Q      = lls_functions(X_hat, X, y)
+                    params       = {}
+                    params['w']  = np.random.randn(n)
+                    params['gw'] = g(params['w'])
+                    opt  = LBFGS(**params)
+                    w, _ = opt.optimize(f,g,Q, eps=eps)
+                    rel  = np.linalg.norm(w_opt-w)/np.linalg.norm(w_opt)
+                # Insert result
+                rel_near_halfpi[i,distance,j] = rel
+    rel_near_halfpi = np.average(rel_near_halfpi, axis=0)
+    np.save('results/rel_near_halfpi', rel_near_halfpi)
+    print('Relative near np.pi/2 done')
+
+    # Relative error for increasing memory in L-BFGS
+    # near to np.pi/2
+    precision = [0, 1e-3, 1e-6, 1e-9, 1e-12]
+    rel_nar   = np.zeros((MAX_REP,MAX_G,len(precision)))
+    theta_rng = np.linspace(np.pi/8, 3*np.pi/8, MAX_G)
+    for z, theta in enumerate(theta_rng):
+        for i in range(MAX_REP):
+            w_opt, y = theta_angled(X_hat, theta)
+            for j, eps in enumerate(precision):
+                if eps == 0:
+                    # Solve using QR*
+                    w, _ = mod_qr(y)
+                    rel  = np.linalg.norm(w_opt-w)/np.linalg.norm(w_opt)
+                else:
+                    # Solve using L-BFGS
+                    f, g, Q      = lls_functions(X_hat, X, y)
+                    params       = {}
+                    params['w']  = np.random.randn(n)
+                    params['gw'] = g(params['w'])
+                    opt  = LBFGS(**params)
+                    w, _ = opt.optimize(f,g,Q, eps=eps)
+                    rel  = np.linalg.norm(w_opt-w)/np.linalg.norm(w_opt)
+                # Insert result
+                rel_nar[i,z,j] = rel
+    rel_nar = np.average(rel_nar, axis=0)
+    np.save('results/rel_nar', rel_nar)
+    print('Relative in narrow done')
+
     # Relative error for the solvers in pi/8, 3pi/8
     theta_rng = np.linspace(np.pi/8, 3*np.pi/8, MAX_G)
     nar_res   = np.zeros((MAX_REP, len(def_solvers), MAX_G, 3, n))
