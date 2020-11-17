@@ -433,7 +433,7 @@ Eventually, differences from the default parameters are discussed in each experi
 Table \ref{table:qr_comparison} shows a comparison between the standard QR, the modified QR (QR\*) and NumPy's \texttt{qr} which are all used in the context of a least squares problem. The most significative comparison is the one between QR and QR\*. With this particular instantiation of the input matrix $\hat{X}$, $k=m-n=20$ which is much smaller than $m=1785$. As predicted by the theoretical analysis, this brings the QR* version to outperform the standard one with a speedup greater than 20.\
 As already stated before, NumPy's \texttt{qr} applies a standard QR factorization similar to the one employed in our standard QR. However, for the reasons outlined above, NumPy's version is about 30 times faster than its Python equivalent and it also beats QR* even without employing any optimization relative to the specific input data.
 
-\begin{table}[h]
+\begin{table}
   \centering
   \caption{Average execution in time in seconds over multiple runs with normal random extracted $y$}
   \label{table:qr_comparison}
@@ -454,13 +454,13 @@ Figure \ref{fig:theta_residual} highlights how all the evaluated methods have al
 It is evident from figures \ref{fig:theta_time} and \ref{fig:theta_steps} that, as the conditioning of the problem worsen, the L-BFGS method isn't able to converge within the limit of the $i_{\textrm{MAX}}$ steps allowed.
 This phenomenon can also be observed in figure \ref{fig:r-convergence} where the average $r$ coefficient of multiple runs has been plotted against increasing values of $\theta$.
 
-\begin{figure}[h]
+\begin{figure}
   \includegraphics[width=0.5\textwidth]{assets/r-convergence.png}
   \caption{Average $r$-value for values $\theta \in (0, \frac{\pi}{2})$}
   \label{fig:r-convergence}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \subfloat[][Residual in log-scale]{\includegraphics[width=0.5\textwidth]{assets/theta_residual.png}\label{fig:theta_residual}}
   \qquad
@@ -475,7 +475,7 @@ The same metrics have been studied away from the extreme regions of $\theta$ for
 The average results in the interval $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$ are reported in table \ref{table:theta_narrow}, introducing the standard Newton method in the comparison. Since Numpy QR and QR* employ almost identical algorithms, their respective measured relative errors are very close to each other.\
 As can be seen in Figure \ref{fig:theta_narrow_time}, in the same interval $(\frac{\pi}{8}, \frac{3\pi}{8})$ the execution time is constant for each method.
 
-\begin{table}[h]
+\begin{table}
   \centering
   \caption{Comparison of different metrics obtained by averaging the results of multiple runs for $y$ such that $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$.}
   \label{table:theta_narrow}
@@ -494,7 +494,7 @@ As can be seen in Figure \ref{fig:theta_narrow_time}, in the same interval $(\fr
   \end{adjustbox}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{assets/theta_narrow_time.png}
   \caption{Average execution time in for the LLS problem for $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$}
@@ -503,7 +503,7 @@ As can be seen in Figure \ref{fig:theta_narrow_time}, in the same interval $(\fr
 
 Figure \ref{fig:upper-bound} shows the significance of the theoretical upper bound of the relative error with respect to perturbations of $\hat{X}$ of the order of machine precision \footnote{On our machine this was obtained by calling the method \texttt{np.finfo(np.float64).eps} $ \approx 2.22*10^{-16}$.}. By varying $\theta$ in $(0,\frac{\pi}{2})$, the upper bound is never exceeded by the measured relative error.
 
-\begin{figure}[h]
+\begin{figure}
   \includegraphics[width=0.5\textwidth]{assets/conditioning_upper-bound_Xhat.png}
   \caption{Upper bound of the relative error and measured relative error for $\theta \in (0,\frac{\pi}{2})$}
   \label{fig:upper-bound}
@@ -518,7 +518,7 @@ Anyhow, effects of conditioning are not negligible.
 Figure \ref{fig:near_pihalf} reports the relative error for $\theta$ approaching to $\frac{\pi}{2}$ for different $\epsilon$ thresholds.
 It should be noticed how lower thresholds can't be satisfied the more $\theta$ is near to $\frac{\pi}{2}$, in such case the computed relative error is \texttt{nan} and the line is interrupted.
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{assets/narrow_relative_error.png}
   \caption{Average relative error for the QR* method and the L-BFGS optimizer with different $\epsilon$ thresholds. $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$}
@@ -526,7 +526,7 @@ It should be noticed how lower thresholds can't be satisfied the more $\theta$ i
 \end{figure}
 
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{assets/near_pihalf_relative_error.png}
   \caption{Average relative error for the QR* method and the L-BFGS optimizer with different $\epsilon$ thresholds. Lines are interrupted for \texttt{nan} values. $\theta\in (\frac{\pi}{2}-1,\frac{\pi}{2})$}
@@ -541,7 +541,7 @@ Table \ref{table:sample_run} shows how the three variants converge exactly in th
 It is interesting that the use of $I$ to initialize both L-BFGS and BFGS results in the same sequence of step-size $\{\alpha_i\}$.
 Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly as expected. (Figure \ref{fig:LBFGS_r})
 
-\begin{table}[t]
+\begin{table}
   \caption{Sample run of L-BFGS initialized with $I$, $\gamma I$ and BFGS initialized with $I$.}
   \label{table:sample_run}
   \centering\begin{adjustbox}{min width=0.4\textwidth}
@@ -608,7 +608,7 @@ Regardless of the chosen initialization technique, L-BFGS converges $r$-linearly
   \end{adjustbox}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \subfloat[][log-scale]{\includegraphics[width=0.5\textwidth]{assets/LBFGS_r_log.png}\label{fig:LBFGS_r_log}}
   \qquad
@@ -625,7 +625,7 @@ Whilst the memory size had no impact neither on the residual (figure \ref{fig:me
 Anyhow the number of required steps quickly stabilizes, and it is not influenced by further memory increase.
 Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how the increase of the memory has an increasing effect on the time required by the algorithm and consequently on the time per step.
 
-\begin{figure}[h]
+\begin{figure}
   \centering
   \subfloat[][Residual in lin-scale]{\includegraphics[width=0.5\textwidth]{assets/memory_residual.png}\label{fig:memory_residual}}
   \qquad
