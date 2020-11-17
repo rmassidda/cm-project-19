@@ -472,7 +472,9 @@ This phenomenon can also be observed in figure \ref{fig:r-convergence} where the
 \end{figure}
 
 The same metrics have been studied away from the extreme regions of $\theta$ for what concerns the conditioning.
-The average results in the interval $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$ are reported in table \ref{table:theta_narrow}, introducing the standard Newton method in the comparison. Since Numpy QR and QR* employ almost identical algorithms, their respective measured relative errors are very close to each other.\
+The average results in the interval $\theta \in (\frac{\pi}{8}, \frac{3\pi}{8})$ are reported in table \ref{table:theta_narrow}, introducing the standard Newton method in the comparison.
+Given the quadratic nature of the problem, the Netwon method is able to get a candidate solution in just one step. With the same $\epsilon$ as the stopping condition, the L-BFGS requires instead multiple steps and achieves a bigger relative error on the solution. The relation between the relative error and the parameter $\epsilon$ is dealt in the following section.
+For what concerns the numerical methods, since Numpy QR and QR* employ almost identical algorithms, their respective measured relative errors are very close to each other.\
 As can be seen in Figure \ref{fig:theta_narrow_time}, in the same interval $(\frac{\pi}{8}, \frac{3\pi}{8})$ the execution time is constant for each method.
 
 \begin{table}
