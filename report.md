@@ -128,7 +128,7 @@ $$
 so that the sequence $\{w_i\}$ converges $r$-linearly.
 
 Firstly the objective function $f$ should be twice continuously differentiable.
-Given the formulation of the least squares problem this is immediately true, the gradient and the Hessian of the objective function are definable as in:
+Given the formulation of the least squares problem this is immediately true, since the gradient and the Hessian of the objective function are definable as in:
 
 $$
 \nabla f(w) = \hat{X}^T ( \hat{X} w - y ) \\
@@ -149,7 +149,7 @@ $$
 $$
 
 The matrix $XX^T$ is positive semi-definite, since $\forall z : z^T X X^T z = \|X^T z \| \geq 0$, therefore all the eigenvalues of the matrix are non-negative.
-Furthermore, according to the spectral theorem, since $XX^T$ is symmetric, there exists $U$ orthogonal matrix and $D$ diagonal containing the eigenvalues of $XX^T$.
+Furthermore, according to the spectral theorem, since $XX^T$ is symmetric, there exist $U$ orthogonal matrix and $D$ diagonal containing the eigenvalues of $XX^T$.
 
 $$
 \begin{split}
@@ -198,7 +198,7 @@ $$
 tr(H_{i+1}) \leq tr(H_i^0) + t M_2 \leq M_3
 $$
 
-On the other hand the $M_1$ constant is used, to lower bound the determinant of $H_{i+1}$, implying a lower bound for the smallest eigenvalue in the sequence of Hessian substitutes.
+On the other hand the $M_1$ constant is used to lower bound the determinant of $H_{i+1}$, implying a lower bound for the smallest eigenvalue in the sequence of Hessian substitutes.
 
 $$
 det(H_{i+1}) \geq det(H_i^0) + (\frac{M_1}{M_3})^t \geq M_4
@@ -216,7 +216,7 @@ If the constant $M_1$ was to be equal to zero, it would not be enough to prove t
 As already pointed out, given that the Hessian is positive definite, its eigenvalues and consequently $M_1$ are positive.
 
 Other then the three discussed assumptions, the theorem requires for the sequence of initializers $\{\|H^0_i\|\}$ to be bounded.
-This obviously depends on the initialization technique used to generate $H^0_i$, various techniques are suggested in the literature such as $H^0_k = \gamma_k I$ or $H^0_k = \gamma_k H_0$ where
+This obviously depends on the initialization technique used to generate $H^0_i$. Various techniques are suggested in the literature such as $H^0_k = \gamma_k I$ or $H^0_k = \gamma_k H_0$ where
 
 $$
 \gamma_k = \frac{s_{k-1}^T y_{k-1}}{\|y_{k-1}\|^2}
@@ -398,7 +398,7 @@ The problem of extracting a random vector $y$ is tackled in two different ways, 
 The first way is to extract $m$ random variables using a normal distribution, constructing so the $y$ vector by associating each component to a random variable. This is done by using the Numpy method `random.randn`.
 
 When more control over the conditioning of the problem is instead required, the vector $y$ is extracted considering the $\theta$ angle as a constraint.
-Firstly a vector $v$ perpendicular to the image is required, this can be done by selecting one of the columns of $Q_2$, from the $QR$ factorization of $\hat{X}$.
+Firstly a vector $v$ perpendicular to the image is required. This can be done by selecting one of the columns of $Q_2$ from the $QR$ factorization of $\hat{X}$.
 It is in fact immediate that for each $v$ column of $Q_2$ and for each $w \in \mathbb{R}^n$
 
 $$
@@ -416,12 +416,12 @@ $$
 The desired vector $y$ is finally obtainable by summing $\hat{X}w + v$.
 
 # Experimental results
-The implemented techniques have been thoroughly evaluated against themselves and against the NumPy built-in methods to solve the linear least squares problem.
+The implemented techniques have been thoroughly evaluated against themselves and against the Numpy built-in methods to solve the linear least squares problem.
 
 Many of the described tests report the average of multiple runs, this is aimed to ensure the reproducibility of the experimental results, especially when random behavior plays a role.
 The number of runs per experiment is fixed, moreover they are executed sequentially to avoid with certainty the effects of parallelization overhead.
 
-The two NumPy built-in methods used in this context are \texttt{lstsq}, which solves the least squares problem through a divide-and-conquer SVD based approach, and \texttt{qr}, which computes a standard QR factorization of a matrix through Householder reflectors as in our case. \texttt{lstsq} can be used directly as it is, while the call to the \texttt{qr} method has to be followed by a back substitution phase.
+The two Numpy built-in methods used in this context are \texttt{lstsq}, which solves the least squares problem through a divide-and-conquer SVD based approach, and \texttt{qr}, which computes a standard QR factorization of a matrix through Householder reflectors as in our case. \texttt{lstsq} can be used directly as it is, while the call to the \texttt{qr} method has to be followed by a back substitution phase.
 Both methods' source code point to different LAPACK core subroutines written in Fortran. This implies that these methods will most likely outperform any equivalent version written in Python because of the slowness of the interpreter. Nonetheless, they will be used to obtain interesting reference values for the experimental analysis.
 
 The L-BFGS method has been implemented using the two-loop recursion algorithm described in @nocedal_numerical_2006, due to the fact that it does not require to explicitly store the $H_i$ approximation.
@@ -430,8 +430,8 @@ By default the L-BFGS method initializes the implicit representation of the inve
 The execution of the optimizer halts when either when $\|\nabla f(w)\| < 1\mathrm{e}{-6}$ or after $i_{\textrm{MAX}} = 2048$ steps.
 Eventually, differences from the default parameters are discussed in each experiment when relevant.
 
-Table \ref{table:qr_comparison} shows a comparison between the standard QR, the modified QR (QR\*) and NumPy's \texttt{qr} which are all used in the context of a least squares problem. The most significative comparison is the one between QR and QR\*. With this particular instantiation of the input matrix $\hat{X}$, $k=m-n=20$ which is much smaller than $m=1785$. As predicted by the theoretical analysis, this brings the QR* version to outperform the standard one with a speedup greater than 20.\
-As already stated before, NumPy's \texttt{qr} applies a standard QR factorization similar to the one employed in our standard QR. However, for the reasons outlined above, NumPy's version is about 30 times faster than its Python equivalent and it also beats QR* even without employing any optimization relative to the specific input data.
+Table \ref{table:qr_comparison} shows a comparison between the standard QR, the modified QR (QR\*) and Numpy's \texttt{qr} which are all used in the context of a least squares problem. The most significative comparison is the one between QR and QR\*. With this particular instantiation of the input matrix $\hat{X}$, $k=m-n=20$ which is much smaller than $m=1785$. As predicted by the theoretical analysis, this brings the QR* version to outperform the standard one with a speedup greater than 20.\
+As already stated before, Numpy's \texttt{qr} applies a standard QR factorization similar to the one employed in our standard QR. However, for the reasons outlined above, Numpy's version is about 30 times faster than its Python equivalent and it also beats QR* even without employing any optimization relative to the specific input data.
 
 \begin{table}
   \centering
@@ -497,7 +497,7 @@ As can be seen in Figure \ref{fig:theta_narrow_time}, in the same interval $(\fr
 \begin{figure}
   \centering
   \includegraphics[width=0.5\textwidth]{assets/theta_narrow_time.png}
-  \caption{Average execution time in for the LLS problem for $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$}
+  \caption{Average execution time in seconds for the LLS problem for $\theta\in (\frac{\pi}{8},\frac{3\pi}{8})$}
   \label{fig:theta_narrow_time}
 \end{figure}
 
@@ -635,12 +635,13 @@ Despite the noisy peaks in figure \ref{fig:memory_time}, it is evident how the i
 
 # Conclusions
 
-In this report we have explored analytically and experimentally direct and iterative approaches to the least squares problem.\
+In this report we have explored analytically and experimentally direct and iterative approaches to the least squares problem.
+
 In the analytical sections, we have recalled the main properties of the algorithms.
 Firstly the L-BFGS method has been described and studied considering the peculiarities of the linear least squares problem. The theoretical results concerning the convergence of the method have been explored to ensure their relevance and satisfaction.\
 For what concerns the direct numerical approaches, we first recalled the structure of the standard thin QR factorization based on Householder reflectors. Then, we introduced a new modified version of the algorithm to be applied on matrices of the form specified in the project assignment. This brought the algorithm to be more efficient on this specific type of data while still maintaining the nice stability properties of the standard QR algorithm.
 
-In the experimental part of the report, we evaluated the Python implementations of the studied approaches on the ML-cup dataset by comparing them with each other and against NumPy's built-in methods. By doing this, we confirmed experimentally the main presuppositions outlined in the report.\
+In the experimental part of the report, we evaluated the Python implementations of the studied approaches on the ML-cup dataset by comparing them with each other and against Numpy's built-in methods. By doing this, we confirmed experimentally the main presuppositions outlined in the report.\
 We have studied different variations of the L-BFGS parameters reporting in detail the range of considered values and their outcome, also comparing them with other optimization techniques such as the Newton method and the standard BFGS method. The behaviour of the method for bad-conditioned problems has been analyzed in detail to highlight weaknesses of the technique.\
 For what concerns the direct approaches, the modified QR algorithm resulted around 20 times faster than the standard version. Moreover, we checked the behaviour of the algorithm with respect to its accuracy, which stayed below the theoretical upper bounds outlined in the analytical part of the report.
 
