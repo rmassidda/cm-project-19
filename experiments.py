@@ -205,6 +205,35 @@ if __name__ == '__main__':
     MAX_G   = 30    # Granularity
     MAX_S   = 2048  # Maximum steps for the iterative methods
 
+    # Relative error per step in L-BFGS
+    precision = [1e-3, 1e-6, 1e-9, 1e-12]
+    rel_conv  = np.zeros((MAX_REP*2,3,len(precision),MAX_S))
+    for i in range(MAX_REP*2):
+        print('Repetition', i)
+        w_opt = np.random.randn(n)
+        y = X_hat @ w_opt
+        f, g, Q = lls_functions(X_hat, X, y)
+        for j in range(3):
+            for z, p in enumerate(precision):
+                w  = np.random.randn(n)
+                gw = g(w)
+                if j == 0:
+                    opt  = LBFGS(w, gw, init='gamma')
+                elif j == 1:
+                    opt  = LBFGS(w, gw, init='identity')
+                else:
+                    opt  = BFGS(w, gw, np.eye(n))
+                w = np.array(opt.optimize(f,g,Q,eps=p,max_step=1024,conv_array=True))
+                rel = np.array([np.linalg.norm(w_opt-e)/np.linalg.norm(w_opt) for e in w])
+                # Remove nan
+                rel = np.where(np.isnan(rel), 0, rel)
+                # Insert result
+                print(i,j,z)
+                rel_conv[i,j,z,:rel.shape[0]] = rel
+    rel_conv = np.average(rel_conv, axis=0)
+    np.save('results/rel_conv', rel_conv)
+    print('Rel conv done')
+
     # Relative error for increasing memory in L-BFGS
     # near to np.pi/2
     precision = [0, 1e-3, 1e-6, 1e-9, 1e-12]

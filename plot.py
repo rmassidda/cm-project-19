@@ -8,6 +8,7 @@ except ModuleNotFoundError:
 
 
 # Load results of the experiments from file
+rel_conv    = np.load('results/rel_conv.npy')
 rel_near_hp = np.load('results/rel_near_halfpi.npy')
 rel_nar     = np.load('results/rel_nar.npy')
 nar_res     = np.load('results/nar_res.npy')
@@ -26,6 +27,26 @@ X_cond      = np.load('results/theta_Xcond.npy')
 y_cond      = np.load('results/theta_ycond.npy')
 t_rng       = np.load('results/t_rng.npy')
 t_lbfgs     = np.load('results/t_lbfgs.npy')
+
+#
+# Convergence for different precision
+#
+# ((len(precision),MAX_S))
+
+init = ['g LBFGS', 'i LBFGS', 'i BFGS']
+precision = [r'$\epsilon=$ 1e-3', r'$\epsilon=$ 1e-6', r'$\epsilon=$ 1e-9', r'$\epsilon=$ 1e-12']
+max_s = 32
+for z, p in enumerate(precision):
+    fig = plt.figure('rel conv '+p)
+    plt.xlabel('Steps')
+    plt.ylabel('Relative error')
+    plt.yscale('log')
+    plt.xscale('log')
+    for j, i in enumerate(init):
+        lim = np.where(rel_conv[j,z] == 0)[0][0]
+        plt.plot(range(lim), rel_conv[j,z,:lim], label=i)
+    plt.legend(fontsize="x-large")
+    plt.show()
 
 #
 # Relative error of L-BFGS near pi/2 with diff precision
