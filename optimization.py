@@ -208,7 +208,7 @@ class LBFGS(Optimizer):
         elif self.init == 'identity':
             init = self.I
         elif self.init == 'random':
-            init = self.random.randn(self.n)
+            init = np.random.randn(self.n)
 
         if self.perturbate is not None:
             init += np.random.normal(0,self.perturbate,self.n)
