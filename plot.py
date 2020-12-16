@@ -41,7 +41,7 @@ for z, p in enumerate(precision):
     plt.xlabel('Steps')
     plt.ylabel('Relative error')
     plt.yscale('log')
-    plt.xscale('log')
+    # plt.xscale('log')
     for j, i in enumerate(init):
         lim = np.where(rel_conv[j,z] == 0)[0][0]
         plt.plot(range(lim), rel_conv[j,z,:lim], label=i)
